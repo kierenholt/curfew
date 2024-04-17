@@ -1,3 +1,6 @@
 npm init
-npm install bns
+
+// forwarder repo
+https://github.com/AkshayViru/dns-forwarder/tree/main
+
 
