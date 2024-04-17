@@ -1,12 +1,13 @@
+import { RemoteInfo, Socket } from "dgram";
 import { DomainChecker } from "./domainChecker";
+import { DnsForwarder } from "./dnsForwarder";
 
 const dgram = require('dgram');
-const DnsForwarder = require('./dnsForwarder');
 
 export class DnsSocket {
     static PORT = 5300;
-    socket: any;
-    dnsForwarder: any;
+    socket: Socket;
+    dnsForwarder: DnsForwarder;
     domainChecker: DomainChecker;
 
     constructor(domainChecker: DomainChecker) {
@@ -18,21 +19,18 @@ export class DnsSocket {
             console.log('UDP server listening on port ', DnsSocket.PORT);
         });
         
-        this.socket.on('message', async (requestMessage: any, requestInfo: any) => {
+        this.socket.on('message', async (requestMessage: Buffer, requestInfo: RemoteInfo) => {
             //console.log(`Received request message from ${requestInfo.address}:${requestInfo.port}:`);
         
-            let response = this.dnsForwarder.get(requestMessage);
+            let response = await this.dnsForwarder.forward(requestMessage);
             if (response === null) {
-                try {
-                    await this.dnsForwarder.forward(requestMessage);
-                    response = this.dnsForwarder.get(requestMessage);
-                } catch (error) {
-                    console.error('Error forwarding request:', error);
-                    this.dnsForwarder.close();
-                    return;
-                }
+                console.error('Error forwarding request:');
             }
         
+            // overwrite id
+            response[0] = requestMessage[0];
+            response[1] = requestMessage[1];
+
             this.socket.send(Buffer.from(response), requestInfo.port, requestInfo.address, (err: any) => {
                 if (err) {
                     console.error(`Error sending response: ${err.message}`);

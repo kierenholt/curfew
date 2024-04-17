@@ -100,4 +100,4 @@ function getDomainName(request, index) {
         d: domainName
     };
 }
-//# sourceMappingURL=dnsParser.js.map
+//# sourceMappingURL=dnsPacket.js.map
