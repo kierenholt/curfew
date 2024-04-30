@@ -18,7 +18,7 @@ class DnsSocket {
         this.dnsForwarder = new dnsForwarder_1.DnsForwarder();
         this.domainChecker = domainChecker;
         this.socket.bind(DnsSocket.PORT, () => {
-            console.log('UDP server listening on port ', DnsSocket.PORT);
+            console.log('DNS server listening on UDP port ', DnsSocket.PORT);
         });
         this.socket.on('message', (requestMessage, requestInfo) => __awaiter(this, void 0, void 0, function* () {
             //console.log(`Received request message from ${requestInfo.address}:${requestInfo.port}:`);

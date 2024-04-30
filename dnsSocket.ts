@@ -16,7 +16,7 @@ export class DnsSocket {
         this.domainChecker = domainChecker;
 
         this.socket.bind(DnsSocket.PORT, () => {
-            console.log('UDP server listening on port ', DnsSocket.PORT);
+            console.log('DNS server listening on UDP port ', DnsSocket.PORT);
         });
         
         this.socket.on('message', async (requestMessage: Buffer, requestInfo: RemoteInfo) => {
