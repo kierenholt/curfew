@@ -192,7 +192,7 @@ Options.opts = {
     },
     28: {
         name: 'Broadcast Address',
-        typefunction: 'IP',
+        type: 'IP',
         config: 'broadcast',
         default: function (server) {
             const range = server.config('range');

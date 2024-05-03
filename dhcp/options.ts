@@ -200,7 +200,7 @@ export class Options {
         },
         28: {
             name: 'Broadcast Address',
-            typefunction: 'IP',
+            type: 'IP',
             config: 'broadcast',
             default: function (server: DhcpServer) {
 

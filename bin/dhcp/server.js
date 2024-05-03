@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DhcpServer = void 0;
 const dhcp_1 = require("./dhcp");
@@ -6,12 +9,10 @@ const lease_1 = require("./lease");
 const request_1 = require("./request");
 const seqbuffer_1 = require("./seqbuffer");
 const options_1 = require("./options");
+const events_1 = __importDefault(require("events"));
 const dgram = require('dgram');
-const EventEmitter = require('events').EventEmitter;
 const Tools = require('./tools.js');
-const SERVER_PORT = 67;
-const CLIENT_PORT = 68;
-class DhcpServer extends EventEmitter {
+class DhcpServer extends events_1.default {
     constructor(config, listenOnly = false) {
         super();
         // Config (cache) object
@@ -32,7 +33,7 @@ class DhcpServer extends EventEmitter {
             }
             this._req = req;
             if (req.op !== dhcp_1.BOOTREQUEST) {
-                this.emit('error', new Error('Malformed packet'), req);
+                //this.emit('error', new Error('Malformed packet'), req);
                 return;
             }
             if (!req.options[53]) {
@@ -247,16 +248,13 @@ class DhcpServer extends EventEmitter {
         }
     }
     handleDiscover(req) {
-        console.log('Handle Discover', req);
+        //console.log('Handle Discover', req);
         const lease = this._state[req.chaddr] = this._state[req.chaddr] || new lease_1.Lease();
         lease.address = this._selectAddress(req.chaddr, req);
         lease.leasePeriod = this.config('leaseTime');
         lease.server = this.config('server');
         lease.state = 'OFFERED';
-        this.sendOffer(req);
-    }
-    sendOffer(req) {
-        console.log('Send Offer');
+        //console.log('discovery message from : ', JSON.stringify(req));
         // Formulate the response object
         const ans = {
             op: dhcp_1.BOOTREPLY,
@@ -281,20 +279,17 @@ class DhcpServer extends EventEmitter {
         };
         // Send the actual data
         // INADDR_BROADCAST : 68 <- SERVER_IP : 67
-        //console.log(ans);
+        //console.log('sending offer:', JSON.stringify(ans));
         this._send(this.config('broadcast'), ans);
     }
     handleRequest(req) {
-        console.log('Handle Request', req);
+        //console.log('accept offer from ', JSON.stringify(req));
         const lease = this._state[req.chaddr] = this._state[req.chaddr] || new lease_1.Lease;
         lease.address = this._selectAddress(req.chaddr);
         lease.leasePeriod = this.config('leaseTime');
         lease.server = this.config('server');
         lease.state = 'BOUND';
         lease.bindTime = new Date;
-        this.sendAck(req);
-    }
-    sendAck(req) {
         //console.log('Send ACK');
         // Formulate the response object
         const ans = {
@@ -321,8 +316,10 @@ class DhcpServer extends EventEmitter {
         this.emit('bound', this._state);
         // Send the actual data
         // INADDR_BROADCAST : 68 <- SERVER_IP : 67
+        //console.log('acknowledge sent to ',JSON.stringify(ans));
         this._send(this.config('broadcast'), ans);
     }
+    //NOT USED
     sendNak(req) {
         //console.log('Send NAK');
         // Formulate the response object
@@ -352,7 +349,7 @@ class DhcpServer extends EventEmitter {
     }
     handleRelease() { }
     handleRenew() { }
-    listen(port = SERVER_PORT, host = dhcp_1.INADDR_ANY) {
+    listen(port = dhcp_1.SERVER_PORT, host = dhcp_1.INADDR_ANY) {
         this._sock.bind(port, host, () => {
             this._sock.setBroadcast(true);
         });
@@ -362,7 +359,7 @@ class DhcpServer extends EventEmitter {
     }
     _send(host, req) {
         const sb = seqbuffer_1.SeqBuffer.fromRequest(req);
-        this._sock.send(sb._data, 0, sb._w, CLIENT_PORT, host, (err, bytes) => {
+        this._sock.send(sb._data, 0, sb._w, dhcp_1.CLIENT_PORT, host, (err, bytes) => {
             if (err) {
                 console.log(err);
             }

@@ -1,6 +1,8 @@
+import { DhcpClient } from "./dhcp/client";
+import { CLIENT_PORT } from "./dhcp/dhcp";
 import { Options } from "./dhcp/options";
 import { DhcpServer } from "./dhcp/server";
-import { DnsSocket } from "./dnsSocket";
+import { DnsServer } from "./dns/dnsServer";
 import { DomainChecker } from "./domainChecker";
 
 async function run() {
@@ -26,8 +28,27 @@ async function run() {
 
     s.listen();
 
+
     //DNS SERVER
-    let server = new DnsSocket(new DomainChecker());
+    let server = new DnsServer(new DomainChecker());
     await new Promise(() => {});
 }
 run();
+
+
+/*
+    //DHCP CLIENT
+    const c = new DhcpClient({});
+
+    s.on('bound', function (state) {
+        console.log("State: ", state);
+    });
+  
+    c.listen(CLIENT_PORT, "0.0.0.0", () => {
+        console.log("sending discover");
+        c.sendDiscover();
+    });
+
+
+
+*/

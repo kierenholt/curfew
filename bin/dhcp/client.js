@@ -1,21 +1,21 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DhcpClient = void 0;
 const dhcp_1 = require("./dhcp");
 const lease_1 = require("./lease");
+const events_1 = __importDefault(require("events"));
+const options_1 = require("./options");
+const request_1 = require("./request");
+const seqbuffer_1 = require("./seqbuffer");
 const dgram = require('dgram');
 const os = require('os');
-const EventEmitter = require('events').EventEmitter;
-const Options = require('./options.js');
-const Protocol = require('./protocol.js');
 const Tools = require('./tools.js');
-const SERVER_PORT = 67;
-const CLIENT_PORT = 68;
-class DhcpClient extends EventEmitter {
+class DhcpClient extends events_1.default {
     constructor(config) {
         super();
-        // Socket handle
-        this._sock = null;
         // Config (cache) object
         this._conf = null;
         // Current client state
@@ -26,7 +26,7 @@ class DhcpClient extends EventEmitter {
         sock.on('message', (buf) => {
             let req;
             try {
-                req = Protocol.parse(buf);
+                req = new request_1.DhcpRequest(buf);
             }
             catch (e) {
                 this.emit('error', e);
@@ -34,7 +34,7 @@ class DhcpClient extends EventEmitter {
             }
             this._req = req;
             if (req.op !== dhcp_1.BOOTREPLY) {
-                this.emit('error', new Error('Malformed packet'), req);
+                //this.emit('error', new Error('Malformed packet'), req);
                 return;
             }
             if (!req.options[53]) {
@@ -95,7 +95,7 @@ class DhcpClient extends EventEmitter {
             const ft = this._conf.features;
             if (ft) {
                 for (let f of ft) {
-                    let id = Options.conf[f];
+                    let id = options_1.Options.conf[f];
                     if (id) {
                         id = parseInt(id, 10);
                         if (def.indexOf(id) === -1) {
@@ -225,7 +225,7 @@ class DhcpClient extends EventEmitter {
             for (let id in options) {
                 if (id === '53' || id === '51' || id === '58' || id === '59')
                     continue;
-                const conf = Options.opts[id];
+                const conf = options_1.Options.opts[id];
                 const key = conf.config || conf.attr;
                 if (conf.enum) {
                     this._state.options[key] = conf.enum[options[id]];
@@ -347,8 +347,8 @@ class DhcpClient extends EventEmitter {
         // Send the actual data
         this._send(dhcp_1.INADDR_BROADCAST, ans); // Send release directly to server
     }
-    listen(port, host, fn) {
-        this._sock.bind(port || CLIENT_PORT, host || dhcp_1.INADDR_ANY, () => {
+    listen(port = dhcp_1.CLIENT_PORT, host = dhcp_1.INADDR_ANY, fn) {
+        this._sock.bind(port, host, () => {
             this._sock.setBroadcast(true);
             if (fn instanceof Function) {
                 process.nextTick(fn);
@@ -359,8 +359,8 @@ class DhcpClient extends EventEmitter {
         this._sock.close(callback);
     }
     _send(host, data) {
-        const sb = Protocol.format(data);
-        this._sock.send(sb._data, 0, sb._w, SERVER_PORT, host, (err, bytes) => {
+        const sb = seqbuffer_1.SeqBuffer.fromRequest(data);
+        this._sock.send(sb._data, 0, sb._w, dhcp_1.SERVER_PORT, host, (err, bytes) => {
             if (err) {
                 console.log(err);
             }

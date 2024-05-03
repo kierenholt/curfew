@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const options_1 = require("./dhcp/options");
 const server_1 = require("./dhcp/server");
-const dnsSocket_1 = require("./dnsSocket");
+const dnsServer_1 = require("./dns/dnsServer");
 const domainChecker_1 = require("./domainChecker");
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -36,9 +36,25 @@ function run() {
         });
         s.listen();
         //DNS SERVER
-        let server = new dnsSocket_1.DnsSocket(new domainChecker_1.DomainChecker());
+        let server = new dnsServer_1.DnsServer(new domainChecker_1.DomainChecker());
         yield new Promise(() => { });
     });
 }
 run();
+/*
+    //DHCP CLIENT
+    const c = new DhcpClient({});
+
+    s.on('bound', function (state) {
+        console.log("State: ", state);
+    });
+  
+    c.listen(CLIENT_PORT, "0.0.0.0", () => {
+        console.log("sending discover");
+        c.sendDiscover();
+    });
+
+
+
+*/ 
 //# sourceMappingURL=run.js.map

@@ -230,30 +230,7 @@ class SeqBuffer {
                 // Write length
                 this.addUInt8(len);
                 // Write actual data
-                if (opt.type == "UInt8") {
-                    this.addUInt8(val);
-                }
-                if (opt.type == "Int8") {
-                    this.addInt8(val);
-                }
-                if (opt.type == "UInt8s") {
-                    this.addUInt8s(val);
-                }
-                if (opt.type == "UInt16") {
-                    this.addUInt16(val);
-                }
-                if (opt.type == "Int16") {
-                    this.addInt16(val);
-                }
-                if (opt.type == "UInt16s") {
-                    this.addUInt16s(val);
-                }
-                if (opt.type == "UInt32") {
-                    this.addUInt32(val);
-                }
-                if (opt.type == "Int32") {
-                    this.addInt32(val);
-                }
+                this['add' + opt.type](val);
             }
         }
     }
@@ -271,36 +248,12 @@ class SeqBuffer {
             else {
                 let len = this.getUInt8();
                 if (optIndex in options_1.Options.opts) {
-                    switch (options_1.Options.opts[optIndex].type) {
-                        case "Int8":
-                            options[optIndex] = this.getInt8();
-                            break;
-                        case "Int16":
-                            options[optIndex] = this.getInt16();
-                            break;
-                        case "Int32":
-                            options[optIndex] = this.getInt32();
-                            break;
-                        case "UInt8":
-                            options[optIndex] = this.getUInt8();
-                            break;
-                        case "UInt8s":
-                            options[optIndex] = this.getUInt8s(len);
-                            break;
-                        case "UInt16":
-                            options[optIndex] = this.getUInt16();
-                            break;
-                        case "UInt16s":
-                            options[optIndex] = this.getUInt16s(len);
-                            break;
-                        case "UInt32":
-                            options[optIndex] = this.getUInt32();
-                            break;
-                    }
+                    options[optIndex] = this['get' + options_1.Options.opts[optIndex].type](len);
                 }
                 else {
                     this._r += len;
                     console.error('Option ' + optIndex + ' not known');
+                    //throw("option not known");
                 }
             }
         }

@@ -1,22 +1,20 @@
 import { Socket } from "dgram";
-import { BOOTREPLY, BOOTREQUEST, DHCPACK, DHCPDISCOVER, DHCPNAK, DHCPOFFER, DHCPRELEASE, DHCPREQUEST, INADDR_ANY, INADDR_BROADCAST } from "./dhcp";
+import { BOOTREPLY, BOOTREQUEST, CLIENT_PORT, DHCPACK, DHCPDISCOVER, DHCPNAK, DHCPOFFER, DHCPRELEASE, DHCPREQUEST, INADDR_ANY, INADDR_BROADCAST, SERVER_PORT } from "./dhcp";
 import { Lease } from "./lease";
+import EventEmitter from "events";
+import { Options } from "./options";
+import { DhcpRequest } from "./request";
+import { SeqBuffer } from "./seqbuffer";
 
 
 const dgram = require('dgram');
 const os = require('os');
-const EventEmitter = require('events').EventEmitter;
 
-const Options = require('./options.js');
-const Protocol = require('./protocol.js');
 const Tools = require('./tools.js');
-
-const SERVER_PORT = 67;
-const CLIENT_PORT = 68;
 
 export class DhcpClient extends EventEmitter {
     // Socket handle
-    _sock: any = null;
+    _sock: Socket;
 
     // Config (cache) object
     _conf: any = null;
@@ -32,12 +30,12 @@ export class DhcpClient extends EventEmitter {
 
         const sock: Socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
-        sock.on('message', (buf: any) => {
+        sock.on('message', (buf: Buffer) => {
 
             let req;
 
             try {
-                req = Protocol.parse(buf);
+                req = new DhcpRequest(buf);
             } catch (e) {
                 this.emit('error', e);
                 return;
@@ -46,7 +44,7 @@ export class DhcpClient extends EventEmitter {
             this._req = req;
 
             if (req.op !== BOOTREPLY) {
-                this.emit('error', new Error('Malformed packet'), req);
+                //this.emit('error', new Error('Malformed packet'), req);
                 return;
             }
 
@@ -434,9 +432,9 @@ export class DhcpClient extends EventEmitter {
         this._send(INADDR_BROADCAST, ans); // Send release directly to server
     }
 
-    listen(port: any, host: any, fn: any) {
+    listen(port:number = CLIENT_PORT, host:string =  INADDR_ANY, fn: any) {
 
-        this._sock.bind(port || CLIENT_PORT, host || INADDR_ANY, () => {
+        this._sock.bind(port , host, () => {
             this._sock.setBroadcast(true);
             if (fn instanceof Function) {
                 process.nextTick(fn);
@@ -451,7 +449,7 @@ export class DhcpClient extends EventEmitter {
 
     _send(host: any, data: any) {
 
-        const sb = Protocol.format(data);
+        const sb = SeqBuffer.fromRequest(data);
     
         this._sock.send(sb._data, 0, sb._w, SERVER_PORT, host, (err: any, bytes: any) => {
           if (err) {

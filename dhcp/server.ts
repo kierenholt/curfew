@@ -1,17 +1,15 @@
 import { Socket } from "dgram";
-import { BOOTREPLY, BOOTREQUEST, DHCPACK, DHCPDISCOVER, DHCPNAK, DHCPOFFER, DHCPREQUEST, INADDR_ANY } from "./dhcp";
+import { BOOTREPLY, BOOTREQUEST, CLIENT_PORT, DHCPACK, DHCPDISCOVER, DHCPNAK, DHCPOFFER, DHCPREQUEST, INADDR_ANY, SERVER_PORT } from "./dhcp";
 import { Lease } from "./lease";
 import { DhcpRequest } from "./request";
 import { IRequest, SeqBuffer } from "./seqbuffer";
 import { Options } from "./options";
+import EventEmitter from "events";
 
 const dgram = require('dgram');
-const EventEmitter = require('events').EventEmitter;
 
 const Tools = require('./tools.js');
 
-const SERVER_PORT = 67;
-const CLIENT_PORT = 68;
 
 export class DhcpServer extends EventEmitter {
     // Socket handle
@@ -45,7 +43,7 @@ export class DhcpServer extends EventEmitter {
             this._req = req;
 
             if (req.op !== BOOTREQUEST) {
-                this.emit('error', new Error('Malformed packet'), req);
+                //this.emit('error', new Error('Malformed packet'), req);
                 return;
             }
 
@@ -305,7 +303,7 @@ export class DhcpServer extends EventEmitter {
     }
 
     handleDiscover(req: IRequest) {
-        console.log('Handle Discover', req);
+        //console.log('Handle Discover', req);
 
         const lease = this._state[req.chaddr] = this._state[req.chaddr] || new Lease();
         lease.address = this._selectAddress(req.chaddr, req);
@@ -313,12 +311,7 @@ export class DhcpServer extends EventEmitter {
         lease.server = this.config('server');
         lease.state = 'OFFERED';
 
-        this.sendOffer(req);
-    }
-
-    sendOffer(req: IRequest) {
-        
-        console.log('Send Offer');
+        //console.log('discovery message from : ', JSON.stringify(req));
 
         // Formulate the response object
         const ans = {
@@ -345,12 +338,12 @@ export class DhcpServer extends EventEmitter {
 
         // Send the actual data
         // INADDR_BROADCAST : 68 <- SERVER_IP : 67
-        //console.log(ans);
+        //console.log('sending offer:', JSON.stringify(ans));
         this._send(this.config('broadcast'), ans);
     }
 
     handleRequest(req: IRequest) {
-        console.log('Handle Request', req);
+        //console.log('accept offer from ', JSON.stringify(req));
 
         const lease = this._state[req.chaddr] = this._state[req.chaddr] || new Lease;
         lease.address = this._selectAddress(req.chaddr);
@@ -359,10 +352,6 @@ export class DhcpServer extends EventEmitter {
         lease.state = 'BOUND';
         lease.bindTime = new Date;
 
-        this.sendAck(req);
-    }
-
-    sendAck(req: IRequest) {
         //console.log('Send ACK');
         // Formulate the response object
         const ans = {
@@ -391,9 +380,12 @@ export class DhcpServer extends EventEmitter {
 
         // Send the actual data
         // INADDR_BROADCAST : 68 <- SERVER_IP : 67
+        //console.log('acknowledge sent to ',JSON.stringify(ans));
         this._send(this.config('broadcast'), ans);
     }
 
+
+    //NOT USED
     sendNak(req: IRequest) {
         //console.log('Send NAK');
         // Formulate the response object
@@ -420,6 +412,7 @@ export class DhcpServer extends EventEmitter {
         };
 
         // Send the actual data
+        
         this._send(this.config('broadcast'), ans);
     }
 
@@ -427,8 +420,7 @@ export class DhcpServer extends EventEmitter {
 
     handleRenew() {}
 
-    listen(port: any = SERVER_PORT, 
-        host: any = INADDR_ANY) {
+    listen(port: any = SERVER_PORT, host: any = INADDR_ANY) {
         this._sock.bind(port, host, () => {
             this._sock.setBroadcast(true);
         });
