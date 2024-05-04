@@ -1,6 +1,6 @@
 import { Cache } from "./cache";
 import { Socket } from "dgram";
-import { DnsPacket2 as DnsPacket } from "./dnsPacket";
+import { DnsPacket as DnsPacket } from "./dnsPacket";
 const dgram = require('dgram');
 
 export class DnsForwarder {
@@ -8,10 +8,12 @@ export class DnsForwarder {
     socket: Socket;
     UPSTREAM_SERVER_IP: string = '1.1.1.1';
     TTL: number = 30;
+    port: number;
 
-    constructor() {
-        this.socket = dgram.createSocket('udp4');
+    constructor(port: number, socket: Socket) {
+        this.socket = socket;
         this.cache = new Cache();
+        this.port = port;
     }
 
     forward(request: Buffer): Promise<Buffer> {
@@ -23,15 +25,20 @@ export class DnsForwarder {
             return Promise.resolve(cached);
         }
         return new Promise((resolve, reject) => {
-            this.socket.send(request, 53, this.UPSTREAM_SERVER_IP, (error: any) => {
+            this.socket.send(request, this.port, this.UPSTREAM_SERVER_IP, (error: any) => {
                 if (error) {
                     console.error('Error sending message:', error);
                     this.socket.close();
                 } else {
                     this.socket.once('message', (responseMsg: Buffer, responseInfo: any) => {
-                        responseMsg = this.overrideTTL(responseMsg);
-                        this.cache.upsert(requestPacket, responseMsg);
+                        try {
+                            responseMsg = this.overrideTTL(responseMsg);
+                        }
+                        catch {
+                            console.error("error in override TTL for ", responseMsg);
+                        }
                         resolve(responseMsg);
+                        this.cache.upsert(requestPacket, responseMsg);
                     });
                 }
             });
@@ -44,6 +51,7 @@ export class DnsForwarder {
 
     overrideTTL(buf: Buffer): Buffer {
         let packet = DnsPacket.fromBuffer(buf);
+        console.log(JSON.stringify(packet));
         packet.answers.forEach(a => a.ttl = this.TTL);
         return packet.writeToBuffer();
     }

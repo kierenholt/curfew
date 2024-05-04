@@ -18,12 +18,12 @@ export class Header {
 
     static fromBuffer(buf: Buffer, i: number): {h: Header, i: number} {
         i -= 2;
-        let id = buf.readInt16BE(i+=2);
-        let flags = buf.readInt16BE(i+=2);
-        let qdcount = buf.readInt16BE(i+=2);
-        let ancount = buf.readInt16BE(i+=2);
-        let nscount = buf.readInt16BE(i+=2);
-        let arcount = buf.readInt16BE(i+=2);
+        let id = buf.readUInt16BE(i+=2);
+        let flags = buf.readUInt16BE(i+=2);
+        let qdcount = buf.readUInt16BE(i+=2);
+        let ancount = buf.readUInt16BE(i+=2);
+        let nscount = buf.readUInt16BE(i+=2);
+        let arcount = buf.readUInt16BE(i+=2);
         return { h: new Header(id, flags, qdcount, ancount, nscount, arcount), i: i+2 };
     }
 
@@ -47,4 +47,8 @@ export class Header {
     }
 
     get byteLength():number { return 12; }
+
+    static fromObject(obj: any): Header {
+        return new Header(obj.id, obj.flags, obj.qdcount, obj.ancount, obj.nscount, obj.arcount);
+    }
 }

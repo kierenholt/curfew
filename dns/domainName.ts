@@ -1,5 +1,4 @@
 
-
 export class DomainName {
     name: string;
 
@@ -8,7 +7,8 @@ export class DomainName {
     }
 
     static fromBuffer(buf: Buffer, i: number): {d: DomainName, i: number} {
-        let obj = getDomainName(buf, i);
+        let obj = getDomainName(buf, i, true);
+        //console.log(obj.d);
         return { d: new DomainName(obj.d), i: obj.i };
     }
 
@@ -29,33 +29,44 @@ export class DomainName {
     get byteLength(): number {
         return this.name.length+2;
     }
+
+    static fromObject(obj: any): DomainName {
+        return new DomainName(obj.name);
+    }
 }
 
 
-export function getDomainName(buf: Buffer, index: number): {i: number, d: string} {
-    let domainName = "";
-    if((buf[index] & 0xC0) === 0xC0) { //handle message compression
-        let {i: _, d: domainName} = getDomainName(buf, buf[index+1]);
-        index+=2;
-        return {
-            i: index, 
-            d: domainName
-        };
-    }
-    let labelLength = buf.readInt8(index);
-    index++;
-    domainName += buf.subarray(index, index + labelLength).toString('utf8');
-    index+=labelLength;
-    while (buf.readInt8(index) !== 0) {
-        domainName += ".";
-        labelLength = buf.readInt8(index);
-        index++;
-        domainName += buf.subarray(index, index + labelLength).toString('utf8');
-        index+=labelLength;
+export function getDomainName(buf: Buffer, index: number, first: boolean = false): {i: number, d: string} {
+
+    if (isNaN(index)) {
+        throw("index cannot be NaN");
     }
 
-    return {
-        i: index+1,
-        d: domainName
+    let dot = first ? "" : ".";
+
+    if((buf[index] & 0xC0) === 0xC0) { //handle message compression
+        let offset = 0x3fff & buf.readUInt16BE(index);
+        let next = getDomainName(buf, offset, first);
+        return {
+            i: index + 2, 
+            d: next.d
+        };
     }
+    let labelLength = buf[index];
+    if (labelLength == 0)
+    {
+        return {
+            i: index+1,
+            d: ""
+        }
+    }
+    
+    let domainName = buf.subarray(index + 1, index + labelLength + 1).toString('utf8');
+    let next = getDomainName(buf, index + labelLength + 1);
+    return {
+        i: next.i,
+        d: dot + domainName + next.d
+    }; 
+
+
 }

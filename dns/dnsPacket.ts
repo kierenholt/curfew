@@ -7,7 +7,7 @@ export interface HasUID {
     cacheUID: string;
 }
 
-export class DnsPacket2 {
+export class DnsPacket {
 
     header: Header;
     questions: Question[] = [];
@@ -23,7 +23,7 @@ export class DnsPacket2 {
         this.additionals = additionals;
     }
 
-    static fromBuffer(buf: Buffer): DnsPacket2 {
+    static fromBuffer(buf: Buffer): DnsPacket {
         let obj: any = Header.fromBuffer(buf, 0);
         let header = obj.h;
         let questions = [];
@@ -34,19 +34,19 @@ export class DnsPacket2 {
         let answers = [];
         for(let i=0; i < header.ancount; i++){
             obj = Answer.fromBuffer(buf, obj.i);
-            answers.push(obj.r);
+            answers.push(obj.a);
         }
         let authorities = [];
         for(let i=0; i < header.nscount; i++){
             obj = Answer.fromBuffer(buf, obj.i);
-            authorities.push(obj.r);
+            authorities.push(obj.a);
         }
         let additionals = [];
         for(let i=0; i < header.arcount; i++){
             obj = Answer.fromBuffer(buf, obj.i);
-            additionals.push(obj.r);
+            additionals.push(obj.a);
         }
-        return new DnsPacket2(header, questions, answers, authorities, additionals);
+        return new DnsPacket(header, questions, answers, authorities, additionals);
     }
 
     writeToBuffer(): Buffer {
@@ -77,5 +77,15 @@ export class DnsPacket2 {
             Helpers.sum(this.answers.map(q => q.byteLength)) +
             Helpers.sum(this.authorities.map(q => q.byteLength)) +
             Helpers.sum(this.additionals.map(q => q.byteLength));
+    }
+
+    static fromObject(obj: any) {
+        return new DnsPacket(
+            Header.fromObject(obj.header),
+            obj.questions.map((o:any) => Question.fromObject(o)),
+            obj.answers.map((o:any) => Answer.fromObject(o)),
+            obj.authorities.map((o:any) => Answer.fromObject(o)),
+            obj.additionals.map((o:any) => Answer.fromObject(o)),
+        )
     }
 }

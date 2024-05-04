@@ -6,20 +6,20 @@ export class Answer {
     aclass: number;
     ttl: number;
     rdlength: number;
-    rdata: any;
+    adata: Buffer;
     
     constructor(domainName: DomainName, 
         type: number, 
         aclass: number, 
         ttl: number, 
         rdlength: number, 
-        adata: string) {
+        adata: Buffer) {
         this.domainName = domainName;
         this.type = type;
         this.aclass = aclass;
         this.ttl = ttl;
         this.rdlength = rdlength;
-        this.rdata = adata;
+        this.adata = adata;
     }
     get name() { return this.domainName.name; }
 
@@ -33,7 +33,7 @@ export class Answer {
         let aclass = buf.readUInt16BE(i+2);
         let ttl = buf.readUInt32BE(i+4);
         let rdlength = buf.readUInt16BE(i+8);
-        let rdata = buf.subarray(i + 10, i + 10 + rdlength).toString('utf8');    
+        let rdata = buf.subarray(i + 10, i + 10 + rdlength);    
         return {
             a: new Answer(obj.d, type, aclass, ttl, rdlength, rdata), 
             i: i + 10 + rdlength
@@ -46,14 +46,14 @@ export class Answer {
         i = buf.writeInt16BE(this.aclass, i);
         i = buf.writeInt32BE(this.ttl, i);
         i = buf.writeInt16BE(this.rdlength, i);
-        i += buf.write(this.rdata, i);
+        i += this.adata.copy(buf, i);
         return i;
     }
 
     equals(r: Answer): boolean {
         return this.aclass == r.class &&
             this.domainName.equals(r.domainName) &&
-            this.rdata == r.rdata &&
+            this.adata == r.adata &&
             this.rdlength == r.rdlength &&
             this.ttl == r.ttl &&
             this.type == r.type;
@@ -61,5 +61,9 @@ export class Answer {
 
     get byteLength(): number {
         return this.domainName.byteLength + 10 + this.rdlength;
+    }
+
+    static fromObject(obj: any): Answer {
+        return new Answer(DomainName.fromObject(obj.domainName), obj.type, obj.aclass, obj.ttl, obj.rdlength, obj.adata);
     }
 }

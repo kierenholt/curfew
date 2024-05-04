@@ -12,7 +12,7 @@ export class DnsServer {
 
     constructor(domainChecker: DomainChecker) {
         this.socket = dgram.createSocket('udp4');
-        this.dnsForwarder = new DnsForwarder();
+        this.dnsForwarder = new DnsForwarder(PORT);
         this.domainChecker = domainChecker;
 
         this.socket.bind(DnsServer.PORT, () => {
@@ -38,6 +38,8 @@ export class DnsServer {
                 }
             });
         });
+
+        this.socket.on('error', (err: any) => {throw(err);})
     }
     
 }

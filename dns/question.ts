@@ -14,8 +14,8 @@ export class Question {
     static fromBuffer(buf: Buffer, index: number): {q: Question, i: number} {
         let obj = DomainName.fromBuffer(buf, index);
         index = obj.i;
-        let qtype = buf.readInt16BE(index);
-        let qclass = buf.readInt16BE(index+2);
+        let qtype = buf.readUInt16BE(index);
+        let qclass = buf.readUInt16BE(index+2);
         return {
             q: new Question(obj.d, qtype, qclass),
             i: index + 4
@@ -37,5 +37,9 @@ export class Question {
 
     get byteLength():number {
         return this.domainName.byteLength + 4;
+    }
+
+    static fromObject(obj: any): Question {
+        return new Question(DomainName.fromObject(obj.domainName), obj.qtype, obj.qclass);
     }
 }
