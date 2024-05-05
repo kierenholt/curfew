@@ -10,20 +10,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const options_1 = require("./dhcp/options");
-const server_1 = require("./dhcp/server");
+const dhcpServer_1 = require("./dhcp/dhcpServer");
 const dnsServer_1 = require("./dns/dnsServer");
 const testSocket_1 = require("./dns/testSocket");
 const domainChecker_1 = require("./domainChecker");
-const DHCP_ENABLED = false;
-const DNS_ENABLED = true;
+const DHCP_ENABLED = true;
+const DNS_ENABLED = false;
 const TEST_SOCKET = false;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         //DHCP SERVER
         if (DHCP_ENABLED) {
             options_1.Options.init();
-            var s = new server_1.DhcpServer();
-            s.listen();
+            var s = new dhcpServer_1.DhcpServer();
         }
         //DNS SERVER
         if (DNS_ENABLED) {

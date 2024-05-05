@@ -1,13 +1,11 @@
-import { DhcpClient } from "./dhcp/client";
-import { CLIENT_PORT } from "./dhcp/dhcp";
 import { Options } from "./dhcp/options";
-import { DhcpServer } from "./dhcp/server";
+import { DhcpServer } from "./dhcp/dhcpServer";
 import { DnsServer } from "./dns/dnsServer";
 import { TestSocket } from "./dns/testSocket";
 import { DomainChecker } from "./domainChecker";
 
-const DHCP_ENABLED = false;
-const DNS_ENABLED = true;
+const DHCP_ENABLED = true;
+const DNS_ENABLED = false;
 const TEST_SOCKET = false;
 
 async function run() {
@@ -15,7 +13,6 @@ async function run() {
     if (DHCP_ENABLED) {
         Options.init();
         var s = new DhcpServer();
-        s.listen();
     }
 
     //DNS SERVER

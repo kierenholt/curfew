@@ -1,4 +1,4 @@
-import { DhcpServer } from "./server";
+import { DhcpServer } from "./dhcpServer";
 
 interface Option {
     name: String,

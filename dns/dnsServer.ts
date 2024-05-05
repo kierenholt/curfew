@@ -1,10 +1,7 @@
-import { RemoteInfo, Socket } from "dgram";
-import { DomainChecker } from "../domainChecker";
+import { RemoteInfo, Socket, createSocket } from "dgram";
 import { DnsForwarder } from "./dnsForwarder";
 import { DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
-
-const dgram = require('dgram');
 
 export class DnsServer {
     static PORT = 53;
@@ -13,7 +10,7 @@ export class DnsServer {
     allowRequest: (host: string, domain: string) => boolean;
 
     constructor(allowRequest: (host: string, domain: string) => boolean) {
-        this.socket = dgram.createSocket('udp4');
+        this.socket = createSocket('udp4');
         this.dnsForwarder = new DnsForwarder(DnsServer.PORT, this.socket);
         this.allowRequest = allowRequest;
 
@@ -63,9 +60,4 @@ export class DnsServer {
 
         this.socket.on('error', (err: any) => {throw(err);})
     }
-
-    replyBlocked(packet: Answer) {
-
-    }
-    
 }

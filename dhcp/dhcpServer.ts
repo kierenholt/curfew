@@ -1,17 +1,13 @@
-import { Socket } from "dgram";
+import { Socket, createSocket } from "dgram";
 import { BOOTREPLY, BOOTREQUEST, CLIENT_PORT, DHCPACK, DHCPDISCOVER, DHCPNAK, DHCPOFFER, DHCPREQUEST, INADDR_ANY, SERVER_PORT } from "./dhcp";
 import { Lease } from "./lease";
 import { DhcpRequest } from "./request";
 import { IRequest, SeqBuffer } from "./seqbuffer";
 import { Options } from "./options";
-import EventEmitter from "events";
-
-const dgram = require('dgram');
 
 const Tools = require('./tools.js');
 
-
-export class DhcpServer extends EventEmitter {
+export class DhcpServer {
     // Socket handle
     _sock: Socket;
 
@@ -25,52 +21,47 @@ export class DhcpServer extends EventEmitter {
     _req: DhcpRequest | null = null;
 
     constructor() {
-        super();
         
         this._conf = {
-                range: [
-                    "192.168.0.10", "192.168.0.70"
-                ],
-                randomIP: true, // Get random new IP from pool instead of keeping one ip
-                static: {
-                    //"11:22:33:44:55:66": "192.168.3.100" MACS that get static IPs
-                },
-                netmask: '255.255.255.0',
-                router: [
-                    '192.168.0.1'
-                ],
-                dns: ["192.168.0.78"], // this is us
-                broadcast: '192.168.0.255',
-                server: '192.168.0.78',
-                hostname: "curfew"
-            };
+            range: [
+                "192.168.0.10", "192.168.0.70"
+            ],
+            randomIP: true, // Get random new IP from pool instead of keeping one ip
+            static: {
+                //"11:22:33:44:55:66": "192.168.3.100" MACS that get static IPs
+            },
+            netmask: '255.255.255.0',
+            router: [
+                '192.168.0.1'
+            ],
+            dns: ["192.168.0.78"], // this is us
+            broadcast: '192.168.0.255',
+            server: '192.168.0.78',
+            hostname: "curfew"
+        };
 
-        this._sock = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+        this._sock = createSocket({ type: 'udp4', reuseAddr: true });
+
+        this._sock.bind(SERVER_PORT, INADDR_ANY, () => {
+            this._sock.setBroadcast(true);
+            console.log('DHCP listening on port', this._sock);
+        });
 
         this._sock.on('message', (buf: Buffer) => {
 
-            let req;
-
-            try {
-                req = new DhcpRequest(buf);
-            } catch (e) {
-                this.emit('error', e);
-                return;
-            }
+            let req = new DhcpRequest(buf);
 
             this._req = req;
 
             if (req.op !== BOOTREQUEST) {
-                //this.emit('error', new Error('Malformed packet'), req);
+                console.error('Malformed packet');
                 return;
             }
 
             if (!req.options[53]) {
-                this.emit('error', new Error('Got message, without valid message type'), req);
+                console.error('Got message, without valid message type', req);
                 return;
             }
-
-            this.emit('message', req);
 
             // Handle request
             switch (req.options[53]) {
@@ -85,16 +76,8 @@ export class DhcpServer extends EventEmitter {
             }
         });
 
-        this._sock.on('listening', () => {
-            this.emit('listening', this._sock);
-        });
-
-        this._sock.on('close', () => {
-            this.emit('close');
-        });
-
         this._sock.on('error', (e: any) => {
-            this.emit('error', e);
+            throw(e);
         });
     }
 
@@ -170,7 +153,7 @@ export class DhcpServer extends EventEmitter {
                 }
 
             } else {
-                this.emit('error', 'Unknown option ' + req);
+                console.error('error Unknown option ' + req);
             }
         }
 
@@ -264,8 +247,6 @@ export class DhcpServer extends EventEmitter {
         const firstIP = Tools.parseIp(_tmp[0]);
         const lastIP = Tools.parseIp(_tmp[1]);
 
-
-
         // Add all known addresses and save the oldest lease
         const ips = [this.config('server')]; // Exclude our own server IP from pool
         let oldestMac = null;
@@ -352,7 +333,7 @@ export class DhcpServer extends EventEmitter {
 
         // Send the actual data
         // INADDR_BROADCAST : 68 <- SERVER_IP : 67
-        //console.log('sending offer:', JSON.stringify(ans));
+        console.log('sending offer:', JSON.stringify(ans));
         this._send(this.config('broadcast'), ans);
     }
 
@@ -390,27 +371,15 @@ export class DhcpServer extends EventEmitter {
             ], req.options[55])
         };
 
-        this.emit('bound', this._state);
-
         // Send the actual data
         // INADDR_BROADCAST : 68 <- SERVER_IP : 67
-        //console.log('acknowledge sent to ',JSON.stringify(ans));
+        console.log('sending acknowledge ',JSON.stringify(ans));
         this._send(this.config('broadcast'), ans);
     }
 
     handleRelease() {}
 
     handleRenew() {}
-
-    listen(port: any = SERVER_PORT, host: any = INADDR_ANY) {
-        this._sock.bind(port, host, () => {
-            this._sock.setBroadcast(true);
-        });
-    }
-
-    close(callback: any) {
-        this._sock.close(callback);
-    }
 
     _send(host: any, req: IRequest) {
 

@@ -7,6 +7,7 @@ export class DomainChecker {
     }
 
     isAllowed(hostAddress: string, fullDomain: string): boolean {
+        return false;
         return this.blackList.indexOf(fullDomain) != -1;
     }
 

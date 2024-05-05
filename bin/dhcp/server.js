@@ -1,20 +1,15 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DhcpServer = void 0;
+const dgram_1 = require("dgram");
 const dhcp_1 = require("./dhcp");
 const lease_1 = require("./lease");
 const request_1 = require("./request");
 const seqbuffer_1 = require("./seqbuffer");
 const options_1 = require("./options");
-const events_1 = __importDefault(require("events"));
-const dgram = require('dgram');
 const Tools = require('./tools.js');
-class DhcpServer extends events_1.default {
+class DhcpServer {
     constructor() {
-        super();
         // Config (cache) object
         this._conf = null;
         // All mac -> IP mappings, we currently have assigned or blacklisted
@@ -38,26 +33,23 @@ class DhcpServer extends events_1.default {
             server: '192.168.0.78',
             hostname: "curfew"
         };
-        this._sock = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+        this._sock = (0, dgram_1.createSocket)({ type: 'udp4', reuseAddr: true });
+        this._sock.bind(dhcp_1.SERVER_PORT, dhcp_1.INADDR_ANY, () => {
+            this._sock.setBroadcast(true);
+            console.log('DHCP listening on port', this._sock);
+        });
         this._sock.on('message', (buf) => {
             let req;
-            try {
-                req = new request_1.DhcpRequest(buf);
-            }
-            catch (e) {
-                this.emit('error', e);
-                return;
-            }
+            req = new request_1.DhcpRequest(buf);
             this._req = req;
             if (req.op !== dhcp_1.BOOTREQUEST) {
                 //this.emit('error', new Error('Malformed packet'), req);
                 return;
             }
             if (!req.options[53]) {
-                this.emit('error', new Error('Got message, without valid message type'), req);
+                console.error('Got message, without valid message type', req);
                 return;
             }
-            this.emit('message', req);
             // Handle request
             switch (req.options[53]) {
                 case dhcp_1.DHCPDISCOVER: // 1.
@@ -70,14 +62,8 @@ class DhcpServer extends events_1.default {
                     console.error("Not implemented method", req.options[53]);
             }
         });
-        this._sock.on('listening', () => {
-            this.emit('listening', this._sock);
-        });
-        this._sock.on('close', () => {
-            this.emit('close');
-        });
         this._sock.on('error', (e) => {
-            this.emit('error', e);
+            throw (e);
         });
     }
     config(key) {
@@ -143,7 +129,7 @@ class DhcpServer extends events_1.default {
                 }
             }
             else {
-                this.emit('error', 'Unknown option ' + req);
+                console.error('error Unknown option ' + req);
             }
         }
         // Add all values, the user wants, which are not already provided:
@@ -327,7 +313,6 @@ class DhcpServer extends events_1.default {
                 1, 3, 51, 54, 6
             ], req.options[55])
         };
-        this.emit('bound', this._state);
         // Send the actual data
         // INADDR_BROADCAST : 68 <- SERVER_IP : 67
         //console.log('acknowledge sent to ',JSON.stringify(ans));
@@ -335,14 +320,6 @@ class DhcpServer extends events_1.default {
     }
     handleRelease() { }
     handleRenew() { }
-    listen(port = dhcp_1.SERVER_PORT, host = dhcp_1.INADDR_ANY) {
-        this._sock.bind(port, host, () => {
-            this._sock.setBroadcast(true);
-        });
-    }
-    close(callback) {
-        this._sock.close(callback);
-    }
     _send(host, req) {
         const sb = seqbuffer_1.SeqBuffer.fromRequest(req);
         this._sock.send(sb._data, 0, sb._w, dhcp_1.CLIENT_PORT, host, (err, bytes) => {
