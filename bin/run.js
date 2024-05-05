@@ -15,35 +15,20 @@ const dnsServer_1 = require("./dns/dnsServer");
 const testSocket_1 = require("./dns/testSocket");
 const domainChecker_1 = require("./domainChecker");
 const DHCP_ENABLED = false;
-const DNS_ENABLED = false;
-const TEST_SOCKET = true;
+const DNS_ENABLED = true;
+const TEST_SOCKET = false;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         //DHCP SERVER
         if (DHCP_ENABLED) {
             options_1.Options.init();
-            var s = new server_1.DhcpServer({
-                range: [
-                    "192.168.0.10", "192.168.0.70"
-                ],
-                randomIP: true, // Get random new IP from pool instead of keeping one ip
-                static: {
-                //"11:22:33:44:55:66": "192.168.3.100" MACS that get static IPs
-                },
-                netmask: '255.255.255.0',
-                router: [
-                    '192.168.0.1'
-                ],
-                dns: ["192.168.0.78"], // this is us
-                broadcast: '192.168.0.255',
-                server: '192.168.0.78',
-                hostname: "curfew"
-            });
+            var s = new server_1.DhcpServer();
             s.listen();
         }
         //DNS SERVER
         if (DNS_ENABLED) {
-            let server = new dnsServer_1.DnsServer(new domainChecker_1.DomainChecker());
+            let checker = new domainChecker_1.DomainChecker();
+            let server = new dnsServer_1.DnsServer(checker.isAllowed);
         }
         if (TEST_SOCKET) {
             let s = new testSocket_1.TestSocket();
@@ -65,8 +50,5 @@ run();
         console.log("sending discover");
         c.sendDiscover();
     });
-
-
-
 */ 
 //# sourceMappingURL=run.js.map

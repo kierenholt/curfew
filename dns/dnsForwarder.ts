@@ -1,6 +1,7 @@
 import { Cache } from "./cache";
 import { Socket } from "dgram";
 import { DnsPacket as DnsPacket } from "./dnsPacket";
+import { Answer } from "./answer";
 const dgram = require('dgram');
 
 export class DnsForwarder {
@@ -9,50 +10,45 @@ export class DnsForwarder {
     UPSTREAM_SERVER_IP: string = '1.1.1.1';
     TTL: number = 30;
     port: number;
+    promisesById: any = {};
 
     constructor(port: number, socket: Socket) {
-        this.socket = socket;
         this.cache = new Cache();
         this.port = port;
+        this.socket = socket;
     }
 
-    forward(request: Buffer): Promise<Buffer> {
-        let requestPacket: DnsPacket = DnsPacket.fromBuffer(request);
-        console.log("Request received for " + requestPacket.questions[0].qname);
-        
-        let cached = this.cache.get(requestPacket);
+    processResponse(responsePacket: DnsPacket) {        
+        //add to cache
+        responsePacket.allAnswers.forEach(a => a.ttl = this.TTL);
+        this.cache.upsert(responsePacket.questions[0], responsePacket.allAnswers);
+
+        //resolve promise
+        let foundPromiseResolve = this.promisesById[responsePacket.header.id];
+        if (foundPromiseResolve) {
+            delete(this.promisesById[responsePacket.header.id]);
+            foundPromiseResolve(responsePacket.allAnswers);
+        }
+    }
+
+    forward(requestBuffer: Buffer): Promise<Answer[]> {
+        let requestPacket = DnsPacket.fromBuffer(requestBuffer);
+        let cached: Answer[] = this.cache.getAnswers(requestPacket.questions[0]);
         if (cached) {
             return Promise.resolve(cached);
         }
+
         return new Promise((resolve, reject) => {
-            this.socket.send(request, this.port, this.UPSTREAM_SERVER_IP, (error: any) => {
+            this.socket.send(requestBuffer, this.port, this.UPSTREAM_SERVER_IP, (error: any) => {
                 if (error) {
                     console.error('Error sending message:', error);
                     this.socket.close();
-                } else {
-                    this.socket.once('message', (responseMsg: Buffer, responseInfo: any) => {
-                        try {
-                            responseMsg = this.overrideTTL(responseMsg);
-                        }
-                        catch {
-                            console.error("error in override TTL for ", responseMsg);
-                        }
-                        resolve(responseMsg);
-                        this.cache.upsert(requestPacket, responseMsg);
-                    });
+                } 
+                else {
+                    //console.log(JSON.stringify(requestBuffer));
+                    this.promisesById[requestPacket.header.id] = (ans: Answer[]) => resolve(ans);
                 }
             });
         });
-    }
-
-    close(){
-        this.socket.close();
-    }
-
-    overrideTTL(buf: Buffer): Buffer {
-        let packet = DnsPacket.fromBuffer(buf);
-        console.log(JSON.stringify(packet));
-        packet.answers.forEach(a => a.ttl = this.TTL);
-        return packet.writeToBuffer();
     }
 }

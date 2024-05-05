@@ -5,7 +5,7 @@ describe("Header2", () => {
     test('write to buffer then read', () => {
 
         let h1 = new Header(12345, 1, 1, 0, 0, 7);
-        let b1 = Buffer.alloc(h1.byteLength);
+        let b1 = Buffer.alloc(1024);
         h1.writeToBuffer(b1, 0);
 
         let obj = Header.fromBuffer(b1, 0);

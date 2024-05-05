@@ -28,12 +28,12 @@ export class Header {
     }
 
     writeToBuffer(buf: Buffer, i: number): number {
-        i = buf.writeInt16BE(this.id, i);
-        i = buf.writeInt16BE(this.flags, i);
-        i = buf.writeInt16BE(this.qdcount, i);
-        i = buf.writeInt16BE(this.ancount, i);
-        i = buf.writeInt16BE(this.nscount, i);
-        i = buf.writeInt16BE(this.arcount, i);
+        i = buf.writeUInt16BE(this.id, i);
+        i = buf.writeUInt16BE(this.flags, i);
+        i = buf.writeUInt16BE(this.qdcount, i);
+        i = buf.writeUInt16BE(this.ancount, i);
+        i = buf.writeUInt16BE(this.nscount, i);
+        i = buf.writeUInt16BE(this.arcount, i);
         return i;
     }
 
@@ -45,10 +45,41 @@ export class Header {
             this.nscount == h.nscount &&
             this.arcount == h.arcount;
     }
-
-    get byteLength():number { return 12; }
-
+    
     static fromObject(obj: any): Header {
         return new Header(obj.id, obj.flags, obj.qdcount, obj.ancount, obj.nscount, obj.arcount);
+    }
+
+    get isResponse(): boolean {
+        return (this.flags & 0x8000) == 0x8000;
+    }
+
+    set isResponse(value: boolean) {
+        if (value) {
+            this.flags = this.flags | 0x8000;
+        }
+        else {
+            this.flags = this.flags &  (~0x8000);
+        }
+    }
+
+    set nameDoesNotExist(value: boolean) {
+        if (value) {
+            this.flags = this.flags | 3;
+            this.flags = this.flags | (1 << 10);
+        }
+        else {
+            this.flags = this.flags & (~16);
+            this.flags = this.flags & (~(1 << 10));
+        }
+    }
+
+    set isAuthority(value: boolean) {
+        if (value) {
+            this.flags = this.flags | (1 << 10);
+        }
+        else {
+            this.flags = this.flags & (~(1 << 10));
+        }
     }
 }

@@ -24,9 +24,27 @@ export class DhcpServer extends EventEmitter {
     // Incoming request
     _req: DhcpRequest | null = null;
 
-    constructor(config: any, listenOnly: boolean = false) {
+    constructor() {
         super();
         
+        this._conf = {
+                range: [
+                    "192.168.0.10", "192.168.0.70"
+                ],
+                randomIP: true, // Get random new IP from pool instead of keeping one ip
+                static: {
+                    //"11:22:33:44:55:66": "192.168.3.100" MACS that get static IPs
+                },
+                netmask: '255.255.255.0',
+                router: [
+                    '192.168.0.1'
+                ],
+                dns: ["192.168.0.78"], // this is us
+                broadcast: '192.168.0.255',
+                server: '192.168.0.78',
+                hostname: "curfew"
+            };
+
         this._sock = dgram.createSocket({ type: 'udp4', reuseAddr: true });
 
         this._sock.on('message', (buf: Buffer) => {
@@ -54,18 +72,16 @@ export class DhcpServer extends EventEmitter {
 
             this.emit('message', req);
 
-            if (!listenOnly) {
-                // Handle request
-                switch (req.options[53]) {
-                    case DHCPDISCOVER: // 1.
-                        this.handleDiscover(req);
-                        break;
-                    case DHCPREQUEST: // 3.
-                        this.handleRequest(req);
-                        break;
-                    default:
-                        console.error("Not implemented method", req.options[53]);
-                }
+            // Handle request
+            switch (req.options[53]) {
+                case DHCPDISCOVER: // 1.
+                    this.handleDiscover(req);
+                    break;
+                case DHCPREQUEST: // 3.
+                    this.handleRequest(req);
+                    break;
+                default:
+                    console.error("Not implemented method", req.options[53]);
             }
         });
 
@@ -80,8 +96,6 @@ export class DhcpServer extends EventEmitter {
         this._sock.on('error', (e: any) => {
             this.emit('error', e);
         });
-
-        this._conf = config;
     }
 
 
@@ -384,7 +398,37 @@ export class DhcpServer extends EventEmitter {
         this._send(this.config('broadcast'), ans);
     }
 
+    handleRelease() {}
 
+    handleRenew() {}
+
+    listen(port: any = SERVER_PORT, host: any = INADDR_ANY) {
+        this._sock.bind(port, host, () => {
+            this._sock.setBroadcast(true);
+        });
+    }
+
+    close(callback: any) {
+        this._sock.close(callback);
+    }
+
+    _send(host: any, req: IRequest) {
+
+        const sb = SeqBuffer.fromRequest(req);
+        
+        this._sock.send(sb._data, 0, sb._w, CLIENT_PORT, host, (err: any, bytes: any) => {
+            if (err) {
+                console.log(err);
+            } else {
+                //console.log('Sent ', bytes, 'bytes');
+            }
+        });
+    }
+}
+
+
+
+/*
     //NOT USED
     sendNak(req: IRequest) {
         //console.log('Send NAK');
@@ -415,31 +459,4 @@ export class DhcpServer extends EventEmitter {
         
         this._send(this.config('broadcast'), ans);
     }
-
-    handleRelease() {}
-
-    handleRenew() {}
-
-    listen(port: any = SERVER_PORT, host: any = INADDR_ANY) {
-        this._sock.bind(port, host, () => {
-            this._sock.setBroadcast(true);
-        });
-    }
-
-    close(callback: any) {
-        this._sock.close(callback);
-    }
-
-    _send(host: any, req: IRequest) {
-
-        const sb = SeqBuffer.fromRequest(req);
-        
-        this._sock.send(sb._data, 0, sb._w, CLIENT_PORT, host, (err: any, bytes: any) => {
-            if (err) {
-                console.log(err);
-            } else {
-                //console.log('Sent ', bytes, 'bytes');
-            }
-        });
-    }
-}
+    */

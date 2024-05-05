@@ -12,22 +12,29 @@ export class DomainName {
         return { d: new DomainName(obj.d), i: obj.i };
     }
 
-    writeToBuffer(buf: Buffer, i: number): number {
-        this.name.split(".").forEach(s => {
-            //length
-            i = buf.writeInt8(s.length, i);
-            //text
-            i += buf.write(s, i, 'utf8');
-        });
-        return i+1;
+    writeToBuffer(buf: Buffer, w: number, cache: any): number {
+        let words = this.name.split(".");
+        for (let i = 0, s; s = words[i]; i++) {
+            let restOfName = words.slice(i).join(".");
+            if (restOfName in cache) {
+                let pointer = 0xC000 | cache[restOfName];
+                w = buf.writeUInt16BE(pointer, w);
+                return w;
+            }
+            else {
+                //add to cache
+                cache[restOfName] = w;
+                //length
+                w = buf.writeUInt8(s.length, w);
+                //text
+                w += buf.write(s, w, 'utf8');
+            }
+        }
+        return w+1;
     }
 
     equals(s: DomainName) {
         return this.name == s.name;
-    }
-
-    get byteLength(): number {
-        return this.name.length+2;
     }
 
     static fromObject(obj: any): DomainName {
@@ -36,7 +43,9 @@ export class DomainName {
 }
 
 
-export function getDomainName(buf: Buffer, index: number, first: boolean = false): {i: number, d: string} {
+export function getDomainName(buf: Buffer,
+    index: number,
+    first: boolean = false): {i: number, d: string} {
 
     if (isNaN(index)) {
         throw("index cannot be NaN");

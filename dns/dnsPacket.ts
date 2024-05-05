@@ -15,7 +15,11 @@ export class DnsPacket {
     authorities: Answer[] = [];
     additionals: Answer[] = [];
 
-    constructor(header: Header, questions: Question[], answers: Answer[], authorities: Answer[], additionals: Answer[]) {
+    constructor(header: Header,
+        questions: Question[],
+        answers: Answer[] = [],
+        authorities: Answer[] = [],
+        additionals: Answer[] = []) {
         this.header = header;
         this.questions = questions;
         this.answers = answers;
@@ -50,33 +54,22 @@ export class DnsPacket {
     }
 
     writeToBuffer(): Buffer {
-        let buf = Buffer.alloc(this.byteLength);
+        let buf = Buffer.alloc(1024);
+        let cache = {};
         let i = this.header.writeToBuffer(buf, 0);
         for (let q of this.questions) {
-            i = q.writeToBuffer(buf, i);
+            i = q.writeToBuffer(buf, i, cache);
         }
         for (let a of this.answers) {
-            i = a.writeToBuffer(buf, i);
+            i = a.writeToBuffer(buf, i, cache);
         }
         for (let a of this.authorities) {
-            i = a.writeToBuffer(buf, i);
+            i = a.writeToBuffer(buf, i, cache);
         }
         for (let a of this.additionals) {
-            i = a.writeToBuffer(buf, i);
+            i = a.writeToBuffer(buf, i, cache);
         }
-        return buf;
-    }
-
-    get cacheUID(): string {
-        return `${this.questions[0].qclass}:${this.questions[0].qname}:${this.questions[0].qtype}`;
-    }
-
-    get byteLength():number {
-        return this.header.byteLength + 
-            Helpers.sum(this.questions.map(q => q.byteLength)) +
-            Helpers.sum(this.answers.map(q => q.byteLength)) +
-            Helpers.sum(this.authorities.map(q => q.byteLength)) +
-            Helpers.sum(this.additionals.map(q => q.byteLength));
+        return buf.subarray(0,i);
     }
 
     static fromObject(obj: any) {
@@ -87,5 +80,19 @@ export class DnsPacket {
             obj.authorities.map((o:any) => Answer.fromObject(o)),
             obj.additionals.map((o:any) => Answer.fromObject(o)),
         )
+    }
+
+    get allAnswers(): Answer[] {
+        return [...this.answers, ...this.authorities];
+    }
+
+    addAnswers(a: Answer[]) {
+        this.answers.push(...a);
+        this.header.ancount += a.length;
+    }
+
+    equals(p: DnsPacket): boolean {
+        return this.header.equals(p.header) &&
+            this.answers.every(a1 => p.answers.some(a2 => a2.equals(a1)));
     }
 }

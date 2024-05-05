@@ -7,38 +7,21 @@ import { TestSocket } from "./dns/testSocket";
 import { DomainChecker } from "./domainChecker";
 
 const DHCP_ENABLED = false;
-const DNS_ENABLED = false;
-const TEST_SOCKET = true;
+const DNS_ENABLED = true;
+const TEST_SOCKET = false;
 
 async function run() {
     //DHCP SERVER
     if (DHCP_ENABLED) {
-
         Options.init();
-        var s = new DhcpServer({
-            range: [
-                "192.168.0.10", "192.168.0.70"
-            ],
-            randomIP: true, // Get random new IP from pool instead of keeping one ip
-            static: {
-                //"11:22:33:44:55:66": "192.168.3.100" MACS that get static IPs
-            },
-            netmask: '255.255.255.0',
-            router: [
-                '192.168.0.1'
-            ],
-            dns: ["192.168.0.78"], // this is us
-            broadcast: '192.168.0.255',
-            server: '192.168.0.78',
-            hostname: "curfew"
-        });
-    
+        var s = new DhcpServer();
         s.listen();
     }
 
     //DNS SERVER
     if (DNS_ENABLED) {
-        let server = new DnsServer(new DomainChecker());
+        let checker = new DomainChecker();
+        let server = new DnsServer(checker.isAllowed);
     }
 
     if (TEST_SOCKET) {
@@ -62,7 +45,4 @@ run();
         console.log("sending discover");
         c.sendDiscover();
     });
-
-
-
 */

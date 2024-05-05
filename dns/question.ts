@@ -1,6 +1,8 @@
+import { HasKey } from "./cache";
 import { DomainName } from "./domainName";
 
-export class Question {
+
+export class Question implements HasKey {
     qclass: number;
     qtype: number;
     domainName: DomainName;
@@ -9,7 +11,12 @@ export class Question {
         this.qtype = qtype;
         this.qclass = qclass;
     }
-    get qname() { return this.domainName.name }
+
+    get cacheKey(): string {
+        return `${this.qclass}:${this.name}:${this.qtype}`;
+    }
+
+    get name() { return this.domainName.name }
 
     static fromBuffer(buf: Buffer, index: number): {q: Question, i: number} {
         let obj = DomainName.fromBuffer(buf, index);
@@ -22,8 +29,8 @@ export class Question {
         }
     }
 
-    writeToBuffer(buf: Buffer, i: number): number {
-        i = this.domainName.writeToBuffer(buf, i);
+    writeToBuffer(buf: Buffer, i: number, cache: any): number {
+        i = this.domainName.writeToBuffer(buf, i, cache);
         i = buf.writeInt16BE(this.qtype, i);
         i = buf.writeInt16BE(this.qclass, i);
         return i;
@@ -33,10 +40,6 @@ export class Question {
         return this.qclass == q.qclass &&
             this.domainName.equals(q.domainName) &&
             this.qtype == q.qtype;
-    }
-
-    get byteLength():number {
-        return this.domainName.byteLength + 4;
     }
 
     static fromObject(obj: any): Question {

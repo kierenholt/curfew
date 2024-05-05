@@ -1,6 +1,8 @@
 import { RemoteInfo, Socket } from "dgram";
 import { DomainChecker } from "../domainChecker";
 import { DnsForwarder } from "./dnsForwarder";
+import { DnsPacket } from "./dnsPacket";
+import { Answer } from "./answer";
 
 const dgram = require('dgram');
 
@@ -8,38 +10,62 @@ export class DnsServer {
     static PORT = 53;
     socket: Socket;
     dnsForwarder: DnsForwarder;
-    domainChecker: DomainChecker;
+    allowRequest: (host: string, domain: string) => boolean;
 
-    constructor(domainChecker: DomainChecker) {
+    constructor(allowRequest: (host: string, domain: string) => boolean) {
         this.socket = dgram.createSocket('udp4');
-        this.dnsForwarder = new DnsForwarder(PORT);
-        this.domainChecker = domainChecker;
+        this.dnsForwarder = new DnsForwarder(DnsServer.PORT, this.socket);
+        this.allowRequest = allowRequest;
 
         this.socket.bind(DnsServer.PORT, () => {
             console.log('DNS server listening on UDP port ', DnsServer.PORT);
         });
         
-        this.socket.on('message', async (requestMessage: Buffer, requestInfo: RemoteInfo) => {
-            //console.log(`Received request message from ${requestInfo.address}:${requestInfo.port}:`);
-        
-            let response: Buffer = await this.dnsForwarder.forward(requestMessage);
-            if (response === null) {
-                console.error('Error forwarding request:');
-            }
-        
-            // overwrite id
-            response[0] = requestMessage[0];
-            response[1] = requestMessage[1];
+        this.socket.on('message', async (buf: Buffer, requestInfo: RemoteInfo) => {        
+            let packet = DnsPacket.fromBuffer(buf);
+            console.log("Request received for " + packet.questions[0].name);
 
-            this.socket.send(response, requestInfo.port, requestInfo.address, (err: any) => {
-                if (err) {
-                    console.error(`Error sending response: ${err.message}`);
-                    this.socket.close();
+            if (!packet.header.isResponse) { //query
+                if (!this.allowRequest(requestInfo.address, packet.questions[0].name)) {
+                    //block
+                    packet.addAnswers([Answer.fromQuestion(packet.questions[0], requestInfo.address)]);
+                    packet.header.isResponse = true;
+                    packet.header.isAuthority = true;
+                    this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
+                        if (err) {
+                            console.error(`Error sending response: ${err.message}`);
+                            this.socket.close();
+                        }
+                    });
+                    return;
                 }
-            });
+
+                //allow
+                this.dnsForwarder.forward(buf)
+                .then(answer => {
+                    //add answer
+                    packet.addAnswers(answer);
+                    packet.header.isResponse = true;
+
+                    //send
+                    this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
+                        if (err) {
+                            console.error(`Error sending response: ${err.message}`);
+                            this.socket.close();
+                        }
+                    });
+                })
+            }
+            else { //process response from upstream
+                this.dnsForwarder.processResponse(packet);
+            }
         });
 
         this.socket.on('error', (err: any) => {throw(err);})
+    }
+
+    replyBlocked(packet: Answer) {
+
     }
     
 }

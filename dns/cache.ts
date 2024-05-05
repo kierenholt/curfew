@@ -1,13 +1,17 @@
-import { HasUID } from "./dnsPacket";
+import { Answer } from "./answer";
+
+export interface HasKey {
+    cacheKey: string;
+}
 
 export class Cache {
     cached: any = {};
 
-    get(request: HasUID): Buffer {
-        return this.cached[request.cacheUID];
+    getAnswers(hasKey: HasKey): Answer[] {
+        return this.cached[hasKey.cacheKey];
     }
 
-    upsert(request: HasUID, response: Buffer) {
-        this.cached[request.cacheUID] = response;
+    upsert(hasKey: HasKey, answers: Answer[]) {
+        this.cached[hasKey.cacheKey] = answers;
     }
 }

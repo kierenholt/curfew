@@ -13,7 +13,7 @@ const events_1 = __importDefault(require("events"));
 const dgram = require('dgram');
 const Tools = require('./tools.js');
 class DhcpServer extends events_1.default {
-    constructor(config, listenOnly = false) {
+    constructor() {
         super();
         // Config (cache) object
         this._conf = null;
@@ -21,6 +21,23 @@ class DhcpServer extends events_1.default {
         this._state = {};
         // Incoming request
         this._req = null;
+        this._conf = {
+            range: [
+                "192.168.0.10", "192.168.0.70"
+            ],
+            randomIP: true, // Get random new IP from pool instead of keeping one ip
+            static: {
+            //"11:22:33:44:55:66": "192.168.3.100" MACS that get static IPs
+            },
+            netmask: '255.255.255.0',
+            router: [
+                '192.168.0.1'
+            ],
+            dns: ["192.168.0.78"], // this is us
+            broadcast: '192.168.0.255',
+            server: '192.168.0.78',
+            hostname: "curfew"
+        };
         this._sock = dgram.createSocket({ type: 'udp4', reuseAddr: true });
         this._sock.on('message', (buf) => {
             let req;
@@ -41,18 +58,16 @@ class DhcpServer extends events_1.default {
                 return;
             }
             this.emit('message', req);
-            if (!listenOnly) {
-                // Handle request
-                switch (req.options[53]) {
-                    case dhcp_1.DHCPDISCOVER: // 1.
-                        this.handleDiscover(req);
-                        break;
-                    case dhcp_1.DHCPREQUEST: // 3.
-                        this.handleRequest(req);
-                        break;
-                    default:
-                        console.error("Not implemented method", req.options[53]);
-                }
+            // Handle request
+            switch (req.options[53]) {
+                case dhcp_1.DHCPDISCOVER: // 1.
+                    this.handleDiscover(req);
+                    break;
+                case dhcp_1.DHCPREQUEST: // 3.
+                    this.handleRequest(req);
+                    break;
+                default:
+                    console.error("Not implemented method", req.options[53]);
             }
         });
         this._sock.on('listening', () => {
@@ -64,7 +79,6 @@ class DhcpServer extends events_1.default {
         this._sock.on('error', (e) => {
             this.emit('error', e);
         });
-        this._conf = config;
     }
     config(key) {
         let val;
@@ -319,34 +333,6 @@ class DhcpServer extends events_1.default {
         //console.log('acknowledge sent to ',JSON.stringify(ans));
         this._send(this.config('broadcast'), ans);
     }
-    //NOT USED
-    sendNak(req) {
-        //console.log('Send NAK');
-        // Formulate the response object
-        const ans = {
-            op: dhcp_1.BOOTREPLY,
-            htype: 1, // RFC1700, hardware types: 1=Ethernet, 2=Experimental, 3=AX25, 4=ProNET Token Ring, 5=Chaos, 6=Tokenring, 7=Arcnet, 8=FDDI, 9=Lanstar (keep it constant)
-            hlen: 6, // Mac addresses are 6 byte
-            hops: 0,
-            xid: req.xid, // 'xid' from client DHCPREQUEST message
-            secs: 0,
-            flags: req.flags, // 'flags' from client DHCPREQUEST message
-            ciaddr: dhcp_1.INADDR_ANY,
-            yiaddr: dhcp_1.INADDR_ANY,
-            siaddr: dhcp_1.INADDR_ANY,
-            giaddr: req.giaddr, // 'giaddr' from client DHCPREQUEST message
-            chaddr: req.chaddr, // 'chaddr' from client DHCPREQUEST message
-            sname: '', // unused
-            file: '', // unused
-            options: this._getOptions({
-                53: dhcp_1.DHCPNAK
-            }, [
-                54
-            ])
-        };
-        // Send the actual data
-        this._send(this.config('broadcast'), ans);
-    }
     handleRelease() { }
     handleRenew() { }
     listen(port = dhcp_1.SERVER_PORT, host = dhcp_1.INADDR_ANY) {
@@ -370,4 +356,36 @@ class DhcpServer extends events_1.default {
     }
 }
 exports.DhcpServer = DhcpServer;
+/*
+    //NOT USED
+    sendNak(req: IRequest) {
+        //console.log('Send NAK');
+        // Formulate the response object
+        const ans = {
+            op: BOOTREPLY,
+            htype: 1, // RFC1700, hardware types: 1=Ethernet, 2=Experimental, 3=AX25, 4=ProNET Token Ring, 5=Chaos, 6=Tokenring, 7=Arcnet, 8=FDDI, 9=Lanstar (keep it constant)
+            hlen: 6, // Mac addresses are 6 byte
+            hops: 0,
+            xid: req.xid, // 'xid' from client DHCPREQUEST message
+            secs: 0,
+            flags: req.flags, // 'flags' from client DHCPREQUEST message
+            ciaddr: INADDR_ANY,
+            yiaddr: INADDR_ANY,
+            siaddr: INADDR_ANY,
+            giaddr: req.giaddr, // 'giaddr' from client DHCPREQUEST message
+            chaddr: req.chaddr, // 'chaddr' from client DHCPREQUEST message
+            sname: '', // unused
+            file: '', // unused
+            options: this._getOptions({
+                53: DHCPNAK
+            }, [
+                54
+            ])
+        };
+
+        // Send the actual data
+        
+        this._send(this.config('broadcast'), ans);
+    }
+    */ 
 //# sourceMappingURL=server.js.map
