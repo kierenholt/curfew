@@ -1,431 +1,180 @@
-import { Socket, createSocket } from "dgram";
-import { BOOTREPLY, BOOTREQUEST, CLIENT_PORT, DHCPACK, DHCPDISCOVER, DHCPNAK, DHCPOFFER, DHCPREQUEST, INADDR_ANY, SERVER_PORT } from "./dhcp";
-import { Lease } from "./lease";
-import { DhcpRequest } from "./request";
-import { IRequest, SeqBuffer } from "./seqbuffer";
-import { Options } from "./options";
-
-const Tools = require('./tools.js');
+import { RemoteInfo, Socket, createSocket } from "dgram";
+import { DhcpPacket, MessageType, RequestReply } from "./dhcpPacket";
+import { Lease, LeaseState } from "./lease";
+import { start } from "repl";
+import { Helpers } from "../helpers";
+import { Unicast } from "../python/unicast";
 
 export class DhcpServer {
-    // Socket handle
-    _sock: Socket;
+    static SERVER_PORT = 67;
+    static CLIENT_PORT = 68;
+    static INADDR_ANY = '0.0.0.0'; //must stay at 0.0.0.0
+    
+    socket: Socket;
+    rangeStart: string = "192.168.0.10";
+    rangeEnd: string = "192.168.0.70";
+    subnet: string = '255.255.255.0';
+    router: string = '192.168.0.1';
+    broadcastIP: string = '192.168.0.255';
+    serverIP: string = '192.168.0.78';
+    hostname: string = "curfew";
+    serverMAC: string = '30:f7:72:45:53:f5';
 
-    // Config (cache) object
-    _conf: any = null;
 
-    // All mac -> IP mappings, we currently have assigned or blacklisted
-    _state: any = {};
-
-    // Incoming request
-    _req: DhcpRequest | null = null;
+    leases: Lease[] = [];
 
     constructor() {
-        
-        this._conf = {
-            range: [
-                "192.168.0.10", "192.168.0.70"
-            ],
-            randomIP: true, // Get random new IP from pool instead of keeping one ip
-            static: {
-                //"11:22:33:44:55:66": "192.168.3.100" MACS that get static IPs
-            },
-            netmask: '255.255.255.0',
-            router: [
-                '192.168.0.1'
-            ],
-            dns: ["192.168.0.78"], // this is us
-            broadcast: '192.168.0.255',
-            server: '192.168.0.78',
-            hostname: "curfew"
-        };
+        this.socket = createSocket({ type: 'udp4', reuseAddr: true });
 
-        this._sock = createSocket({ type: 'udp4', reuseAddr: true });
-
-        this._sock.bind(SERVER_PORT, INADDR_ANY, () => {
-            this._sock.setBroadcast(true);
-            console.log('DHCP listening on port', this._sock);
+        this.socket.bind(DhcpServer.SERVER_PORT, DhcpServer.INADDR_ANY, () => {
+            this.socket.setBroadcast(true);
+            console.log('DHCP listening on port', this.socket);
         });
 
-        this._sock.on('message', (buf: Buffer) => {
+        this.socket.on('message', (buf: Buffer, requestInfo: RemoteInfo) => {
+            let requestPacket = new DhcpPacket(buf);
+            if (requestPacket.requestReply == RequestReply.reply) { return }
 
-            let req = new DhcpRequest(buf);
-
-            this._req = req;
-
-            if (req.op !== BOOTREQUEST) {
-                console.error('Malformed packet');
-                return;
+            //respond to discover with offer 
+            if (requestPacket.messageType == MessageType.DHCPDISCOVER) {
+                this.sendOffer(requestPacket);
             }
 
-            if (!req.options[53]) {
-                console.error('Got message, without valid message type', req);
-                return;
-            }
-
-            // Handle request
-            switch (req.options[53]) {
-                case DHCPDISCOVER: // 1.
-                    this.handleDiscover(req);
-                    break;
-                case DHCPREQUEST: // 3.
-                    this.handleRequest(req);
-                    break;
-                default:
-                    console.error("Not implemented method", req.options[53]);
+            //respond to request with 
+            if (requestPacket.messageType == MessageType.DHCPREQUEST) {
+                this.sendAck(requestPacket);
             }
         });
 
-        this._sock.on('error', (e: any) => {
+        this.socket.on('error', (e: any) => {
             throw(e);
         });
     }
 
+    sendOffer(requestPacket: DhcpPacket) {
+        let lease = this.selectAddress(requestPacket);
+        requestPacket.setAsOffer(lease.IP, this.serverIP, 
+            this.router, Lease.lifetime, this.subnet);
 
-    config(key: any) {
-
-        let val;
-        const optId = Options.conf[key];
-
-        // If config setting is set by user
-        if (undefined !== this._conf[key]) {
-            val = this._conf[key];
-        } else if (undefined !== Options.opts[optId]) {
-            val = Options.opts[optId].default;
-            if (val === undefined)
-                return 0; // Better idea?
-        } else {
-            throw new Error('Invalid option ' + key);
+        if (!requestPacket.requestsBroadcast) {
+            Unicast.send(requestPacket, 
+                this.serverMAC, requestPacket.clientMAC,
+                this.serverIP, requestPacket.yourIP);
         }
-
-        // If a function was provided
-        if (val instanceof Function) {
-            /*
-            var reqOpt: any = {};
-            for (var i in this._req.options) {
-                var opt = Options.opts[i];
-                if (opt.enum) {
-                    reqOpt[opt.attr || i] = opt.enum[this._req.options[i]];
-                } else {
-                    reqOpt[opt.attr || i] = this._req.options[i];
+        else {
+            this.socket.send(requestPacket.writeToBuffer(), 
+                DhcpServer.CLIENT_PORT, this.broadcastIP, 
+                (err: any) => {
+                if (err) {
+                    console.error(`Error sending response: ${err.message}`);
+                    this.socket.close();
                 }
-            }
-            val = val.call(this, reqOpt);
-            */
-           val = val(this);
-        }
-
-        // If the option has an "enum" attribute:
-        if (key !== 'range' && key !== 'static' && key !== 'randomIP' && Options.opts[optId].enum) {
-            const values = Options.opts[optId].enum;
-
-            // Check if value is an actual enum string
-            for (let i in values) {
-                if (values[i] === val) {
-                    return parseInt(i, 10);
-                }
-            }
-
-            // Okay, check  if it is the numeral value of the enum
-            if (values[val] === undefined) {
-                throw new Error('Provided enum value for ' + key + ' is not valid');
-            } else {
-                val = parseInt(val, 10);
-            }
-        }
-        return val;
-    }
-
-    _getOptions(pre: any, required: any, requested: any = []) {
-
-        for (let req of required) {
-
-            // Check if option id actually exists
-            if (Options.opts[req] !== undefined) {
-
-                // Take the first config value always
-                if (pre[req] === undefined) {
-                    pre[req] = this.config(Options.opts[req].config);
-                }
-
-                if (!pre[req]) {
-                    throw new Error('Required option ' + Options.opts[req].config + ' does not have a value set');
-                }
-
-            } else {
-                console.error('error Unknown option ' + req);
-            }
-        }
-
-        // Add all values, the user wants, which are not already provided:
-        if (requested) {
-
-            for (let req of requested) {
-
-                // Check if option id actually exists
-                if (Options.opts[req] !== undefined) {
-
-                    // Take the first config value always
-                    if (pre[req] === undefined) {
-                        const val = this.config(Options.opts[req].config);
-                        // Add value only, if it's meaningful
-                        if (val) {
-                            pre[req] = val;
-                        }
-                    }
-
-                } else {
-                    //this.emit('error', 'Unknown option ' + req);
-                }
-            }
-        }
-
-        // Finally Add all missing and forced options
-        const forceOptions = this._conf.forceOptions;
-        if (forceOptions instanceof Array) {
-            for (let option of forceOptions) {
-
-                // Add numeric options right away and look up alias names
-                let id;
-                if (isNaN(option)) {
-                    id = Options.conf[option];
-                } else {
-                    id = option;
-                }
-
-                // Add option if it is valid and not present yet
-                if (id !== undefined && pre[id] === undefined) {
-                    pre[id] = this.config(option);
-                }
-            }
-        }
-        return pre;
-    }
-
-    _selectAddress(clientMAC: any, req: any = []) {
-
-        /*
-        * IP Selection algorithm:
-        *
-        * 0. Is Mac already known, send same IP of known lease
-        *
-        * 1. Is there a wish for static binding?
-        *
-        * 2. Are all available IP's occupied?
-        *    - Send release to oldest lease and reuse
-        *
-        * 3. is config randomIP?
-        *    - Select random IP of range, until no occupied slot is found
-        *
-        * 4. Take first unmapped IP of range
-        *
-        * TODO:
-        * - Incorporate user preference, sent to us
-        * - Check APR if IP exists on net
-        */
-
-
-        // If existing lease for a mac address is present, re-use the IP
-        if (this._state[clientMAC] && this._state[clientMAC].address) {
-            return this._state[clientMAC].address;
-        }
-
-
-        // Is there a static binding?
-        const _static = this.config('static');
-        if (typeof _static === "function") {
-            const staticResult = _static(clientMAC, req);
-            if (staticResult)
-                return staticResult;
-        } else if (_static[clientMAC]) {
-            return _static[clientMAC];
-        }
-
-
-        const randIP = this.config('randomIP');
-        const _tmp = this.config('range');
-        const firstIP = Tools.parseIp(_tmp[0]);
-        const lastIP = Tools.parseIp(_tmp[1]);
-
-        // Add all known addresses and save the oldest lease
-        const ips = [this.config('server')]; // Exclude our own server IP from pool
-        let oldestMac = null;
-        let oldestTime = Infinity;
-        let leases = 0;
-        for (let mac in this._state) {
-            if (this._state[mac].address)
-                ips.push(this._state[mac].address);
-
-            if (this._state[mac].leaseTime < oldestTime) {
-                oldestTime = this._state[mac].leaseTime;
-                oldestMac = mac;
-            }
-            leases++;
-        }
-
-        // Check if all IP's are used and delete the oldest
-        if (oldestMac !== null && lastIP - firstIP === leases) {
-            const ip = this._state[oldestMac].address;
-
-            // TODO: Notify deleted client
-            delete this._state[oldestMac];
-
-            return ip;
-        }
-
-        // Select a random IP, maybe not the best algorithm for quick selection if lots of ip's are given: TODO
-        if (randIP) {
-
-            while (1) {
-
-                const ip = Tools.formatIp(firstIP + Math.random() * (lastIP - firstIP) | 0);
-
-                if (ips.indexOf(ip) === -1) {
-                    return ip;
-                }
-            }
-        }
-
-        // Choose first free IP in subnet
-        for (let i = firstIP; i <= lastIP; i++) {
-
-            const ip = Tools.formatIp(i);
-
-            if (ips.indexOf(ip) === -1) {
-                return ip;
-            }
+            });
         }
     }
 
-    handleDiscover(req: IRequest) {
-        //console.log('Handle Discover', req);
+    sendAck(requestPacket: DhcpPacket) {
+        let foundLease = this.selectAddress(requestPacket);
 
-        const lease = this._state[req.chaddr] = this._state[req.chaddr] || new Lease();
-        lease.address = this._selectAddress(req.chaddr, req);
-        lease.leasePeriod = this.config('leaseTime');
-        lease.server = this.config('server');
-        lease.state = 'OFFERED';
-
-        //console.log('discovery message from : ', JSON.stringify(req));
-
-        // Formulate the response object
-        const ans = {
-            op: BOOTREPLY,
-            htype: 1, // RFC1700, hardware types: 1=Ethernet, 2=Experimental, 3=AX25, 4=ProNET Token Ring, 5=Chaos, 6=Tokenring, 7=Arcnet, 8=FDDI, 9=Lanstar (keep it constant)
-            hlen: 6, // Mac addresses are 6 byte
-            hops: 0,
-            xid: req.xid, // 'xid' from client DHCPDISCOVER message
-            secs: 0,
-            flags: req.flags,
-            ciaddr: INADDR_ANY,
-            yiaddr: this._selectAddress(req.chaddr), // My offer
-            siaddr: this.config('server'), // next server in bootstrap. That's us
-            giaddr: req.giaddr,
-            chaddr: req.chaddr, // Client mac address
-            sname: '',
-            file: '',
-            options: this._getOptions({
-                53: DHCPOFFER
-            }, [
-                1, 3, 51, 54, 6
-            ], req.options[55])
-        };
-
-        // Send the actual data
-        // INADDR_BROADCAST : 68 <- SERVER_IP : 67
-        console.log('sending offer:', JSON.stringify(ans));
-        this._send(this.config('broadcast'), ans);
-    }
-
-    handleRequest(req: IRequest) {
-        //console.log('accept offer from ', JSON.stringify(req));
-
-        const lease = this._state[req.chaddr] = this._state[req.chaddr] || new Lease;
-        lease.address = this._selectAddress(req.chaddr);
-        lease.leasePeriod = this.config('leaseTime');
-        lease.server = this.config('server');
-        lease.state = 'BOUND';
-        lease.bindTime = new Date;
-
-        //console.log('Send ACK');
-        // Formulate the response object
-        const ans = {
-            op: BOOTREPLY,
-            htype: 1, // RFC1700, hardware types: 1=Ethernet, 2=Experimental, 3=AX25, 4=ProNET Token Ring, 5=Chaos, 6=Tokenring, 7=Arcnet, 8=FDDI, 9=Lanstar (keep it constant)
-            hlen: 6, // Mac addresses are 6 byte
-            hops: 0,
-            xid: req.xid, // 'xid' from client DHCPREQUEST message
-            secs: 0,
-            flags: req.flags, // 'flags' from client DHCPREQUEST message
-            ciaddr: req.ciaddr,
-            yiaddr: this._selectAddress(req.chaddr), // my offer
-            siaddr: this.config('server'), // server ip, that's us
-            giaddr: req.giaddr, // 'giaddr' from client DHCPREQUEST message
-            chaddr: req.chaddr, // 'chaddr' from client DHCPREQUEST message
-            sname: '',
-            file: '',
-            options: this._getOptions({
-                53: DHCPACK
-            }, [
-                1, 3, 51, 54, 6
-            ], req.options[55])
-        };
-
-        // Send the actual data
-        // INADDR_BROADCAST : 68 <- SERVER_IP : 67
-        console.log('sending acknowledge ',JSON.stringify(ans));
-        this._send(this.config('broadcast'), ans);
-    }
-
-    handleRelease() {}
-
-    handleRenew() {}
-
-    _send(host: any, req: IRequest) {
-
-        const sb = SeqBuffer.fromRequest(req);
+        if (foundLease == null) return;
         
-        this._sock.send(sb._data, 0, sb._w, CLIENT_PORT, host, (err: any, bytes: any) => {
-            if (err) {
-                console.log(err);
-            } else {
-                //console.log('Sent ', bytes, 'bytes');
+        requestPacket.setAsAck(foundLease.IP, this.serverIP, 
+            this.router, Lease.lifetime, this.subnet);
+        
+        if (!requestPacket.requestsBroadcast) {
+            Unicast.send(requestPacket, 
+                this.serverMAC, requestPacket.clientMAC,
+                this.serverIP, requestPacket.yourIP);
+        }
+        else {
+            this.socket.send(requestPacket.writeToBuffer(), 
+                DhcpServer.CLIENT_PORT, this.broadcastIP, 
+                (err: any) => {
+                if (err) {
+                    console.error(`Error sending response: ${err.message}`);
+                    this.socket.close();
+                }
+            });
+        }
+    }
+
+    selectAddress(requestPacket: DhcpPacket): Lease {
+        //https://techhub.hpe.com/eginfolib/networking/docs/switches/5120si/cg/5998-8491_l3-ip-svcs_cg/content/436042663.htm
+
+        //try most recent transaction
+        let mostRecentTransactionId = requestPacket.transactionId;
+        let foundLeases = this.leases.filter(l => l.mostRecentTransactionId == mostRecentTransactionId);
+        if (foundLeases.length) {
+            return foundLeases[0];
+        }
+
+        //try to offer preferred ip
+        let preferredIp = requestPacket.clientIP;
+        if (preferredIp != "0.0.0.0") {
+            let withSameIP = this.leases.filter(l => l.IP == preferredIp);
+            if (withSameIP.length) {
+                //matching MAC to let them have it
+                if (withSameIP[0].MAC == requestPacket.clientMAC) {
+                    return withSameIP[0];
+                }
+                //different MAC so they need a different IP
             }
-        });
+            else { //nobody has the IP so give it away
+                let lease = new Lease(requestPacket.clientMAC, requestPacket.clientIP, 
+                    requestPacket.transactionId);
+                this.leases.push(lease);
+                return lease;
+            }
+        }
+
+        let withSameMAC = this.getLeaseWithSameMAC(requestPacket.clientMAC);
+        if (withSameMAC) {
+            withSameMAC.state = LeaseState.offered;
+            withSameMAC.expires = new Date().valueOf() + Lease.lifetime;
+            withSameMAC.mostRecentTransactionId = requestPacket.transactionId;
+            return withSameMAC;
+        }
+
+        //try option 50
+        let foundOptions = requestPacket.options.filter(o => o.code == 50);
+        if (foundOptions.length) {
+            let requestedIP = Helpers.readIP(foundOptions[0].rdata, 0);
+            let lease = new Lease(requestPacket.clientMAC, requestedIP, requestPacket.transactionId);
+            this.leases.push(lease);
+            return lease;
+        }
+        
+        let offeredIp = Helpers.chooseRandom(this.possibleIPs);
+        let lease = new Lease(requestPacket.clientMAC, offeredIp, requestPacket.transactionId);
+        this.leases.push(lease);
+        return lease;
+    }
+
+    get possibleIPs(): string[] {
+        let startIndex = this.rangeStart.lastIndexOf('.');
+        let endIndex = this.rangeEnd.lastIndexOf('.');
+        if (this.rangeStart.substring(0, startIndex) != this.rangeEnd.substring(0, endIndex)) {
+            throw('invalid range - first 3 sections of start and end must be equal'); 
+        }
+        let prefix = this.rangeStart.substring(0, startIndex);
+        let startN = parseInt(this.rangeStart.substring(startIndex+1));
+        let endN = parseInt(this.rangeEnd.substring(startIndex+1));
+        let possibleIPs = [];
+        for (let i = startN; i <= endN; i++) {
+            possibleIPs.push(prefix + '.' + i.toString());
+        }
+        //remove taken IPs
+        possibleIPs = Helpers.difference(possibleIPs, this.leases.map(l => l.IP));
+        return possibleIPs;
+    }
+
+    getLeaseWithSameMAC(MAC: string): Lease | null {
+        let withSameMAC = this.leases.filter(l => l.MAC == MAC);
+        if (withSameMAC.length) {
+            return withSameMAC[0];
+        }
+        return null;
     }
 }
 
 
-
-/*
-    //NOT USED
-    sendNak(req: IRequest) {
-        //console.log('Send NAK');
-        // Formulate the response object
-        const ans = {
-            op: BOOTREPLY,
-            htype: 1, // RFC1700, hardware types: 1=Ethernet, 2=Experimental, 3=AX25, 4=ProNET Token Ring, 5=Chaos, 6=Tokenring, 7=Arcnet, 8=FDDI, 9=Lanstar (keep it constant)
-            hlen: 6, // Mac addresses are 6 byte
-            hops: 0,
-            xid: req.xid, // 'xid' from client DHCPREQUEST message
-            secs: 0,
-            flags: req.flags, // 'flags' from client DHCPREQUEST message
-            ciaddr: INADDR_ANY,
-            yiaddr: INADDR_ANY,
-            siaddr: INADDR_ANY,
-            giaddr: req.giaddr, // 'giaddr' from client DHCPREQUEST message
-            chaddr: req.chaddr, // 'chaddr' from client DHCPREQUEST message
-            sname: '', // unused
-            file: '', // unused
-            options: this._getOptions({
-                53: DHCPNAK
-            }, [
-                54
-            ])
-        };
-
-        // Send the actual data
-        
-        this._send(this.config('broadcast'), ans);
-    }
-    */

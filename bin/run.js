@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const options_1 = require("./dhcp/options");
 const dhcpServer_1 = require("./dhcp/dhcpServer");
 const dnsServer_1 = require("./dns/dnsServer");
 const testSocket_1 = require("./dns/testSocket");
@@ -21,7 +20,6 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         //DHCP SERVER
         if (DHCP_ENABLED) {
-            options_1.Options.init();
             var s = new dhcpServer_1.DhcpServer();
         }
         //DNS SERVER
@@ -34,6 +32,7 @@ function run() {
             s.listen();
             s.send();
         }
+        //Unicast.send(Buffer.from([123,32,54,2]));
     });
 }
 run();

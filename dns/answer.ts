@@ -73,7 +73,7 @@ export class Answer implements HasKey {
         return new Answer(DomainName.fromObject(obj.domainName), obj.type, obj.aclass, obj.ttl, obj.rdlength, obj.adata);
     }
 
-    static fromQuestion(q: Question, ipAddress: string) {
+    static fromQuestion(q: Question) {
         if (q.qtype != 28) {
             return new Answer(q.domainName, q.qtype, q.qclass, 30, 4, Buffer.from(Answer.NULL_IP_v4)); 
         }
