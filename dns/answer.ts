@@ -1,3 +1,4 @@
+import { Helpers } from "../helpers";
 import { HasKey } from "./cache";
 import { DomainName } from "./domainName";
 import { Question } from "./question";
@@ -11,8 +12,6 @@ export class Answer implements HasKey {
     adata: Buffer;
 
     //https://en.wikipedia.org/wiki/List_of_DNS_record_types
-    static NULL_IP_v4 = [240,0,0,0];
-    static NULL_IP_v6 = [100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
 
     
     constructor(domainName: DomainName,
@@ -73,12 +72,12 @@ export class Answer implements HasKey {
         return new Answer(DomainName.fromObject(obj.domainName), obj.type, obj.aclass, obj.ttl, obj.rdlength, obj.adata);
     }
 
-    static fromQuestion(q: Question) {
-        if (q.qtype != 28) {
-            return new Answer(q.domainName, q.qtype, q.qclass, 30, 4, Buffer.from(Answer.NULL_IP_v4)); 
+    static answerFromQuestion(q: Question, ip4: string, ip6: Buffer = Buffer.alloc(0)) {
+        if (q.qtype != 28 || ip6.length == 0) {
+            return new Answer(q.domainName, q.qtype, q.qclass, 30, 4, Helpers.IPAsBuffer(ip4)); 
         }
         else { //AAAA is ipv6
-            return new Answer(q.domainName, q.qtype, q.qclass, 30, 4, Buffer.from(Answer.NULL_IP_v6));
+            return new Answer(q.domainName, q.qtype, q.qclass, 30, 4, ip6);
         }
     }
 }

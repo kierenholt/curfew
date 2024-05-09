@@ -1,24 +1,37 @@
-import { spawn } from "child_process";
 import { DhcpServer } from "./dhcp/dhcpServer";
 import { DnsServer } from "./dns/dnsServer";
 import { TestSocket } from "./dns/testSocket";
-import { DomainChecker } from "./domainChecker";
-import { Unicast } from "./python/unicast";
+import { Db } from "./db/db";
+import { User } from "./db/user";
+import { HttpServer } from "./http/httpServer";
+import { UserGroup } from "./db/userGroup";
+import { Domain } from "./db/domain";
+import { BookedSlot } from "./db/bookedSlot";
 
-const DHCP_ENABLED = true;
+const DHCP_ENABLED = false;
 const DNS_ENABLED = false;
 const TEST_SOCKET = false;
+const HTTP_ENABLED = true;
 
 async function run() {
+    await Db.init();
+    let c = await BookedSlot.bookedSlotExistsNow(5);
+    console.log(c);
+    console.log("end")
+
     //DHCP SERVER
     if (DHCP_ENABLED) {
-        var s = new DhcpServer();
+        DhcpServer.init();
     }
 
     //DNS SERVER
     if (DNS_ENABLED) {
-        let checker = new DomainChecker();
-        let server = new DnsServer(checker.isAllowed);
+        DnsServer.init();
+    }
+
+    //HTTP SERVER
+    if (HTTP_ENABLED) {
+        HttpServer.init();
     }
 
     if (TEST_SOCKET) {
@@ -26,8 +39,6 @@ async function run() {
         s.listen();
         s.send();
     }
-
-    //Unicast.send(Buffer.from([123,32,54,2]));
 }
 run();
 

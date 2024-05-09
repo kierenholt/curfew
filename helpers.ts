@@ -72,4 +72,18 @@ export class Helpers {
         }
         return ret;
     }
+
+    static replaceAll(within: string, char: string, neww: string) {
+        return this.replace(within, char, neww, 0);
+    }
+
+    static replace(within: string, char: string, neww: string, i: number): string {
+        if (i == within.length) return "";
+        if (within[i] == char) {
+            return neww + this.replace(within, char, neww, i+1);
+        }
+        else {
+            return within[i] + this.replace(within, char, neww, i+1);
+        }
+    }
  }

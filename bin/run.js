@@ -12,27 +12,36 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dhcpServer_1 = require("./dhcp/dhcpServer");
 const dnsServer_1 = require("./dns/dnsServer");
 const testSocket_1 = require("./dns/testSocket");
-const domainChecker_1 = require("./domainChecker");
-const DHCP_ENABLED = true;
+const db_1 = require("./db/db");
+const httpServer_1 = require("./http/httpServer");
+const bookedSlot_1 = require("./db/bookedSlot");
+const DHCP_ENABLED = false;
 const DNS_ENABLED = false;
 const TEST_SOCKET = false;
+const HTTP_ENABLED = true;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        yield db_1.Db.init();
+        let c = yield bookedSlot_1.BookedSlot.bookedSlotExistsNow(5);
+        console.log(c);
+        console.log("end");
         //DHCP SERVER
         if (DHCP_ENABLED) {
-            var s = new dhcpServer_1.DhcpServer();
+            dhcpServer_1.DhcpServer.init();
         }
         //DNS SERVER
         if (DNS_ENABLED) {
-            let checker = new domainChecker_1.DomainChecker();
-            let server = new dnsServer_1.DnsServer(checker.isAllowed);
+            dnsServer_1.DnsServer.init();
+        }
+        //HTTP SERVER
+        if (HTTP_ENABLED) {
+            httpServer_1.HttpServer.init();
         }
         if (TEST_SOCKET) {
             let s = new testSocket_1.TestSocket();
             s.listen();
             s.send();
         }
-        //Unicast.send(Buffer.from([123,32,54,2]));
     });
 }
 run();

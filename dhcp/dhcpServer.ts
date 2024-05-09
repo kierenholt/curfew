@@ -1,7 +1,6 @@
 import { RemoteInfo, Socket, createSocket } from "dgram";
 import { DhcpPacket, MessageType, RequestReply } from "./dhcpPacket";
 import { Lease, LeaseState } from "./lease";
-import { start } from "repl";
 import { Helpers } from "../helpers";
 import { Unicast } from "../python/unicast";
 
@@ -10,20 +9,19 @@ export class DhcpServer {
     static CLIENT_PORT = 68;
     static INADDR_ANY = '0.0.0.0'; //must stay at 0.0.0.0
     
-    socket: Socket;
-    rangeStart: string = "192.168.0.10";
-    rangeEnd: string = "192.168.0.70";
-    subnet: string = '255.255.255.0';
-    router: string = '192.168.0.1';
-    broadcastIP: string = '192.168.0.255';
-    serverIP: string = '192.168.0.78';
-    hostname: string = "curfew";
-    serverMAC: string = '30:f7:72:45:53:f5';
+    static socket: Socket;
+    static rangeStart: string = "192.168.0.10";
+    static rangeEnd: string = "192.168.0.70";
+    static subnet: string = '255.255.255.0';
+    static router: string = '192.168.0.1';
+    static broadcastIP: string = '192.168.0.255';
+    static serverIP: string = '192.168.0.78';
+    static hostname: string = "curfew";
+    static serverMAC: string = '30:f7:72:45:53:f5';
 
+    static leases: Lease[] = [];
 
-    leases: Lease[] = [];
-
-    constructor() {
+    static init() {
         this.socket = createSocket({ type: 'udp4', reuseAddr: true });
 
         this.socket.bind(DhcpServer.SERVER_PORT, DhcpServer.INADDR_ANY, () => {
@@ -51,7 +49,7 @@ export class DhcpServer {
         });
     }
 
-    sendOffer(requestPacket: DhcpPacket) {
+    static sendOffer(requestPacket: DhcpPacket) {
         let lease = this.selectAddress(requestPacket);
         requestPacket.setAsOffer(lease.IP, this.serverIP, 
             this.router, Lease.lifetime, this.subnet);
@@ -73,7 +71,7 @@ export class DhcpServer {
         }
     }
 
-    sendAck(requestPacket: DhcpPacket) {
+    static sendAck(requestPacket: DhcpPacket) {
         let foundLease = this.selectAddress(requestPacket);
 
         if (foundLease == null) return;
@@ -98,7 +96,7 @@ export class DhcpServer {
         }
     }
 
-    selectAddress(requestPacket: DhcpPacket): Lease {
+    static selectAddress(requestPacket: DhcpPacket): Lease {
         //https://techhub.hpe.com/eginfolib/networking/docs/switches/5120si/cg/5998-8491_l3-ip-svcs_cg/content/436042663.htm
 
         //try most recent transaction
@@ -150,7 +148,7 @@ export class DhcpServer {
         return lease;
     }
 
-    get possibleIPs(): string[] {
+    static get possibleIPs(): string[] {
         let startIndex = this.rangeStart.lastIndexOf('.');
         let endIndex = this.rangeEnd.lastIndexOf('.');
         if (this.rangeStart.substring(0, startIndex) != this.rangeEnd.substring(0, endIndex)) {
@@ -168,12 +166,20 @@ export class DhcpServer {
         return possibleIPs;
     }
 
-    getLeaseWithSameMAC(MAC: string): Lease | null {
+    static getLeaseWithSameMAC(MAC: string): Lease | null {
         let withSameMAC = this.leases.filter(l => l.MAC == MAC);
         if (withSameMAC.length) {
             return withSameMAC[0];
         }
         return null;
+    }
+
+    static getMacFromIP(ip: string): string {
+        let found = this.leases.filter(l => l.IP == ip);
+        if (found.length) {
+            return found[0].MAC;
+        }
+        return "";
     }
 }
 

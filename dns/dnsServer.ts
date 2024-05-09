@@ -2,17 +2,18 @@ import { RemoteInfo, Socket, createSocket } from "dgram";
 import { DnsForwarder } from "./dnsForwarder";
 import { DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
+import { DnsRedirector } from "../dnsRedirector";
 
 export class DnsServer {
     static PORT = 53;
-    socket: Socket;
-    dnsForwarder: DnsForwarder;
-    isRequestAllowed: (host: string, domain: string) => boolean;
+    static socket: Socket;
+    static dnsForwarder: DnsForwarder;
+    static dnsRedirector: DnsRedirector;
 
-    constructor(allowRequest: (host: string, domain: string) => boolean) {
+    static init() {
         this.socket = createSocket('udp4');
         this.dnsForwarder = new DnsForwarder(DnsServer.PORT, this.socket);
-        this.isRequestAllowed = allowRequest;
+        this.dnsRedirector = new DnsRedirector();
 
         this.socket.bind(DnsServer.PORT, () => {
             console.log('DNS server listening on UDP port ', DnsServer.PORT);
@@ -23,9 +24,11 @@ export class DnsServer {
             console.log("Request received for " + packet.questions[0].name);
 
             if (!packet.header.isResponse) { //query
-                if (!this.isRequestAllowed(requestInfo.address, packet.questions[0].name)) {
+                let redirectResult = await this.dnsRedirector.redirect(requestInfo.address, packet.questions[0].name);
+                
+                if (redirectResult.isRedirected && redirectResult.ip4 != null) {
                     //block
-                    packet.addAnswers([Answer.fromQuestion(packet.questions[0])]);
+                    packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], redirectResult.ip4, redirectResult.ip6)]);
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;
                     this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
