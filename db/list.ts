@@ -53,5 +53,12 @@ export class List {
         `)
     }
 
+    static getAll(): Promise<List[]> {
+        return Db.all(`
+            select * from list
+        `)
+        .then((result: any) => result.map((r:any) => new List(r.id, r.name, r.filterAction)))
+    }
+
 
 }

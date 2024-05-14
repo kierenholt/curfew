@@ -1,11 +1,15 @@
 import { Db } from "./db";
 import { RunResult } from "sqlite3";
+import { User } from "./user";
+import { BookableSlot } from "./bookableSlot";
+import { Helpers } from "../helpers";
 
 export class BookedSlot {
     id: number;
     startsOn: Date;
     endsOn: Date;
     userId: number;
+    private _user: Promise<User | null> | undefined = undefined;
     
     constructor(id: number, startsOn: number, endsOn: number, userId: number) {
         this.id = id;
@@ -26,17 +30,36 @@ export class BookedSlot {
                 id integer primary key not null,
                 startsOn integer not null,
                 endsOn integer not null,
-                userId integer not null
+                userId integer not null,
+                FOREIGN KEY(userId) REFERENCES user(id)
                 );
         `)
     }
 
-    static create(startOn: Date, endsOn: Date, userId: number): Promise<number> {
+    static create(startsOn: Date, endsOn: Date, userId: number): Promise<number> {
         return Db.run(`
             insert into bookedSlot (startsOn, endsOn, userId)
-            values (${startOn.valueOf()}, ${endsOn.valueOf()}, ${userId})
+            values (${startsOn.valueOf()}, ${endsOn.valueOf()}, ${userId})
         `)
         .then(result => result.lastID);
+    }
+
+    static fromBookableSlot(bookableSlotId: number, userId: number): Promise<number | void> {
+        return BookableSlot.getById(bookableSlotId)
+        .then(
+            (bookableSlot: BookableSlot | null) => {
+                if (bookableSlot) {
+                    return BookedSlot.create(
+                        new Date(),
+                        Helpers.addMinutesToDate(new Date(), bookableSlot.duration),
+                        userId
+                    )
+                }
+                else {
+                    throw(`bookable slot with id ${bookableSlotId} not found`);
+                }
+            }
+        )
     }
 
     static getById(id: number): Promise<BookedSlot | null> {
@@ -54,12 +77,29 @@ export class BookedSlot {
         `)
     }
 
-    static bookedSlotExistsNow(userId: number): Promise<boolean> {
+    static bookedSlotInUse(userId: number): Promise<BookedSlot | null> {
         let now = new Date().valueOf();
         return Db.get(`
             select * from bookedSlot
             where startsOn < ${now} and endsOn > ${now} and userId = ${userId}
         `)
-        .then(result => result != null);
+        .then((result: any) => result ? new BookedSlot(result.id, result.startOn, result.endsOn, result.userId) : null);
+    }
+
+    get user(): Promise<User | null> {
+        if (this.user == null) { 
+            this._user = Promise.resolve(null);
+        }
+        if (this._user == undefined) {
+            this._user = User.getById(this.userId);
+        }
+        return this._user;
+    }
+
+    static getAll(): Promise<BookedSlot[]> {
+        return Db.all(`
+            select * from bookedSlot
+        `)
+        .then((result: any) => result.map((r:any) => new BookedSlot(r.id, r.startsOn, r.endsOn, r.userId)))
     }
 }

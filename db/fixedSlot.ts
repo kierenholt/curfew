@@ -1,9 +1,11 @@
 import { Db } from "./db";
 import { RunResult } from "sqlite3";
+import { UserGroup } from "./userGroup";
 
 export class FixedSlot {
     id: number;
     groupId: number;
+    private _group: Promise<UserGroup> | undefined;
     startsOn: number;
     endsOn: number;
 
@@ -20,7 +22,8 @@ export class FixedSlot {
                 id integer primary key not null,
                 groupId integer not null,
                 startsOn integer not null,
-                endsOn integer not null
+                endsOn integer not null,
+                FOREIGN KEY(groupId) REFERENCES userGroup(id)
             );
         `)
     }
@@ -46,5 +49,19 @@ export class FixedSlot {
             delete from slot
             where id = ${id}
         `)
+    }
+
+    get group(): Promise<UserGroup> {
+        if (this._group == undefined) {
+            this._group = UserGroup.getById(this.groupId);
+        }
+        return this._group;
+    }
+
+    static getAll(): Promise<FixedSlot[]> {
+        return Db.all(`
+            select * from fixedSlot
+        `)
+        .then((result: any) => result.map((r:any) => new FixedSlot(r.id, r.groupId, r.startsOn, r.endsOn)))
     }
 }

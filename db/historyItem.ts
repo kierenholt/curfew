@@ -48,5 +48,13 @@ export class HistoryItem {
         `)
     }
 
-
+    static getMostRecent(MAC: string): Promise<HistoryItem | null> {
+        return Db.get(`
+            select * from history
+            where MAC = '${MAC}'
+            order by requestedOn desc
+            limit 1
+        `)
+        .then((result: any) => result ? new HistoryItem(result.id, result.MAC, result.domain, result.requestedOn) : null );
+    }
 }

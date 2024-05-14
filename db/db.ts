@@ -85,7 +85,7 @@ export class Db {
         return this.connection.get(sql);
     }
 
-    static all(sql: string): Promise<unknown[]> {
+    static all(sql: string): Promise<any[]> {
         return this.connection.all(sql);
     }
 

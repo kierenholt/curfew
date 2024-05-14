@@ -86,4 +86,18 @@ export class Helpers {
             return within[i] + this.replace(within, char, neww, i+1);
         }
     }
+
+    static addMinutesToDate(d: Date, mins: number) {
+        return new Date(d.valueOf() + mins*60*1000);
+    }
+
+    static get<T>(url: string): Promise<T> {
+        return fetch(url)
+            .then((req: Response) => req.json())
+    }
+
+    static post<T>(url: string, data: any): Promise<T> {
+        return fetch(url, { method: "post", body: JSON.stringify(data) })
+            .then((req: Response) => req.json())
+    }
  }

@@ -1,11 +1,13 @@
 import { RunResult } from "sqlite3";
 import { Db } from "./db";
 import { Helpers } from "../helpers";
+import { List } from "./list";
 
 export class Domain {
     id: number;
     component: string;
     listId: number;
+    private _list: Promise<List | null> | undefined;
 
     constructor(id: number, component: string, listId: number) {
         this.id = id;
@@ -22,7 +24,8 @@ export class Domain {
             create table domain (
                 id integer primary key not null,
                 component text not null,
-                listId integer not null
+                listId integer not null,
+                FOREIGN KEY(listId) REFERENCES list(id)
             );
         `)
     }
@@ -43,13 +46,13 @@ export class Domain {
         .then((result:any) => result ? new Domain(result.id, result.component, result.listId) : null);
     }
 
-    static getListIdFromDomain(domain: string): Promise<number | null> {
-        let spl = Helpers.replaceAll(domain,".", "','");
+    static getFromDomainName(domainName: string): Promise<Domain | null> {
+        let spl = Helpers.replaceAll(domainName,".", "','");
         return Db.get(`
-            select listId from domain
+            select * from domain
             where component in ('${spl}')
         `)
-        .then(result => result?.listId);
+        .then((result: any) => result ? new Domain(result.id, result.component, result.listId) : null);
     }
 
     static delete(id: number): Promise<RunResult> {
@@ -59,5 +62,18 @@ export class Domain {
         `)
     }
 
+    get list(): Promise<List | null> {
+        if (this._list == undefined) {
+            this._list = List.getById(this.listId);
+        }
+        return this._list;
+    }
+
+    static getAll(): Promise<Domain[]> {
+        return Db.all(`
+            select * from domain
+        `)
+        .then((result: any) => result.map((r:any) => new Domain(r.id, r.component, r.listId)))
+    }
 
 }

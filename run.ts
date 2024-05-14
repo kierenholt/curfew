@@ -2,23 +2,18 @@ import { DhcpServer } from "./dhcp/dhcpServer";
 import { DnsServer } from "./dns/dnsServer";
 import { TestSocket } from "./dns/testSocket";
 import { Db } from "./db/db";
-import { User } from "./db/user";
-import { HttpServer } from "./http/httpServer";
-import { UserGroup } from "./db/userGroup";
-import { Domain } from "./db/domain";
-import { BookedSlot } from "./db/bookedSlot";
+import { API as API } from "./api/api";
 
 const DHCP_ENABLED = false;
 const DNS_ENABLED = false;
 const TEST_SOCKET = false;
-const HTTP_ENABLED = true;
+const API_ENABLED = true;
 
 async function run() {
     await Db.init();
-    let c = await BookedSlot.bookedSlotExistsNow(5);
-    console.log(c);
-    console.log("end")
-
+    //let c = await BookedSlot.bookedSlotExistsNow(5);
+    //console.log(c);
+    
     //DHCP SERVER
     if (DHCP_ENABLED) {
         DhcpServer.init();
@@ -29,9 +24,9 @@ async function run() {
         DnsServer.init();
     }
 
-    //HTTP SERVER
-    if (HTTP_ENABLED) {
-        HttpServer.init();
+    //API
+    if (API_ENABLED) {
+        API.init();
     }
 
     if (TEST_SOCKET) {

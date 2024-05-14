@@ -2,18 +2,30 @@ import { RemoteInfo, Socket, createSocket } from "dgram";
 import { DnsForwarder } from "./dnsForwarder";
 import { DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
-import { DnsRedirector } from "../dnsRedirector";
+import { Redirector } from "../redirector";
+import { RedirectPage } from "../redirect";
+
+export interface RedirectResult {
+    isRedirected: boolean; 
+    ip4?: string | undefined; 
+    ip6?: Buffer | undefined;
+}
+
 
 export class DnsServer {
     static PORT = 53;
     static socket: Socket;
     static dnsForwarder: DnsForwarder;
-    static dnsRedirector: DnsRedirector;
+    static dnsRedirector: Redirector;
+
+    static NULL_IP_v4: string = "240.0.0.0";
+    static NULL_IP_v6: Buffer = Buffer.from([100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]); //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
+    static LOCALHOST: string = "127.0.0.1";
 
     static init() {
         this.socket = createSocket('udp4');
         this.dnsForwarder = new DnsForwarder(DnsServer.PORT, this.socket);
-        this.dnsRedirector = new DnsRedirector();
+        this.dnsRedirector = new Redirector();
 
         this.socket.bind(DnsServer.PORT, () => {
             console.log('DNS server listening on UDP port ', DnsServer.PORT);
@@ -24,11 +36,11 @@ export class DnsServer {
             console.log("Request received for " + packet.questions[0].name);
 
             if (!packet.header.isResponse) { //query
-                let redirectResult = await this.dnsRedirector.redirect(requestInfo.address, packet.questions[0].name);
-                
-                if (redirectResult.isRedirected && redirectResult.ip4 != null) {
+                let redirectResult = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
+                let isRedirected = (redirectResult.redirectResult != RedirectPage.allowPage);
+                if (isRedirected) {
                     //block
-                    packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], redirectResult.ip4, redirectResult.ip6)]);
+                    packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.NULL_IP_v4, this.NULL_IP_v6)]);
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;
                     this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {

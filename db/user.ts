@@ -1,9 +1,11 @@
 import { Database, RunResult } from "sqlite3";
 import { Db } from "./db";
+import { UserGroup } from "./userGroup";
 
 export class User {
     id: number;
     groupId: number;
+    private _group: Promise<UserGroup> | undefined;
     name: string;
 
     constructor(id: number, groupId: number, name: string) {
@@ -17,7 +19,8 @@ export class User {
             create table user (
                 id integer primary key not null,
                 groupId integer not null,
-                name text not null
+                name text not null,
+                FOREIGN KEY(groupId) REFERENCES userGroup(id)
             );
         `)
     }
@@ -41,7 +44,7 @@ export class User {
             select * from user
             where id = ${id}
         `)
-        .then((result:any) => result ? new User(result.id, result.groupId, result.name): null);
+        .then((result:any) => result ?new User(result.id, result.groupId, result.name) : null);
     }
 
     static updateName(id: number, name: string): Promise<RunResult> {
@@ -59,4 +62,17 @@ export class User {
         `)
     }
 
+    get group(): Promise<UserGroup> {
+        if (this._group == undefined) {
+            this._group = UserGroup.getById(this.groupId);
+        }
+        return this._group;
+    }
+
+    static getAll(): Promise<User[]> {
+        return Db.all(`
+            select * from user
+        `)
+        .then((result: any) => result.map((r:any) => new User(r.id, r.groupId, r.name)))
+    }
 }

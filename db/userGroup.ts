@@ -1,5 +1,6 @@
 import { RunResult } from "sqlite3";
 import { Db } from "./db";
+import { User } from "./user";
 
 
 export class UserGroup {
@@ -36,12 +37,12 @@ export class UserGroup {
         .then(result => result.lastID);
     }
 
-    static getById(id: number): Promise<UserGroup | null> {
+    static getById(id: number): Promise<UserGroup> {
         return Db.get(`
             select * from userGroup
             where id = ${id}
         `)
-        .then((result:any) => result ? new UserGroup(result.id, result.name, result.isUnrestricted): null);
+        .then((result:any) => new UserGroup(result.id, result.name, result.isUnrestricted));
     }
 
     static updateName(id: number, name: string): Promise<RunResult> {
@@ -57,5 +58,12 @@ export class UserGroup {
             delete from userGroup
             where id = ${id}
         `)
+    }
+
+    static getAll(): Promise<UserGroup[]> {
+        return Db.all(`
+            select * from userGroup
+        `)
+        .then((result: any) => result.map((r:any) => new UserGroup(r.id, r.name, r.isUnrestricted)))
     }
 }

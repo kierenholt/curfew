@@ -47,4 +47,11 @@ export class BookableSlot {
             where id = ${id}
         `)
     }
+
+    static getAll(): Promise<BookableSlot[]> {
+        return Db.all(`
+            select * from bookableSlot
+        `)
+        .then((result: any) => result.map((r:any) => new BookableSlot(r.id, r.refillsOn, r.numSlots, r.duration)))
+    }
 }
