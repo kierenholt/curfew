@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react"
-import { UserGroup } from "../../db/userGroup"
-import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent } from "@mui/joy";
+import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, IconButton } from "@mui/joy";
 import GroupIcon from '@mui/icons-material/Group';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import { Helpers } from "../../helpers";
+import { IUserGroup } from "./types";
+import { Helpers } from "./helpers";
+import { Edit } from "@mui/icons-material";
+import { UserGroupEditModal } from "./USerGroupEditModal";
 
 interface UserGroupListProps {
-    setSelectedUserGroup: (u: UserGroup) => void;
+    setSelectedUserGroup: (u: IUserGroup | null) => void;
+    selectedGroup: IUserGroup | null;
 }
 
 export function UserGroupList(props: UserGroupListProps) {
-    let [groups, setGroups] = useState<UserGroup[]>([]);
-
+    let [groups, setGroups] = useState<IUserGroup[]>([]);
+    let [modalUserId, setModalUserId] = useState<number>(0);
+    
     useEffect(() => {
-        Helpers.get<UserGroup[]>("/api/userGroups/")
-            .then((groups: UserGroup[]) => {
+        Helpers.get<IUserGroup[]>("/api/userGroups/")
+            .then((groups: IUserGroup[]) => {
                 setGroups(groups)
         })
     }, []);
@@ -22,19 +26,31 @@ export function UserGroupList(props: UserGroupListProps) {
     const createNewGroup = () => {
         let newGroup = {
             name: "new group",
-            isRestricted: true,
+            isUnrestricted: true,
             id: 0
         };
         Helpers.post<number>("/api/userGroups/", newGroup)
             .then((id: number) => {
-                setGroups([...groups, new UserGroup(id, newGroup.name, newGroup.isRestricted ? 1 : 0)]);
+                setGroups([...groups, {id: id, name: newGroup.name, isUnrestricted: newGroup.isUnrestricted}]);
             })
     }
 
+    const isSelectedGroup = (u: IUserGroup): boolean => {
+        return u === props.selectedGroup;
+    }
+
     return (<List>
-        {groups.map((g: UserGroup) =>
-            <ListItem>
-                <ListItemButton onClick={() => props.setSelectedUserGroup(g)}>
+        {groups.map((g: IUserGroup) =>
+            <ListItem color="neutral"
+            
+        endAction={
+            <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
+                onClick={() => {setModalUserId(g.id)}}>
+              <Edit />
+            </IconButton>
+          }>
+                <ListItemButton onClick={() => props.setSelectedUserGroup(g)}
+                    selected={isSelectedGroup(g)}>
                     <ListItemDecorator>
                         <GroupIcon />
                     </ListItemDecorator>
@@ -52,6 +68,9 @@ export function UserGroupList(props: UserGroupListProps) {
                     Create a group
                 </ListItemContent>
             </ListItemButton>
+
+            <UserGroupEditModal userGroupId={modalUserId} 
+                setUserGroupId={setModalUserId}/>
     </List>
     )
 }

@@ -1,3 +1,6 @@
 node_modules
 .env
-bin
+server/node_modules
+app/node_modules
+server/bin
+app/bin
