@@ -38,6 +38,16 @@ export class Device {
         .then(result => result.lastID);
     }
 
+    static update(MAC: string, ownerId: number, name: string): Promise<number> {
+        return Db.run(`
+            update device 
+            set ownerId=${ownerId}, 
+            name='${name}'
+            where MAC='${MAC}'
+        `)
+        .then(result => result.lastID);
+    }
+
     static getByMac(MAC: string): Promise<Device | null> {
         return Db.get(`
             select * from device

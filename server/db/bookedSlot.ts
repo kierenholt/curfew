@@ -44,6 +44,18 @@ export class BookedSlot {
         .then(result => result.lastID);
     }
 
+    static update(id: number, startsOn: Date, endsOn: Date, userId: number): Promise<number> {
+        return Db.run(`
+            update bookedSlot
+            set startsOn=${startsOn.valueOf()}, 
+            endsOn=${endsOn.valueOf()}, 
+            userId=${userId}
+            where id=${id}
+        `)
+        .then(result => result.lastID);
+    }
+
+
     static fromBookableSlot(bookableSlotId: number, userId: number): Promise<number | void> {
         return BookableSlot.getById(bookableSlotId)
         .then(

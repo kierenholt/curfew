@@ -39,6 +39,16 @@ export class User {
         .then(result => result.lastID);
     }
 
+    static update(id: number, groupId: number, name: string): Promise<number> {
+        return Db.run(`
+            update user 
+            set groupId=${groupId}, 
+            name='${name}',
+            where id=${id}
+        `)
+        .then(result => result.lastID);
+    }
+
     static getById(id: number): Promise<User | null> {
         return Db.get(`
             select * from user

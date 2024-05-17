@@ -33,6 +33,17 @@ export class HistoryItem {
         .then(result => result.lastID);
     }
 
+    static update(id: number, mac: string, domain: string, requestedOn: Date): Promise<number> {
+        return Db.run(`
+            update history 
+            set MAC='${mac}', 
+            domain='${domain}', 
+            requestedOn=${requestedOn.valueOf()}
+            where id=${id}
+            `)
+        .then(result => result.lastID);
+    }
+
     static getById(id: number): Promise<HistoryItem | null> {
         return Db.get(`
             select * from history

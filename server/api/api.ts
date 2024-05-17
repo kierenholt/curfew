@@ -17,7 +17,7 @@ export class API {
         //app.use(express.urlencoded()); // to support URL-encoded bodies
 
         const port = 5000;
-        
+
         app.get('/api/portal', async (req: Request, res: Response) => {
             if (req.socket.remoteAddress == undefined) {
                 res.status(500).send();
@@ -34,11 +34,21 @@ export class API {
         });
         
 
+        //https://developer.accela.com/docs/construct-apiNamingConventions.html
         //create device
         app.post('/api/devices', async (req: Request, res: Response) => {
             if (req.body.MAC && req.body.name && req.body.ownerId) {
                 let ret = await Device.create(req.body.MAC, req.body.ownerId, req.body.name);
                 res.status(200).send({id: ret});
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+        app.put('/api/devices/:mac', async (req: Request, res: Response) => {
+            if (req.body.name && req.body.ownerId) {
+                let ret = await Device.update(req.params.mac, req.body.ownerId, req.body.name);
+                res.status(200).send(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -56,6 +66,16 @@ export class API {
                 res.status(400).send("parameter error");
             }
         });
+        app.put('/api/users/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            if (id > 0 && req.body.name && req.body.groupId) {
+                let ret = await User.update(id, req.body.groupId, req.body.name);
+                res.status(200).send(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
 
 
         //create group
@@ -63,6 +83,16 @@ export class API {
             if (req.body.name && req.body.isUnrestricted) {
                 let ret = await UserGroup.create(req.body.name, req.body.isUnrestricted);
                 res.status(200).send({id: ret});
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+        app.put('/api/userGroups/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            if (id > 0 && req.body.name && req.body.isUnrestricted) {
+                let ret = await UserGroup.update(id, req.body.name, req.body.isUnrestricted);
+                res.status(200).send(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -80,6 +110,16 @@ export class API {
                 res.status(400).send("parameter error");
             }
         });
+        app.put('/api/domains/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            if (id > 0 && req.body.component && req.body.listId) {
+                let ret = await Domain.update(id, req.body.component, req.body.listId);
+                res.status(200).send(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
 
 
         //create list
@@ -87,6 +127,16 @@ export class API {
             if (req.body.name && req.body.filterAction) {
                 let ret = await List.create(req.body.name, req.body.filterAction);
                 res.status(200).send({id: ret});
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+        app.put('/api/lists/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            if (id > 0 && req.body.name && req.body.filterAction) {
+                let ret = await List.update(id, req.body.name, req.body.filterAction);
+                res.status(200).send(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -104,6 +154,16 @@ export class API {
                 res.status(400).send("parameter error");
             }
         });
+        app.put('/api/bookableSlots/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            if (id > 0 && req.body.refillsOn && req.body.numSlots && req.body.duration) {
+                let ret = await BookableSlot.update(id, req.body.refillsOn, req.body.numSlots, req.body.duration);
+                res.status(200).send(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
 
 
         //create booked slot
@@ -111,6 +171,16 @@ export class API {
             if (req.body.bookableSlotId && req.body.userId) {
                 let ret = await BookedSlot.fromBookableSlot(req.body.bookableSlotId, req.body.userId);
                 res.status(200).send({id: ret});
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+        app.put('/api/bookedSlots/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            if (id > 0 && req.body.startsOn && req.body.endsOn && req.body.userId) {
+                let ret = await BookedSlot.update(id, req.body.startsOn, req.body.endsOn, req.body.userId);
+                res.status(200).send(ret);
             }
             else {
                 res.status(400).send("parameter error");

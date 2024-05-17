@@ -37,6 +37,16 @@ export class UserGroup {
         .then(result => result.lastID);
     }
 
+    static update(id: number, name: string, isUnrestricted: boolean): Promise<number> {
+        return Db.run(`
+            update userGroup
+            set name='${name}', 
+            isUnrestricted=${isUnrestricted ? 1: 0},
+            where id=${id}
+        `)
+        .then(result => result.lastID);
+    }
+
     static getById(id: number): Promise<UserGroup> {
         return Db.get(`
             select * from userGroup

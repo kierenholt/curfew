@@ -5,7 +5,7 @@ import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import { IUserGroup } from "./types";
 import { Helpers } from "./helpers";
 import { Edit } from "@mui/icons-material";
-import { UserGroupEditModal } from "./USerGroupEditModal";
+import { UserGroupEditModal } from "./UserGroupEditModal";
 
 interface UserGroupListProps {
     setSelectedUserGroup: (u: IUserGroup | null) => void;
@@ -39,6 +39,10 @@ export function UserGroupList(props: UserGroupListProps) {
         return u === props.selectedGroup;
     }
 
+    const handleModalClose = () => {
+        
+    }
+
     return (<List>
         {groups.map((g: IUserGroup) =>
             <ListItem color="neutral"
@@ -70,7 +74,7 @@ export function UserGroupList(props: UserGroupListProps) {
             </ListItemButton>
 
             <UserGroupEditModal userGroupId={modalUserId} 
-                setUserGroupId={setModalUserId}/>
+                onClose={handleModalClose}/>
     </List>
     )
 }

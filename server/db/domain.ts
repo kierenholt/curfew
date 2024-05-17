@@ -38,6 +38,16 @@ export class Domain {
         .then(result => result.lastID);
     }
 
+    static update(id: number, component: string, listId: number): Promise<number> {
+        return Db.run(`
+            update domain 
+            set component='${component}', 
+            listId=${listId}
+            where id=${id}
+        `)
+        .then(result => result.lastID);
+    }
+
     static getById(id: number): Promise<Domain | null> {
         return Db.get(`
             select * from domain

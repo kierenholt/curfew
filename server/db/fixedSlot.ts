@@ -36,6 +36,17 @@ export class FixedSlot {
         .then(result => result.lastID);
     }
 
+    static update(id: number, groupId: string, startsOn: Date, endsOn: Date): Promise<number> {
+        return Db.run(`
+            update slot 
+            set groupId=${groupId}, 
+            startsOn=${startsOn}, 
+            endsOn=${endsOn}
+            where id=${id}
+        `)
+        .then(result => result.lastID);
+    }
+
     static getById(id: number): Promise<FixedSlot | null> {
         return Db.get(`
             select * from slot

@@ -32,6 +32,17 @@ export class BookableSlot {
         `)
         .then(result => result.lastID);
     }
+    
+    static update(id: number, refillsOn: Date, numSlots: number, duration: number): Promise<number> {
+        return Db.run(`
+            update bookableSlot 
+            set refillsOn=${refillsOn.valueOf()}, 
+            numSlots=${numSlots}, 
+            duration=${duration}
+            where id=${id}
+        `)
+        .then(result => result.changes);
+    }
 
     static getById(id: number): Promise<BookableSlot | null> {
         return Db.get(`

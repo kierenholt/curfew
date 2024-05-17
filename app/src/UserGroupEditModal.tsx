@@ -2,29 +2,44 @@ import { Modal, Stack, Typography } from "@mui/joy";
 import TextField from '@mui/material/TextField';
 
 import Box from '@mui/material/Box';
-import { ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Button, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Helpers } from "./helpers";
 import { IUserGroup } from "./types";
 
 interface UserGroupEditModalProps {
     userGroupId: number;
-    setUserGroupId: (n: number) => void;
+    onClose: () => void;
 }
 
 export const UserGroupEditModal = (props: UserGroupEditModalProps) => {
     const handleClose = () => {
-        props.setUserGroupId(0);
+        setIsOpen(false);
+        props.onClose();
     }
     const [name, setName] = useState("");
     const [isUnrestricted, setIsUnrestricted] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
     
     useEffect(() => {
-        Helpers.get<IUserGroup>("/api/userGroup")
-        .then((group: IUserGroup) => {
-            setName(group.name);
-        })
-    },[])
+        Helpers.get<IUserGroup>("/api/userGroups/" + props.userGroupId)
+            .then((group: IUserGroup) => {
+                if (group) {
+                    setIsUnrestricted(group.isUnrestricted);
+                    setName(group.name);
+                }
+                else {
+                    handleClose();
+                }
+            })
+    })
+
+    const handleSave = () => {
+        Helpers.put<number>(`/api/userGroups/${props.userGroupId}`, {name: name, isUnrestricted: isUnrestricted})
+            .then((n: number) => {
+                handleClose();
+            })
+    }
 
     const style = {
         position: 'absolute' as 'absolute',
@@ -41,7 +56,7 @@ export const UserGroupEditModal = (props: UserGroupEditModalProps) => {
 
     return (
         <Modal
-            open={props.userGroupId !== 0}
+            open={isOpen}
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
@@ -81,6 +96,13 @@ export const UserGroupEditModal = (props: UserGroupEditModalProps) => {
                         Unrestricted access to websites and apps.
                         It is recommended to enable for adults only.
                     </Typography>
+
+                    <Button onClick={handleClose}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSave}>
+                        OK
+                    </Button>
                 </Stack>
             </Box>
         </Modal>

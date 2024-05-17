@@ -30,6 +30,15 @@ export class Rule {
         .then(result => result.lastID);
     }
 
+    static update(id: number, groupId: number): Promise<number> {
+        return Db.run(`
+            update rule 
+            set groupId=${groupId}
+            where id=${id}
+        `)
+        .then(result => result.lastID);
+    }
+
     static getById(id: number): Promise<Rule | null> {
         return Db.get(`
             select * from rule

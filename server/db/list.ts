@@ -38,6 +38,16 @@ export class List {
         .then(result => result.lastID);
     }
 
+    static update(id: number, name: string, filterAction: FilterAction): Promise<number> {
+        return Db.run(`
+            update list 
+            set name='${name}', 
+            filterAction=${filterAction}
+            where id=${id}
+        `)
+        .then(result => result.lastID);
+    }
+
     static getById(id: number): Promise<List | null> {
         return Db.get(`
             select * from list

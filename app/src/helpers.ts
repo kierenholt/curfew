@@ -99,4 +99,10 @@ export class Helpers {
             mode: 'cors', headers: { 'Content-Type': 'application/json' }, })
             .then((req: Response) => req.json())
     }
+
+    static put<T>(url: string, data: any): Promise<T> {
+        return fetch(url, { method: "put", body: JSON.stringify(data),
+            mode: 'cors', headers: { 'Content-Type': 'application/json' }, })
+            .then((req: Response) => req.json())
+    }
  }
