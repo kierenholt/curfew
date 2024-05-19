@@ -6,7 +6,7 @@ import { UserSelect } from "./UserSelect";
 
 interface DeviceEditFormProps {
     onEdited: () => void;
-    mac: string
+    id: string
 }
 
 export function DeviceEditForm(props: DeviceEditFormProps) {
@@ -14,17 +14,22 @@ export function DeviceEditForm(props: DeviceEditFormProps) {
     const [ownerId, setOwnerId] = useState<number>(0);
 
     useEffect(() => {
-        Helpers.get<IDevice>(`/api/devices/${props.mac}`)
+        Helpers.get<IDevice>(`/api/devices/${props.id}`)
             .then((Device: IDevice) => {
                 setName(Device.name);
                 setOwnerId(Device.ownerId);
             })
-    })
+    },[props.id])
 
     const save = () => {
-        if (props.mac && name && ownerId > 0)
-        Helpers.put<number>(`/api/devices/${props.mac}`, {name: name, ownerId: ownerId})
-            .then((updated: number) => console.log(updated))
+        if (props.id && name && ownerId > 0)
+        Helpers.put<number>(`/api/devices/${props.id}`, {name: name, ownerId: ownerId})
+            .then((updated: number) => {
+                if (updated > 0) {
+                    props.onEdited();
+                }
+            });
+
     }
 
     return (
@@ -41,9 +46,7 @@ export function DeviceEditForm(props: DeviceEditFormProps) {
                 }}
             />
 
-            <UserSelect initialUserId={ownerId}
-                onSelect={(id: number) => setOwnerId(id)} />
-
+            <UserSelect selectedUserId={ownerId} setSelecterUserId={setOwnerId} />
             <Button onClick={save} >Save</Button>
         </>
     )

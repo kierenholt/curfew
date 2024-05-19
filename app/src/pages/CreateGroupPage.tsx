@@ -12,10 +12,7 @@ export function CreateGroupPage() {
             <p>
                 New User Group
             </p>
-            <GroupCreateForm onCreated={() => null} />
-            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} >
-                back to manage Groups
-            </Button>
+            <GroupCreateForm onCreated={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} />
         </>
     )
 }

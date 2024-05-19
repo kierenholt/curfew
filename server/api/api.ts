@@ -20,13 +20,13 @@ export class API {
 
         app.get('/api/portal', async (req: Request, res: Response) => {
             if (req.socket.remoteAddress == undefined) {
-                res.status(500).send();
+                res.status(500).json({});
                 return;
             }
 
             let redirect = Redirector.getRequest(req.socket.remoteAddress);
             if (redirect == null) {
-                res.status(500).send(); //dashboard?
+                res.status(500).json({}); //dashboard?
                 return;
             }
 
@@ -37,22 +37,26 @@ export class API {
         //https://developer.accela.com/docs/construct-apiNamingConventions.html
         //create device
         app.post('/api/devices', async (req: Request, res: Response) => {
-            if (req.body.MAC && req.body.name && req.body.ownerId) {
-                let ret = await Device.create(req.body.MAC, req.body.ownerId, req.body.name);
-                res.status(200).send({id: ret});
+            if (req.body.id.length == 12 && req.body.name.length > 0 && req.body.ownerId > 0) {
+                let ret = await Device.create(req.body.id, req.body.ownerId, req.body.name);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
         });
-        app.put('/api/devices/:mac', async (req: Request, res: Response) => {
+        app.put('/api/devices/:id', async (req: Request, res: Response) => {
             if (req.body.name && req.body.ownerId) {
-                let ret = await Device.update(req.params.mac, req.body.ownerId, req.body.name);
-                res.status(200).send(ret);
+                let ret = await Device.update(req.params.id, req.body.ownerId, req.body.name);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
+        });
+        app.delete('/api/devices/:id', async (req: Request, res: Response) => {
+            let ret = await Device.delete(req.params.id);
+            res.status(200).json(ret);
         });
 
 
@@ -60,7 +64,7 @@ export class API {
         app.post('/api/users', async (req: Request, res: Response) => {
             if (req.body.name && req.body.groupId) {
                 let ret = await User.create(req.body.groupId, req.body.name);
-                res.status(200).send({id: ret});
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -70,19 +74,24 @@ export class API {
             let id = Number(req.params.id);
             if (id > 0 && req.body.name && req.body.groupId) {
                 let ret = await User.update(id, req.body.groupId, req.body.name);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
         });
+        app.delete('/api/users/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            let ret = await User.delete(id);
+            res.status(200).json(ret);
+        });
 
 
         //create group
         app.post('/api/userGroups', async (req: Request, res: Response) => {
-            if (req.body.name && req.body.isUnrestricted) {
+            if (req.body.name && req.body.isUnrestricted !== undefined) {
                 let ret = await UserGroup.create(req.body.name, req.body.isUnrestricted);
-                res.status(200).send({id: ret});
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -92,11 +101,16 @@ export class API {
             let id = Number(req.params.id);
             if (id > 0 && req.body.name && req.body.isUnrestricted) {
                 let ret = await UserGroup.update(id, req.body.name, req.body.isUnrestricted);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
+        });
+        app.delete('/api/userGroups/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            let ret = await UserGroup.delete(id);
+            res.status(200).json(ret);
         });
 
 
@@ -104,7 +118,7 @@ export class API {
         app.post('/api/domains', async (req: Request, res: Response) => {
             if (req.body.component && req.body.listId) {
                 let ret = await Domain.create(req.body.component, req.body.listId);
-                res.status(200).send({id: ret});
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -114,11 +128,16 @@ export class API {
             let id = Number(req.params.id);
             if (id > 0 && req.body.component && req.body.listId) {
                 let ret = await Domain.update(id, req.body.component, req.body.listId);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
+        });
+        app.delete('/api/domains/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            let ret = await Domain.delete(id);
+            res.status(200).json(ret);
         });
 
 
@@ -126,7 +145,7 @@ export class API {
         app.post('/api/lists', async (req: Request, res: Response) => {
             if (req.body.name && req.body.filterAction) {
                 let ret = await List.create(req.body.name, req.body.filterAction);
-                res.status(200).send({id: ret});
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -136,11 +155,16 @@ export class API {
             let id = Number(req.params.id);
             if (id > 0 && req.body.name && req.body.filterAction) {
                 let ret = await List.update(id, req.body.name, req.body.filterAction);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
+        });
+        app.delete('/api/lists/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            let ret = await List.delete(id);
+            res.status(200).json(ret);
         });
 
 
@@ -148,7 +172,7 @@ export class API {
         app.post('/api/bookableSlots', async (req: Request, res: Response) => {
             if (req.body.refillsOn && req.body.numSlots && req.body.duration) {
                 let ret = await BookableSlot.create(req.body.refillsOn, req.body.numSlots, req.body.duration);
-                res.status(200).send({id: ret});
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -158,11 +182,16 @@ export class API {
             let id = Number(req.params.id);
             if (id > 0 && req.body.refillsOn && req.body.numSlots && req.body.duration) {
                 let ret = await BookableSlot.update(id, req.body.refillsOn, req.body.numSlots, req.body.duration);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
+        });
+        app.delete('/api/bo, req.body.durationokableSlots/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            let ret = await BookableSlot.delete(id);
+            res.status(200).json(ret);
         });
 
 
@@ -170,7 +199,7 @@ export class API {
         app.post('/api/bookedSlots', async (req: Request, res: Response) => {
             if (req.body.bookableSlotId && req.body.userId) {
                 let ret = await BookedSlot.fromBookableSlot(req.body.bookableSlotId, req.body.userId);
-                res.status(200).send({id: ret});
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -180,68 +209,73 @@ export class API {
             let id = Number(req.params.id);
             if (id > 0 && req.body.startsOn && req.body.endsOn && req.body.userId) {
                 let ret = await BookedSlot.update(id, req.body.startsOn, req.body.endsOn, req.body.userId);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
         });
+        app.delete('/api/bookedSlots/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            let ret = await BookedSlot.delete(id);
+            res.status(200).json(ret);
+        });
 
         //get all devices
         app.get('/api/devices', async (req: Request, res: Response) => {
             let ret = await Device.getAll();
-            res.status(200).send(ret);
+            res.status(200).json(ret);
         });
         //get 1 device
-        app.get('/api/device/:mac', async (req: Request, res: Response) => {
-            let ret = await Device.getByMac(req.params.mac);
-            res.status(200).send(ret);
+        app.get('/api/devices/:id', async (req: Request, res: Response) => {
+            let ret = await Device.getById(req.params.id);
+            res.status(200).json(ret);
         });
 
 
         //get all users
         app.get('/api/users', async (req: Request, res: Response) => {
             let ret = await User.getAll();
-            res.status(200).send(ret);
+            res.status(200).json(ret);
         });
         //get 1 user
         app.get('/api/users/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0) {
                 let ret = await User.getById(id);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
-            res.status(400).send();
+            res.status(400).send("parameter error");
         });
 
 
         //get all user groups
         app.get('/api/userGroups', async (req: Request, res: Response) => {
             let ret = await UserGroup.getAll();
-            res.status(200).send(ret);
+            res.status(200).json(ret);
         });
         //get 1 user groups
         app.get('/api/userGroups/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0) {
                 let ret = await UserGroup.getById(id);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
-            res.status(400).send();
+            res.status(400).send("parameter error");
         });
 
 
         //get all domains
         app.get('/api/domains', async (req: Request, res: Response) => {
             let ret = await Domain.getAll();
-            res.status(200).send(ret);
+            res.status(200).json(ret);
         });
         //get 1 domain
         app.get('/api/domains/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0) {
                 let ret = await Domain.getById(id);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             res.status(400).send();
         });
@@ -250,14 +284,14 @@ export class API {
         //get all lists
         app.get('/api/lists', async (req: Request, res: Response) => {
             let ret = await List.getAll();
-            res.status(200).send(ret);
+            res.status(200).json(ret);
         });
         //get 1 list
         app.get('/api/lists/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0) {
                 let ret = await List.getById(id);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             res.status(400).send();
         });
@@ -266,14 +300,14 @@ export class API {
         //get all bookable slot
         app.get('/api/bookableSlots', async (req: Request, res: Response) => {
             let ret = await BookableSlot.getAll();
-            res.status(200).send(ret);
+            res.status(200).json(ret);
         });
         //get 1 bookable slot
         app.get('/api/bookableSlots/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0) {
                 let ret = await BookableSlot.getById(id);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             res.status(400).send();
         });
@@ -282,14 +316,14 @@ export class API {
         //get all booked slots
         app.get('/api/bookedSlots', async (req: Request, res: Response) => {
             let ret = await BookedSlot.getAll();
-            res.status(200).send(ret);
+            res.status(200).json(ret);
         });
         //get 1 booked slot
         app.get('/api/bookedSlots/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0) {
                 let ret = await BookedSlot.getById(id);
-                res.status(200).send(ret);
+                res.status(200).json(ret);
             }
             res.status(400).send();
         });

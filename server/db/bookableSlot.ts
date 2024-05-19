@@ -52,11 +52,12 @@ export class BookableSlot {
         .then((result:any) => result ? new BookableSlot(result.id, result.refillsOn, result.number, result.duration) : null);
     }
 
-    static delete(id: number): Promise<RunResult> {
+    static delete(id: number): Promise<number> {
         return Db.run(`
             delete from bookableSlot
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     static getAll(): Promise<BookableSlot[]> {

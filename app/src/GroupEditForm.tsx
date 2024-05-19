@@ -19,12 +19,16 @@ export function GroupEditForm(props: GroupEditFormProps) {
                 setName(group.name);
                 setIsUnrestricted(group.isUnrestricted);
             })
-    })
+    }, [props.groupId])
 
     const save = () => {
         if (props.groupId > 0 && name)
-            Helpers.put<number>(`/api/groups/${props.groupId}`, { name: name, isUnrestricted: isUnrestricted })
-                .then((updated: number) => console.log(updated))
+            Helpers.put<number>(`/api/userGroups/${props.groupId}`, { name: name, isUnrestricted: isUnrestricted })
+                .then((updated: number) => {
+                    if (updated > 0) {
+                        props.onCreated();
+                    }
+                })
     }
 
     return (

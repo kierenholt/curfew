@@ -6,6 +6,7 @@ import { User } from "./db/user";
 import { UserGroup } from "./db/userGroup";
 import { DhcpServer } from "./dhcp/dhcpServer";
 import { RedirectResult } from "./dns/dnsServer";
+import { Helpers } from "./helpers";
 
 export enum RedirectPage {
     allowPage = 0, nameTheDevicePage = 1, nameTheOwnerPage = 2,
@@ -35,7 +36,7 @@ export class Redirect {
         ret.hostMAC = DhcpServer.getMacFromIP(hostAddress);
         
         //find user
-        ret.device = await Device.getByMac(ret.hostMAC);
+        ret.device = await Device.getById(Helpers.MACtoDeviceId(ret.hostMAC));
 
         if (ret.device == null) { //device not found -> name the device page
             ret.redirectResult = RedirectPage.nameTheDevicePage;

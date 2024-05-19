@@ -88,4 +88,25 @@ export class Helpers {
     static addMinutesToDate(d: Date, mins: number) {
         return new Date(d.valueOf() + mins*60*1000);
     }
+
+    static MACtoDeviceId(mac: string): string {
+        return this.replaceAll(mac, ":", "");
+    }
+
+    static DeviceIdtoMAC(id: string): string {
+        let ret = "";
+        for (let i = 0; i < id.length; i++) {
+            ret += id[i];
+            if (i % 2 == 1 && i != id.length-1) ret += ":"
+        }
+        return ret;
+    }
+
+    static escapeSingleQuotes(str: string): string {
+        return this.replaceAll(str, "'", "''");
+    }
+
+    static unescapeSingleQuotes(str: string): string {
+        return this.replaceAll(str, "''", "'");
+    }
 }

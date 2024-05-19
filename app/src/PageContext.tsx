@@ -30,6 +30,11 @@ export const PageContext = createContext<SetPageAction>(
     { setCurrentPage: () => {}, setParams: () => {} }
 );
 
+const iconButtonStyle = {
+    padding: "2px 20px",
+    cursor: "pointer",
+}
+
 export const PageContextWrapper = () => {
     const [currentPage, setCurrentPage] = useState<CurrentPage>(CurrentPage.createDevice);
     const [params, setParams] = useState<any>({});
@@ -68,17 +73,20 @@ export const PageContextWrapper = () => {
             <Stack direction="row" justifyContent="space-around" alignItems="stretch"
                 height="100px">
                 <Stack direction="column" alignItems="center"
-                    onClick={() => {setCurrentPage(CurrentPage.manageDevices)}}>
+                    onClick={() => {setCurrentPage(CurrentPage.manageDevices)}}
+                    sx={iconButtonStyle}>
                     <DevicesIcon fontSize="large"/>
                     <p>Devices</p>
                 </Stack>
                 <Stack direction="column" alignItems="center"
-                    onClick={() => {setCurrentPage(CurrentPage.manageUsers)}}>
+                    onClick={() => {setCurrentPage(CurrentPage.manageUsers)}}
+                    sx={iconButtonStyle}>
                     <PersonIcon fontSize="large"/>
                     <p>Users</p>
                 </Stack>
                 <Stack direction="column" alignItems="center"
-                    onClick={() => {setCurrentPage(CurrentPage.manageGroups)}}>
+                    onClick={() => {setCurrentPage(CurrentPage.manageGroups)}}
+                    sx={iconButtonStyle}>
                     <GroupIcon fontSize="large"/>
                     <p>Groups</p>
                 </Stack>

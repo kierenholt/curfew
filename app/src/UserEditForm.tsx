@@ -19,12 +19,16 @@ export function UserEditForm(props: UserEditFormProps) {
                 setName(user.name);
                 setGroupId(user.groupId);
             })
-    })
+    }, [props.userId])
 
     const save = () => {
         if (props.userId > 0 && name && groupId > 0)
         Helpers.put<number>(`/api/users/${props.userId}`, {name: name, groupId: groupId})
-            .then((updated: number) => console.log(updated))
+            .then((updated: number) => {
+                if (updated > 0) {
+                    props.onEdited();
+                }
+            })
     }
 
     return (
@@ -41,8 +45,7 @@ export function UserEditForm(props: UserEditFormProps) {
                 }}
             />
 
-            <GroupSelect initialGroupId={groupId}
-                onSelect={(id: number) => setGroupId(id)} />
+            <GroupSelect setSelectedGroupId={setGroupId} selectedGroupId={groupId} />
 
             <Button onClick={save} >Save</Button>
         </>

@@ -6,14 +6,14 @@ export class FixedSlot {
     id: number;
     groupId: number;
     private _group: Promise<UserGroup> | undefined;
-    startsOn: number;
-    endsOn: number;
+    startsOn: Date;
+    endsOn: Date;
 
     constructor(id: number, groupId: number, startsOn: number, endsOn: number) {
         this.id = id;
         this.groupId = groupId;
-        this.startsOn = startsOn;
-        this.endsOn = endsOn;
+        this.startsOn = new Date(startsOn);
+        this.endsOn = new Date(endsOn);
     }
 
     static createTable(): Promise<RunResult> {
@@ -28,20 +28,20 @@ export class FixedSlot {
         `)
     }
 
-    static create(groupId: string, startsOn: Date, endsOn: Date): Promise<number> {
+    static create(groupId: number, startsOn: Date, endsOn: Date): Promise<number> {
         return Db.run(`
             insert into slot (groupId, startsOn, endsOn)
-            values (${groupId}, ${startsOn}, ${endsOn})
+            values (${groupId}, ${startsOn.valueOf()}, ${endsOn.valueOf()})
         `)
         .then(result => result.lastID);
     }
 
-    static update(id: number, groupId: string, startsOn: Date, endsOn: Date): Promise<number> {
+    static update(id: number, groupId: number, startsOn: Date, endsOn: Date): Promise<number> {
         return Db.run(`
             update slot 
             set groupId=${groupId}, 
-            startsOn=${startsOn}, 
-            endsOn=${endsOn}
+            startsOn=${startsOn.valueOf()}, 
+            endsOn=${endsOn.valueOf()}
             where id=${id}
         `)
         .then(result => result.lastID);
@@ -52,14 +52,19 @@ export class FixedSlot {
             select * from slot
             where id = ${id}
         `)
-        .then((result:any) => result ? new FixedSlot(result.id, result.groupId, result.startsOn, result.endsOn) : null);
+        .then((result:any) => result ? new FixedSlot(
+            result.id, 
+            result.groupId, 
+            result.startsOn, 
+            result.endsOn) : null);
     }
 
-    static delete(id: number): Promise<RunResult> {
+    static delete(id: number): Promise<number> {
         return Db.run(`
             delete from slot
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     get group(): Promise<UserGroup> {
@@ -73,6 +78,10 @@ export class FixedSlot {
         return Db.all(`
             select * from fixedSlot
         `)
-        .then((result: any) => result.map((r:any) => new FixedSlot(r.id, r.groupId, r.startsOn, r.endsOn)))
+        .then((result: any) => result.map((r:any) => new FixedSlot(
+            r.id, 
+            r.groupId, 
+            r.startsOn, 
+            r.endsOn)))
     }
 }

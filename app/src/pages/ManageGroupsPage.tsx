@@ -13,14 +13,11 @@ export function ManageGroupsPage() {
     return (
         <>
             <p>
-                manage groups
+                list of groups
             </p>
             <UserGroupList />
             <Button onClick={() => pageContext.setCurrentPage(CurrentPage.createGroup)} >
-                add a new group
-            </Button>
-            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} >
-                manage users
+                create a new group
             </Button>
         </>
     )

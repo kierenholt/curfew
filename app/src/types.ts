@@ -52,7 +52,7 @@ export interface IDomain {
 
 
 export interface IDevice {
-    MAC: string;
+    id: string;
     ownerId: number;
     name: string;
 }

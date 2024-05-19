@@ -47,11 +47,12 @@ export class Rule {
         .then((result:any) => result ? new Rule(result.id, result.groupId) : null);
     }
 
-    static delete(id: number): Promise<RunResult> {
+    static delete(id: number): Promise<number> {
         return Db.run(`
             delete from rule
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     get group(): Promise<UserGroup> {

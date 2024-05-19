@@ -82,11 +82,12 @@ export class BookedSlot {
         .then((result:any) => result ? new BookedSlot(result.id, result.startsOn, result.endsOn, result.userId) : null);
     }
 
-    static delete(id: number): Promise<RunResult> {
+    static delete(id: number): Promise<number> {
         return Db.run(`
             delete from bookedSlot
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     static bookedSlotInUse(userId: number): Promise<BookedSlot | null> {

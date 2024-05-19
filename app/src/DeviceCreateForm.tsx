@@ -4,7 +4,7 @@ import { UserSelect } from "./UserSelect";
 import { Helpers } from "./helpers";
 
 interface DeviceCreateFormProps {
-    MAC: string;
+    id: string;
     onCreated: () => void;
 }
 
@@ -13,9 +13,13 @@ export function DeviceCreateForm(props: DeviceCreateFormProps) {
     const [ownerId, setOwnerId] = useState<number>(0);
 
     const save = () => {
-        if (props.MAC && name && ownerId > 0)
-        Helpers.post<string>(`/api/devices/`, {mac: props.MAC, name: name, ownerId: ownerId})
-            .then((deviceMAC: string) => console.log(deviceMAC))
+        if (props.id && name && ownerId > 0)
+        Helpers.post<string>(`/api/devices/`, {id: props.id, name: name, ownerId: ownerId})
+            .then((deviceid: string) => {
+                if (deviceid.length === 12) {
+                    props.onCreated();
+                }
+            });
     }
 
     return (
@@ -32,7 +36,7 @@ export function DeviceCreateForm(props: DeviceCreateFormProps) {
                 }}
             />
 
-            <UserSelect onSelect={(id: number) => setOwnerId(id)} />
+            <UserSelect selectedUserId={ownerId} setSelecterUserId={setOwnerId} />
 
             <Button onClick={save} >Save</Button>
         </>

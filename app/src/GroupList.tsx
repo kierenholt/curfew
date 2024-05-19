@@ -3,7 +3,7 @@ import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Ico
 import GroupIcon from '@mui/icons-material/Group';
 import { IUserGroup } from "./types";
 import { Helpers } from "./helpers";
-import { Edit } from "@mui/icons-material";
+import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./PageContext";
 
 export function UserGroupList() {
@@ -17,11 +17,22 @@ export function UserGroupList() {
             })
     }, []);
 
+    const deleteGroup = (id: number) => {
+        Helpers.delete(`/api/userGroups/${id}`)
+            .then((deleted: number) => {
+                console.log("deleted: " + deleted);
+                if (deleted > 0) {
+                    setGroups(groups.filter(g => g.id !== id));
+                }
+            })
+    }
+
     return (<List>
         {groups.map((g: IUserGroup) =>
             <ListItem color="neutral"
 
                 endAction={
+                    <>
                     <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                         onClick={() => {
                             pageContext.setParams({groupId: g.id});
@@ -29,6 +40,11 @@ export function UserGroupList() {
                         }}>
                         <Edit />
                     </IconButton>
+                    <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
+                        onClick={() => deleteGroup(g.id)}>
+                        <Delete />
+                    </IconButton>
+                    </>
                 }>
                 <ListItemButton>
                     <ListItemDecorator>

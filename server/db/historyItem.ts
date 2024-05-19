@@ -52,11 +52,12 @@ export class HistoryItem {
         .then((result:any) => result ? new HistoryItem(result.id, result.MAC, result.domain, result.requestedOn) : null);
     }
 
-    static delete(id: number): Promise<RunResult> {
+    static delete(id: number): Promise<number> {
         return Db.run(`
             delete from history
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     static getMostRecent(MAC: string): Promise<HistoryItem | null> {

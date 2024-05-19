@@ -1,16 +1,17 @@
 import { RunResult } from "sqlite3";
 import { Db } from "./db";
 import { User } from "./user";
+import { Helpers } from "../helpers";
 
 export class Device {
-    MAC: string;
+    id: string;
     ownerId: number;
     name: string;
     static SAMSUNG_MAC: string = "ba:cc:ba:1a:1d:41"; 
     private _owner: Promise<User | null> | undefined;
 
-    constructor(MAC: string, ownerId: number, name: string) {
-        this.MAC = MAC;
+    constructor(id: string, ownerId: number, name: string) {
+        this.id = id;
         this.ownerId = ownerId;
         this.name = name;
     }
@@ -18,7 +19,7 @@ export class Device {
     static createTable(): Promise<RunResult> {
         return Db.run(`
             create table device (
-                MAC text primary key not null,
+                id text primary key not null,
                 ownerId integer not null,
                 name text not null,
                 FOREIGN KEY(ownerId) REFERENCES user(id)
@@ -27,48 +28,55 @@ export class Device {
     }
 
     static seed() {
-        this.create(this.SAMSUNG_MAC, 2, "kieren's samsung");
+        this.create(Helpers.MACtoDeviceId(this.SAMSUNG_MAC), 2, "kieren's samsung");
     }
 
-    static create(MAC: string, ownerId: number, name: string): Promise<number> {
+    static create(id: string, ownerId: number, name: string): Promise<number> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
-            insert into device (MAC, ownerId, name)
-            values ('${MAC}', ${ownerId} '${name}')
+            insert into device (id, ownerId, name)
+            values ('${id}', ${ownerId}, '${name}')
         `)
         .then(result => result.lastID);
     }
 
-    static update(MAC: string, ownerId: number, name: string): Promise<number> {
+    static update(id: string, ownerId: number, name: string): Promise<number> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             update device 
             set ownerId=${ownerId}, 
             name='${name}'
-            where MAC='${MAC}'
+            where id='${id}'
         `)
         .then(result => result.lastID);
     }
 
-    static getByMac(MAC: string): Promise<Device | null> {
+    static getById(id: string): Promise<Device | null> {
         return Db.get(`
             select * from device
-            where MAC = '${MAC}'
+            where id = '${id}'
         `)
-        .then((result:any) => result ? new Device(result.MAC, result.ownerId, result.name) : null);
+        .then((result:any) => result ? new Device(
+            result.id, 
+            result.ownerId, 
+            Helpers.unescapeSingleQuotes(result.name)
+            ) : null);
     }
 
-    static updateOwner(mac: string, ownerId: number): Promise<RunResult> {
+    static updateOwner(id: string, ownerId: number): Promise<RunResult> {
         return Db.run(`
             update device
             set ownerId = ${ownerId}
-            where MAC = '${mac}'
+            where id = '${id}'
         `)
     }
 
-    static delete(MAC: string): Promise<RunResult> {
+    static delete(id: string): Promise<number> {
         return Db.run(`
             delete from device
-            where MAC = '${MAC}'
+            where id = '${id}'
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     get owner(): Promise<User | null> {
@@ -82,6 +90,10 @@ export class Device {
         return Db.all(`
             select * from device
         `)
-        .then((result: any) => result.map((r:any) => new Device(r.MAC, r.ownerId, r.name)))
+        .then((result: any) => result.map((r:any) => new Device(
+            r.id, 
+            r.ownerId, 
+            Helpers.unescapeSingleQuotes(r.name)
+            )))
     }
 }

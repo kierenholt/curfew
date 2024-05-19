@@ -1,5 +1,6 @@
 import { RunResult } from "sqlite3";
 import { Db } from "./db";
+import { Helpers } from "../helpers";
 
 export enum FilterAction {
     alwaysBlock = 0, alwaysAllow = 1, needsSlot = 2 
@@ -31,6 +32,7 @@ export class List {
     }
 
     static create(name: string, filterAction: FilterAction): Promise<number> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             insert into list (name, filterAction)
             values ('${name}', ${filterAction})
@@ -39,6 +41,7 @@ export class List {
     }
 
     static update(id: number, name: string, filterAction: FilterAction): Promise<number> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             update list 
             set name='${name}', 
@@ -53,21 +56,29 @@ export class List {
             select * from list
             where id = ${id}
         `)
-        .then((result:any) => result ? new List(result.id, result.name, result.filterAction) : null);
+        .then((result:any) => result ? new List(
+            result.id, 
+            Helpers.unescapeSingleQuotes(result.name), 
+            result.filterAction
+            ) : null);
     }
 
-    static delete(id: number): Promise<RunResult> {
+    static delete(id: number): Promise<number> {
         return Db.run(`
             delete from list
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     static getAll(): Promise<List[]> {
         return Db.all(`
             select * from list
         `)
-        .then((result: any) => result.map((r:any) => new List(r.id, r.name, r.filterAction)))
+        .then((result: any) => result.map((r:any) => new List(
+            r.id, 
+            Helpers.unescapeSingleQuotes(r.name), 
+            r.filterAction)))
     }
 
 

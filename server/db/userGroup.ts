@@ -1,6 +1,7 @@
 import { RunResult } from "sqlite3";
 import { Db } from "./db";
 import { User } from "./user";
+import { Helpers } from "../helpers";
 
 
 export class UserGroup {
@@ -30,6 +31,7 @@ export class UserGroup {
     }
 
     static create(name: string, isUnrestricted: boolean): Promise<number> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             insert into userGroup (name, isUnrestricted)
             values ('${name}', ${isUnrestricted ? 1: 0})
@@ -38,6 +40,7 @@ export class UserGroup {
     }
 
     static update(id: number, name: string, isUnrestricted: boolean): Promise<number> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             update userGroup
             set name='${name}', 
@@ -52,10 +55,14 @@ export class UserGroup {
             select * from userGroup
             where id = ${id}
         `)
-        .then((result:any) => new UserGroup(result.id, result.name, result.isUnrestricted));
+        .then((result:any) => new UserGroup(
+            result.id, 
+            Helpers.unescapeSingleQuotes(result.name), 
+            result.isUnrestricted));
     }
 
     static updateName(id: number, name: string): Promise<RunResult> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             update userGroup
             set name = '${name}'
@@ -63,17 +70,21 @@ export class UserGroup {
         `)
     }
 
-    static delete(id: number): Promise<RunResult> {
+    static delete(id: number): Promise<number> {
         return Db.run(`
             delete from userGroup
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     static getAll(): Promise<UserGroup[]> {
         return Db.all(`
             select * from userGroup
         `)
-        .then((result: any) => result.map((r:any) => new UserGroup(r.id, r.name, r.isUnrestricted)))
+        .then((result: any) => result.map((r:any) => new UserGroup(
+            r.id, 
+            Helpers.unescapeSingleQuotes(r.name), 
+            r.isUnrestricted)))
     }
 }

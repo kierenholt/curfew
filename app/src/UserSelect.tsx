@@ -4,8 +4,8 @@ import { Helpers } from "./helpers";
 import { IUser } from "./types";
 
 export interface UserSelectProps {
-    onSelect: (id: number) => void;
-    initialUserId?: number;
+    selectedUserId: number;
+    setSelecterUserId: (n: number) => void;
 }
 
 export function UserSelect(props: UserSelectProps) {
@@ -16,10 +16,10 @@ export function UserSelect(props: UserSelectProps) {
             .then((Users: IUser[]) => {
                 setUsers(Users)
         })
-    });
+    }, []);
 
     const handleChange = (event: SelectChangeEvent) => {
-        props.onSelect(Number(event.target.value));
+        props.setSelecterUserId(Number(event.target.value));
       };
 
     return (
@@ -29,7 +29,7 @@ export function UserSelect(props: UserSelectProps) {
                 labelId="User-select-label"
                 id="User-select"
                 label="Owner"
-                value={props.initialUserId == null ? "" : props.initialUserId.toString()}
+                value={props.selectedUserId == null ? "" : props.selectedUserId.toString()}
                 onChange={handleChange}
             >
                 {Users.map(g => 

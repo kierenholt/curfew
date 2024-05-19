@@ -1,6 +1,7 @@
 import { Database, RunResult } from "sqlite3";
 import { Db } from "./db";
 import { UserGroup } from "./userGroup";
+import { Helpers } from "../helpers";
 
 export class User {
     id: number;
@@ -32,6 +33,7 @@ export class User {
     }
 
     static create(groupId: number, name: string): Promise<number> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             insert into user (groupId, name)
             values (${groupId}, '${name}')
@@ -40,6 +42,7 @@ export class User {
     }
 
     static update(id: number, groupId: number, name: string): Promise<number> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             update user 
             set groupId=${groupId}, 
@@ -54,10 +57,15 @@ export class User {
             select * from user
             where id = ${id}
         `)
-        .then((result:any) => result ?new User(result.id, result.groupId, result.name) : null);
+        .then((result:any) => result == null ? null : new User(
+            result.id, 
+            result.groupId, 
+            Helpers.unescapeSingleQuotes(result.name)
+            ));
     }
 
     static updateName(id: number, name: string): Promise<RunResult> {
+        name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             update user
             set name = '${name}'
@@ -65,11 +73,12 @@ export class User {
         `)
     }
 
-    static delete(id: number): Promise<RunResult> {
+    static delete(id: number): Promise<number> {
         return Db.run(`
             delete from user
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     get group(): Promise<UserGroup> {
@@ -83,6 +92,10 @@ export class User {
         return Db.all(`
             select * from user
         `)
-        .then((result: any) => result.map((r:any) => new User(r.id, r.groupId, r.name)))
+        .then((result: any) => result.map((r:any) => new User(
+            r.id, 
+            r.groupId, 
+            Helpers.unescapeSingleQuotes(r.name)
+            )))
     }
 }

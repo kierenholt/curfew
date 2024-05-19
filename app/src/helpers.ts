@@ -105,4 +105,23 @@ export class Helpers {
             mode: 'cors', headers: { 'Content-Type': 'application/json' }, })
             .then((req: Response) => req.json())
     }
+
+    static delete(url: string): Promise<number> {
+        return fetch(url, { method: "delete",
+            mode: 'cors', headers: { 'Content-Type': 'application/json' }, })
+            .then((req: Response) => req.json())
+    }
+
+    static MACtoDeviceId(mac: string): string {
+        return this.replaceAll(mac, ":", "");
+    }
+
+    static DeviceIdtoMAC(id: string): string {
+        let ret = "";
+        for (let i = 0; i < id.length; i++) {
+            ret += id[i];
+            if (i % 2 == 1 && i != id.length-1) ret += ":"
+        }
+        return ret;
+    }
  }

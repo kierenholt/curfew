@@ -14,8 +14,12 @@ export function GroupCreateForm(props: GroupCreateFormProps) {
 
     const save = () => {
         if (name)
-            Helpers.post<string>(`/api/groups/`, { name: name, isUnrestricted: isUnrestricted })
-                .then((GroupId: string) => console.log(GroupId))
+            Helpers.post<number>(`/api/userGroups/`, { name: name, isUnrestricted: isUnrestricted })
+                .then((groupId: number) => {
+                    if (groupId > 0) {
+                        props.onCreated();
+                    }
+                })
     }
 
     return (

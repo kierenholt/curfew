@@ -15,13 +15,7 @@ export function CreateUserPage() {
             <p>
                 New User
             </p>
-            <UserCreateForm onCreated={() => null} />
-            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} >
-                back to manage users
-            </Button>
-            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} >
-                manage groups
-            </Button>
+            <UserCreateForm onCreated={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} />
         </>
     )
 }

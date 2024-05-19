@@ -1,7 +1,6 @@
-import { Button } from "@mui/material";
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "../PageContext";
 import { DeviceEditForm } from "../DeviceEditForm";
+import { CurrentPage, PageContext } from "../PageContext";
 
 export interface EditDevicePageProps {
     params: any
@@ -9,14 +8,13 @@ export interface EditDevicePageProps {
 
 export function EditDevicePage(props: EditDevicePageProps) {
     const pageContext = useContext(PageContext);
-    
     return (
         <>
             <p>
                 Edit Device details
             </p>
-            <DeviceEditForm onEdited={() => {}} mac={props.params.mac} />
-            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageDevices)} >manage owners</Button>
+            <DeviceEditForm onEdited={() => pageContext.setCurrentPage(CurrentPage.manageDevices)} 
+                id={props.params.deviceId} />
         </>
     )
 }

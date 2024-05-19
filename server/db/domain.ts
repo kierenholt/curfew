@@ -65,11 +65,12 @@ export class Domain {
         .then((result: any) => result ? new Domain(result.id, result.component, result.listId) : null);
     }
 
-    static delete(id: number): Promise<RunResult> {
+    static delete(id: number): Promise<number> {
         return Db.run(`
             delete from domain
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     get list(): Promise<List | null> {
