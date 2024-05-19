@@ -4,7 +4,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import { IUserGroup } from "./types";
 import { Helpers } from "./helpers";
 import { Edit } from "@mui/icons-material";
-import { CurrentPage, PageContext } from "./App";
+import { CurrentPage, PageContext } from "./PageContext";
 
 export function UserGroupList() {
     const pageContext = useContext(PageContext);
@@ -23,7 +23,10 @@ export function UserGroupList() {
 
                 endAction={
                     <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
-                        onClick={() => pageContext.setCurrentPage(CurrentPage.editGroup)}>
+                        onClick={() => {
+                            pageContext.setParams({groupId: g.id});
+                            pageContext.setCurrentPage(CurrentPage.editGroup);
+                        }}>
                         <Edit />
                     </IconButton>
                 }>

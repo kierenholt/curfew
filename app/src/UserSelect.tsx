@@ -5,6 +5,7 @@ import { IUser } from "./types";
 
 export interface UserSelectProps {
     onSelect: (id: number) => void;
+    initialUserId?: number;
 }
 
 export function UserSelect(props: UserSelectProps) {
@@ -28,7 +29,7 @@ export function UserSelect(props: UserSelectProps) {
                 labelId="User-select-label"
                 id="User-select"
                 label="Owner"
-                value=""
+                value={props.initialUserId == null ? "" : props.initialUserId.toString()}
                 onChange={handleChange}
             >
                 {Users.map(g => 

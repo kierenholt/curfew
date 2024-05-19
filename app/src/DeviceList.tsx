@@ -1,39 +1,39 @@
 import { useContext, useEffect, useState } from "react"
 import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, IconButton } from "@mui/joy";
-import { IUser } from "./types";
+import { IDevice } from "./types";
 import { Helpers } from "./helpers";
 import { Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./PageContext";
-import PersonIcon from '@mui/icons-material/Person';
+import DevicesIcon from '@mui/icons-material/Devices';
 
 
-export function UserList() {
+export function DeviceList() {
     const pageContext = useContext(PageContext);
-    let [users, setUsers] = useState<IUser[]>([]);
+    let [Devices, setDevices] = useState<IDevice[]>([]);
 
     useEffect(() => {
-        Helpers.get<IUser[]>("/api/users/")
-            .then((users: IUser[]) => {
-                setUsers(users)
+        Helpers.get<IDevice[]>("/api/devices/")
+            .then((Devices: IDevice[]) => {
+                setDevices(Devices)
             })
     }, []);
 
     return (<List>
-        {users.map((g: IUser) =>
+        {Devices.map((g: IDevice) =>
             <ListItem color="neutral"
 
                 endAction={
                     <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                         onClick={() => {
-                            pageContext.setParams({userId: g.id})
-                            pageContext.setCurrentPage(CurrentPage.editUser)
+                            pageContext.setParams({mac: g.MAC})
+                            pageContext.setCurrentPage(CurrentPage.editDevice)
                         }}>
                         <Edit />
                     </IconButton>
                 }>
                 <ListItemButton>
                     <ListItemDecorator>
-                        <PersonIcon />
+                        <DevicesIcon />
                     </ListItemDecorator>
                     <ListItemContent>
                         {g.name}

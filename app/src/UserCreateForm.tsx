@@ -9,11 +9,11 @@ interface UserCreateFormProps {
 
 export function UserCreateForm(props: UserCreateFormProps) {
     const [name, setName] = useState<string>("");
-    const [groupId, setGroupId] = useState<number>(0);
+    const [userId, setUserId] = useState<number>(0);
 
     const save = () => {
-        if (name && groupId > 0)
-        Helpers.post<string>(`/api/users/`, {name: name, groupId: groupId})
+        if (name && userId > 0)
+        Helpers.post<string>(`/api/users/`, {name: name, groupId: userId})
             .then((userId: string) => console.log(userId))
     }
 
@@ -31,7 +31,8 @@ export function UserCreateForm(props: UserCreateFormProps) {
                 }}
             />
 
-            <GroupSelect onSelect={(id: number) => setGroupId(id)} />
+            <GroupSelect initialGroupId={0}
+                onSelect={(id: number) => setUserId(id)} />
 
             <Button onClick={save} >Save</Button>
         </>

@@ -1,20 +1,23 @@
 import { Button } from "@mui/material";
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "../App";
+import { CurrentPage, PageContext } from "../PageContext";
+import { GroupEditForm } from "../GroupEditForm";
 
 export interface EditGroupProps {
-
+    params: any; //groupId
 }
 
-export function EditGroupPage() {
+export function EditGroupPage(props: EditGroupProps) {
     const pageContext = useContext(PageContext);
     
     return (
         <>
             <p>
-                name this device
+                edit group details
             </p>
-            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} >manage owners</Button>
+            <GroupEditForm onCreated={() => {}} 
+                groupId={props.params.groupId} />
+            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} >manage users</Button>
         </>
     )
 }

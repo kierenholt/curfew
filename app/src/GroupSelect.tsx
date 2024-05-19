@@ -5,6 +5,7 @@ import { IUserGroup } from "./types";
 
 export interface GroupSelectProps {
     onSelect: (id: number) => void;
+    initialGroupId?: number;
 }
 
 export function GroupSelect(props: GroupSelectProps) {
@@ -29,6 +30,7 @@ export function GroupSelect(props: GroupSelectProps) {
                 id="user-group-select"
                 label="User group"
                 onChange={handleChange}
+                value={props.initialGroupId === undefined ? "" : props.initialGroupId.toString()}
             >
                 {groups.map(g => 
                     <MenuItem value={g.id}>{g.name}</MenuItem>

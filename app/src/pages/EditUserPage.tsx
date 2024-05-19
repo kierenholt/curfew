@@ -1,19 +1,21 @@
 import { Button } from "@mui/material";
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "../App";
+import { CurrentPage, PageContext } from "../PageContext";
+import { UserEditForm } from "../UserEditForm";
 
-export interface EditOwnerProps {
-
+export interface EditUserPageProps {
+    params: any //userId
 }
 
-export function EditUserPage() {
+export function EditUserPage(props: EditUserPageProps) {
     const pageContext = useContext(PageContext);
     
     return (
         <>
             <p>
-                name this device
+                Edit user details
             </p>
+            <UserEditForm onEdited={() => {}} userId={props.params.userId} />
             <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} >manage owners</Button>
         </>
     )

@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "../App";
+import { CurrentPage, PageContext } from "../PageContext";
 import { UserCreateForm } from "../UserCreateForm";
 
 export interface NameThisUserProps {
@@ -18,6 +18,9 @@ export function CreateUserPage() {
             <UserCreateForm onCreated={() => null} />
             <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} >
                 back to manage users
+            </Button>
+            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} >
+                manage groups
             </Button>
         </>
     )

@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "../App";
+import { CurrentPage, PageContext } from "../PageContext";
 import { DeviceCreateForm } from "../DeviceCreateForm";
 
 export interface NameThisDeviceProps {
@@ -16,7 +16,9 @@ export function CreateDevicePage() {
                 name this device
             </p>
             <DeviceCreateForm MAC={"13:14"} onCreated={() => null} />
-            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} >manage owners</Button>
+            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} >
+                manage users
+            </Button>
         </>
     )
 }
