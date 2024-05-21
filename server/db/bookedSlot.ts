@@ -1,7 +1,7 @@
 import { Db } from "./db";
 import { RunResult } from "sqlite3";
 import { User } from "./user";
-import { BookableSlot } from "./bookableSlot";
+import { Quota } from "./quota";
 import { Helpers } from "../helpers";
 
 export class BookedSlot {
@@ -55,24 +55,6 @@ export class BookedSlot {
         .then(result => result.lastID);
     }
 
-
-    static fromBookableSlot(bookableSlotId: number, userId: number): Promise<number | void> {
-        return BookableSlot.getById(bookableSlotId)
-        .then(
-            (bookableSlot: BookableSlot | null) => {
-                if (bookableSlot) {
-                    return BookedSlot.create(
-                        new Date(),
-                        Helpers.addMinutesToDate(new Date(), bookableSlot.duration),
-                        userId
-                    )
-                }
-                else {
-                    throw(`bookable slot with id ${bookableSlotId} not found`);
-                }
-            }
-        )
-    }
 
     static getById(id: number): Promise<BookedSlot | null> {
         return Db.get(`

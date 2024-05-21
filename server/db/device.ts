@@ -63,12 +63,13 @@ export class Device {
             ) : null);
     }
 
-    static updateOwner(id: string, ownerId: number): Promise<RunResult> {
+    static updateOwner(id: string, ownerId: number): Promise<number> {
         return Db.run(`
             update device
             set ownerId = ${ownerId}
             where id = '${id}'
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     static delete(id: string): Promise<number> {

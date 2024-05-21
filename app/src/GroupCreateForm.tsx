@@ -1,4 +1,4 @@
-import { Button, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 import { Helpers } from "./helpers";
 import { GroupSelect } from "./GroupSelect";
@@ -23,7 +23,7 @@ export function GroupCreateForm(props: GroupCreateFormProps) {
     }
 
     return (
-        <>
+        <FormGroup>
             <TextField
                 id="Group-name"
                 label="Name"
@@ -36,26 +36,18 @@ export function GroupCreateForm(props: GroupCreateFormProps) {
                 }}
             />
 
-            <ToggleButtonGroup
-                color="primary"
-                value={isUnrestricted}
-                exclusive
-                onChange={(e: any, value: any) => {
-                    if (value !== null) {
-                        setIsUnrestricted(value);
-                    }
-                }}
-                aria-label="Is unrestricted"
-            >
-                <ToggleButton value={false}>Restricted</ToggleButton>
-                <ToggleButton value={true}>Unrestricted</ToggleButton>
-            </ToggleButtonGroup>
+
+                <FormControlLabel control={
+                    <Checkbox onChange={(e) => setIsUnrestricted(e.target.checked)} 
+                        checked={isUnrestricted}/>
+                } label="Unrestricted access*" />
+                
             <Typography id="" component="p">
                 Unrestricted access to websites and apps.
                 It is recommended to enable for adults only.
             </Typography>
 
             <Button onClick={save} >Save</Button>
-        </>
+        </FormGroup>
     )
 }

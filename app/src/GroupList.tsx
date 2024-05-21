@@ -4,7 +4,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import { IUserGroup } from "./types";
 import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
-import { CurrentPage, PageContext } from "./PageContext";
+import { CurrentPage, PageContext } from "./pages/PageContext";
 
 export function UserGroupList() {
     const pageContext = useContext(PageContext);

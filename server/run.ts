@@ -3,6 +3,7 @@ import { DnsServer } from "./dns/dnsServer";
 import { TestSocket } from "./dns/testSocket";
 import { Db } from "./db/db";
 import { API as API } from "./api/api";
+import { Quota } from "./db/quota";
 
 const DHCP_ENABLED = false;
 const DNS_ENABLED = false;
@@ -13,6 +14,8 @@ async function run() {
     await Db.init();
     //let c = await BookedSlot.bookedSlotExistsNow(5);
     //console.log(c);
+    let q = await Quota.getByGroupIdDay(1, 0);
+    console.log(q);
     
     //DHCP SERVER
     if (DHCP_ENABLED) {

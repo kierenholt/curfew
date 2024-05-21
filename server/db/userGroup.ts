@@ -2,6 +2,7 @@ import { RunResult } from "sqlite3";
 import { Db } from "./db";
 import { User } from "./user";
 import { Helpers } from "../helpers";
+import { Quota } from "./quota";
 
 
 export class UserGroup {
@@ -36,7 +37,10 @@ export class UserGroup {
             insert into userGroup (name, isUnrestricted)
             values ('${name}', ${isUnrestricted ? 1: 0})
         `)
-        .then(result => result.lastID);
+        .then(async result => {
+            await Quota.createDefault(result.lastID);
+            return result.lastID;
+        });
     }
 
     static update(id: number, name: string, isUnrestricted: boolean): Promise<number> {
@@ -75,7 +79,10 @@ export class UserGroup {
             delete from userGroup
             where id = ${id}
         `)
-        .then((result: RunResult) => result.changes);
+        .then(async (result: RunResult) => {
+            await Quota.deleteAllDays(id);
+            return result.changes
+        });
     }
 
     static getAll(): Promise<UserGroup[]> {

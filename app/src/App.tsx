@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import './App.css';
-import { PageContextWrapper } from './PageContext';
+import { PageContextWrapper } from './pages/PageContext';
 
 function App() {
     return (

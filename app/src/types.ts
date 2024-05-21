@@ -57,9 +57,19 @@ export interface IDevice {
     name: string;
 }
 
-export interface IBookedSlot {
+export interface IQuota {
+    groupId: number;
+    day: number;
+
+    refreshAmount: number;
+    rollsOver: boolean;
+    maxDuration: number;
+    cooldown: number;
+}
+
+export interface ISession {
     id: number;
-    startsOn: Date;
-    endsOn: Date;
+    quotaId: number;
     userId: number;
+    startedOn: Date;
 }

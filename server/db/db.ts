@@ -1,7 +1,7 @@
 import { AsyncDatabase } from "promised-sqlite3";
 import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
 import { User } from "./user";
-import { BookableSlot } from "./bookableSlot";
+import { Quota } from "./quota";
 import { BookedSlot } from "./bookedSlot";
 import { Device } from "./device";
 import { FixedSlot } from "./fixedSlot";
@@ -52,7 +52,7 @@ export class Db {
     }
 
     static async createTables() {
-        await BookableSlot.createTable();
+        await Quota.createTable();
         await BookedSlot.createTable();
         await Device.createTable();
         await Domain.createTable();

@@ -64,13 +64,14 @@ export class User {
             ));
     }
 
-    static updateName(id: number, name: string): Promise<RunResult> {
+    static updateName(id: number, name: string): Promise<number> {
         name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             update user
             set name = '${name}'
             where id = ${id}
         `)
+        .then((result: RunResult) => result.changes);
     }
 
     static delete(id: number): Promise<number> {

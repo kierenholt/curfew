@@ -1,49 +1,43 @@
 import { useContext, useEffect, useState } from "react"
 import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, IconButton } from "@mui/joy";
-import { IUser } from "./types";
+import { IQuota } from "./types";
 import { Helpers } from "./helpers";
-import { Delete, Edit } from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./pages/PageContext";
 import PersonIcon from '@mui/icons-material/Person';
+import { Day } from "./Day";
 
+export interface QuotaListProps {
+    groupId: number;
+} 
 
-export function UserList() {
+export function QuotaList(props: QuotaListProps) {
     const pageContext = useContext(PageContext);
-    let [users, setUsers] = useState<IUser[]>([]);
+    let [quotas, setQuotas] = useState<IQuota[]>([]);
 
     useEffect(() => {
-        Helpers.get<IUser[]>("/api/users/")
-            .then((users: IUser[]) => {
-                setUsers(users)
-            })
-    }, []);
+        if (props.groupId > 0) {
+            Helpers.get<IQuota[]>(`/api/quotas/${props.groupId}`)
+                .then((quotas: IQuota[]) => {
+                    setQuotas(quotas)
+                })
+        }
+    }, [props.groupId]);
 
-    const deleteUser = (id: number) => {
-        Helpers.delete(`/api/users/${id}`)
-            .then((deleted: number) => {
-                console.log("deleted: " + deleted);
-                if (deleted > 0) {
-                    setUsers(users.filter(g => g.id !== id));
-                }
-            })
-    }
+    
 
     return (<List>
-        {users.map((g: IUser) =>
+        {quotas.map((g: IQuota) =>
             <ListItem color="neutral"
 
                 endAction={
                     <>
                     <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                         onClick={() => {
-                            pageContext.setParams({userId: g.id})
-                            pageContext.setCurrentPage(CurrentPage.editUser)
+                            pageContext.setParams({groupId: g.groupId, day: g.day})
+                            pageContext.setCurrentPage(CurrentPage.editQuota)
                         }}>
                         <Edit />
-                    </IconButton>
-                    <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
-                        onClick={() => deleteUser(g.id)}>
-                        <Delete />
                     </IconButton>
                     </>
                 }>
@@ -52,7 +46,7 @@ export function UserList() {
                         <PersonIcon />
                     </ListItemDecorator>
                     <ListItemContent>
-                        {g.name}
+                        <Day day={g.day} full={true} />, {g.refreshAmount} mins 
                     </ListItemContent>
                 </ListItemButton>
             </ListItem>)}

@@ -5,7 +5,7 @@ import { User } from '../db/user';
 import { UserGroup } from '../db/userGroup';
 import { Domain } from '../db/domain';
 import { List } from '../db/list';
-import { BookableSlot } from '../db/bookableSlot';
+import { Quota } from '../db/quota';
 import { BookedSlot } from '../db/bookedSlot';
 
 
@@ -167,43 +167,25 @@ export class API {
             res.status(200).json(ret);
         });
 
-
-        //create bookable slot
-        app.post('/api/bookableSlots', async (req: Request, res: Response) => {
-            if (req.body.refillsOn && req.body.numSlots && req.body.duration) {
-                let ret = await BookableSlot.create(req.body.refillsOn, req.body.numSlots, req.body.duration);
+        //quota
+        //no create
+        app.put('/api/quotas/:groupId-:day', async (req: Request, res: Response) => {
+            let groupId = Number(req.params.groupId);
+            let day = Number(req.params.day);
+            if (req.body) {
+                let ret = await Quota.update(groupId, day, 
+                    req.body.refreshAmount, req.body.rollsOver,
+                    req.body.maxDuration, req.body.cooldown);
                 res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
         });
-        app.put('/api/bookableSlots/:id', async (req: Request, res: Response) => {
-            let id = Number(req.params.id);
-            if (id > 0 && req.body.refillsOn && req.body.numSlots && req.body.duration) {
-                let ret = await BookableSlot.update(id, req.body.refillsOn, req.body.numSlots, req.body.duration);
-                res.status(200).json(ret);
-            }
-            else {
-                res.status(400).send("parameter error");
-            }
-        });
-        app.delete('/api/bo, req.body.durationokableSlots/:id', async (req: Request, res: Response) => {
-            let id = Number(req.params.id);
-            let ret = await BookableSlot.delete(id);
-            res.status(200).json(ret);
-        });
-
+        //no quotas
 
         //create booked slot
         app.post('/api/bookedSlots', async (req: Request, res: Response) => {
-            if (req.body.bookableSlotId && req.body.userId) {
-                let ret = await BookedSlot.fromBookableSlot(req.body.bookableSlotId, req.body.userId);
-                res.status(200).json(ret);
-            }
-            else {
-                res.status(400).send("parameter error");
-            }
         });
         app.put('/api/bookedSlots/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
@@ -245,7 +227,9 @@ export class API {
                 let ret = await User.getById(id);
                 res.status(200).json(ret);
             }
-            res.status(400).send("parameter error");
+            else {
+                res.status(400).send("parameter error");
+            }
         });
 
 
@@ -261,7 +245,9 @@ export class API {
                 let ret = await UserGroup.getById(id);
                 res.status(200).json(ret);
             }
-            res.status(400).send("parameter error");
+            else {
+                res.status(400).send("parameter error");
+            }
         });
 
 
@@ -277,7 +263,9 @@ export class API {
                 let ret = await Domain.getById(id);
                 res.status(200).json(ret);
             }
-            res.status(400).send();
+            else {
+                res.status(400).send();
+            }
         });
 
 
@@ -293,23 +281,33 @@ export class API {
                 let ret = await List.getById(id);
                 res.status(200).json(ret);
             }
-            res.status(400).send();
+            else {
+                res.status(400).send();
+            }
         });
 
 
-        //get all bookable slot
-        app.get('/api/bookableSlots', async (req: Request, res: Response) => {
-            let ret = await BookableSlot.getAll();
+        //get all quotas
+        app.get('/api/quotas', async (req: Request, res: Response) => {
+            let ret = await Quota.getAll();
             res.status(200).json(ret);
         });
-        //get 1 bookable slot
-        app.get('/api/bookableSlots/:id', async (req: Request, res: Response) => {
-            let id = Number(req.params.id);
-            if (id > 0) {
-                let ret = await BookableSlot.getById(id);
+        //get quota from group-day
+        app.get('/api/quotas/:groupId&:day', async (req: Request, res: Response) => {
+            let groupId = Number(req.params.groupId);
+            let day = Number(req.params.day);
+            if (groupId > 0 && day > 0) {
+                let ret = await Quota.getByGroupIdDay(groupId, day);
                 res.status(200).json(ret);
             }
-            res.status(400).send();
+        });
+        //get quotas from group
+        app.get('/api/quotas/:groupId', async (req: Request, res: Response) => {
+            let groupId = Number(req.params.groupId);
+            if (groupId > 0) {
+                let ret = await Quota.getByGroupId(groupId);
+                res.status(200).json(ret);
+            }
         });
 
 

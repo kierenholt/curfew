@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "../PageContext";
+import { CurrentPage, PageContext } from "./PageContext";
 import { UserList } from "../UserList";
 
 export interface ManageOwnersProps {
