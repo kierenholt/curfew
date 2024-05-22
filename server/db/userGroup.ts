@@ -9,11 +9,13 @@ export class UserGroup {
     id: number;
     name: string;
     isUnrestricted: boolean;
+    isBanned: boolean;
 
-    constructor(id: number, name: string, isUnrestricted: number) {
+    constructor(id: number, name: string, isUnrestricted: number, isBanned: number) {
         this.id = id;
         this.name = name;
         this.isUnrestricted = (isUnrestricted == 1);
+        this.isBanned = (isBanned == 1);
     }
 
     static seed() {
@@ -26,7 +28,8 @@ export class UserGroup {
             create table userGroup (
                 id integer primary key not null,
                 name text not null,
-                isUnrestricted integer not null
+                isUnrestricted integer not null,
+                isBanned integer default 0 not null
             );
         `)
     }
@@ -62,7 +65,8 @@ export class UserGroup {
         .then((result:any) => new UserGroup(
             result.id, 
             Helpers.unescapeSingleQuotes(result.name), 
-            result.isUnrestricted));
+            result.isUnrestricted,
+            result.isBanned));
     }
 
     static updateName(id: number, name: string): Promise<RunResult> {
@@ -92,6 +96,16 @@ export class UserGroup {
         .then((result: any) => result.map((r:any) => new UserGroup(
             r.id, 
             Helpers.unescapeSingleQuotes(r.name), 
-            r.isUnrestricted)))
+            r.isUnrestricted,
+            r.isBanned)))
+    }
+
+    static setBan(groupId: number, isBanned: number): Promise<number> {
+        return Db.run(`
+            update user
+            set isBanned = ${isBanned}
+            where id = ${groupId}
+        `)
+        .then((result: RunResult) => result.changes);
     }
 }

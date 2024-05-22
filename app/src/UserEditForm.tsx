@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, FormGroup, TextField } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Helpers } from "./helpers";
 import { IUser } from "./types";
@@ -32,7 +32,8 @@ export function UserEditForm(props: UserEditFormProps) {
     }
 
     return (
-        <>
+        
+        <FormGroup>
             <TextField
                 id="User-name"
                 label="Name"
@@ -48,6 +49,6 @@ export function UserEditForm(props: UserEditFormProps) {
             <GroupSelect setSelectedGroupId={setGroupId} selectedGroupId={groupId} />
 
             <Button onClick={save} >Save</Button>
-        </>
+        </FormGroup>
     )
 }

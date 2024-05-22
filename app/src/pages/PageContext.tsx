@@ -15,14 +15,22 @@ import DevicesIcon from '@mui/icons-material/Devices';
 import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
+import HourglassTopIcon from '@mui/icons-material/HourglassTop';
+import BlockIcon from '@mui/icons-material/Block';
+
 import { ManageQuotasPage } from './ManageQuotasPage';
 import { EditQuotaPage } from './EditQuotaPage';
+import { ManageBookingsPage } from './ManageBookingsPage';
+import { UserMakesBookingPage } from './UserMakesBookingPage';
+import { ManageBansPage } from './ManageBansPage';
 
 export enum CurrentPage {
     manageDevices, editDevice, createDevice,
     manageUsers, editUser, createUser,
     manageGroups, editGroup, createGroup,
-    manageQuotas, editQuota
+    manageQuotas, editQuota,
+    manageBookings, userMakesBooking,
+    manageBans
 }
 
 interface SetPageAction {
@@ -40,17 +48,16 @@ const iconButtonStyle = {
 }
 
 export const PageContextWrapper = () => {
-    const [currentPage, setCurrentPage] = useState<CurrentPage>(CurrentPage.createDevice);
+    //default page
+    const [currentPage, setCurrentPage] = useState<CurrentPage>(CurrentPage.userMakesBooking);
     const [params, setParams] = useState<any>({});
     const [showUsers, setShowUsers] = useState<boolean>(false);
 
     return (
-
         <PageContext.Provider value={{
             setCurrentPage: setCurrentPage,
             setParams: setParams
         }}>
-
             {
                 currentPage === CurrentPage.manageDevices ?
                     <ManageDevicesPage />
@@ -74,6 +81,12 @@ export const PageContextWrapper = () => {
                                                         <ManageQuotasPage params={params} />
                                                         : currentPage === CurrentPage.editQuota ?
                                                             <EditQuotaPage params={params} />
+                                                            : currentPage === CurrentPage.manageBookings ?
+                                                                <ManageBookingsPage params={params} />
+                                                                : currentPage === CurrentPage.userMakesBooking ?
+                                                                    <UserMakesBookingPage />
+                                                                    : currentPage === CurrentPage.manageBans ?
+                                                                        <ManageBansPage />
                                                         :
                                                         <p>
                                                             page not found
@@ -129,6 +142,24 @@ export const PageContextWrapper = () => {
                         sx={iconButtonStyle}>
                         <TimelapseIcon fontSize="large" />
                         <p>Quotas</p>
+                    </Stack>
+                    <Stack direction="column" alignItems="center"
+                        onClick={() => { 
+                            setParams({userId: 0});
+                            setCurrentPage(CurrentPage.manageBookings);
+                        }}
+                        sx={iconButtonStyle}>
+                        <HourglassTopIcon fontSize="large" />
+                        <p>Bookings</p>
+                    </Stack>
+                    <Stack direction="column" alignItems="center"
+                        onClick={() => { 
+                            setParams({});
+                            setCurrentPage(CurrentPage.manageBans);
+                        }}
+                        sx={iconButtonStyle}>
+                        <BlockIcon fontSize="large" />
+                        <p>Bans</p>
                     </Stack>
                 </Stack>
             }

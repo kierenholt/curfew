@@ -51,6 +51,7 @@ export class DhcpServer {
 
     static sendOffer(requestPacket: DhcpPacket) {
         let lease = this.selectAddress(requestPacket);
+        let hostname = requestPacket.hostName;
         requestPacket.setAsOffer(lease.IP, this.serverIP, 
             this.router, Lease.lifetime, this.subnet);
 
@@ -58,21 +59,26 @@ export class DhcpServer {
             Unicast.send(requestPacket, 
                 this.serverMAC, requestPacket.clientMAC,
                 this.serverIP, requestPacket.yourIP);
+            console.log("offer sent to " + hostname);
         }
         else {
             this.socket.send(requestPacket.writeToBuffer(), 
                 DhcpServer.CLIENT_PORT, this.broadcastIP, 
                 (err: any) => {
-                if (err) {
-                    console.error(`Error sending response: ${err.message}`);
-                    this.socket.close();
-                }
+                    if (err) {
+                        console.error(`Error sending response: ${err.message}`);
+                        this.socket.close();
+                    }
+                    else {
+                        console.log("offer sent to " + hostname);
+                    }
             });
         }
     }
 
     static sendAck(requestPacket: DhcpPacket) {
         let foundLease = this.selectAddress(requestPacket);
+        let hostname = requestPacket.hostName;
 
         if (foundLease == null) return;
         
@@ -83,6 +89,7 @@ export class DhcpServer {
             Unicast.send(requestPacket, 
                 this.serverMAC, requestPacket.clientMAC,
                 this.serverIP, requestPacket.yourIP);
+            console.log("ack sent to " + hostname);
         }
         else {
             this.socket.send(requestPacket.writeToBuffer(), 
@@ -91,6 +98,9 @@ export class DhcpServer {
                 if (err) {
                     console.error(`Error sending response: ${err.message}`);
                     this.socket.close();
+                }
+                else {
+                    console.log("ack sent to " + hostname);
                 }
             });
         }
@@ -174,10 +184,10 @@ export class DhcpServer {
         return null;
     }
 
-    static getMacFromIP(ip: string): string {
+    static getDeviceIdFromIP(ip: string): string {
         let found = this.leases.filter(l => l.IP == ip);
         if (found.length) {
-            return found[0].MAC;
+            return found[0].deviceId;
         }
         return "";
     }

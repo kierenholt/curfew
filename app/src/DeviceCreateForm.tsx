@@ -1,4 +1,4 @@
-import { Button, TextField } from "@mui/material";
+import { Button, FormGroup, TextField } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 import { UserSelect } from "./UserSelect";
 import { Helpers } from "./helpers";
@@ -23,7 +23,7 @@ export function DeviceCreateForm(props: DeviceCreateFormProps) {
     }
 
     return (
-        <>
+        <FormGroup>
             <TextField
                 id="device-name"
                 label="device name"
@@ -36,9 +36,9 @@ export function DeviceCreateForm(props: DeviceCreateFormProps) {
                 }}
             />
 
-            <UserSelect selectedUserId={ownerId} setSelecterUserId={setOwnerId} />
+            <UserSelect selectedUserId={ownerId} setSelectedUserId={setOwnerId} />
 
             <Button onClick={save} >Save</Button>
-        </>
+        </FormGroup>
     )
 }

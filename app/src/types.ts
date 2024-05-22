@@ -3,6 +3,7 @@ export interface IUserGroup {
     id: number;
     name: string;
     isUnrestricted: boolean;
+    isBanned: boolean;
 }
 
 
@@ -10,6 +11,7 @@ export interface IUser {
     id: number;
     groupId: number;
     name: string;
+    isBanned: boolean;
 }
 
 
@@ -55,6 +57,7 @@ export interface IDevice {
     id: string;
     ownerId: number;
     name: string;
+    isBanned: boolean;
 }
 
 export interface IQuota {
@@ -67,9 +70,12 @@ export interface IQuota {
     cooldown: number;
 }
 
-export interface ISession {
+export interface IBooking {
     id: number;
-    quotaId: number;
+    startsOn: Date;
     userId: number;
-    startedOn: Date;
+    groupId: number;
+    day: number;
+    duration: number;
+    cooldown: number;
 }

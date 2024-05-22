@@ -9,11 +9,13 @@ export class Device {
     name: string;
     static SAMSUNG_MAC: string = "ba:cc:ba:1a:1d:41"; 
     private _owner: Promise<User | null> | undefined;
+    isBanned: boolean;
 
-    constructor(id: string, ownerId: number, name: string) {
+    constructor(id: string, ownerId: number, name: string, isBanned: number) {
         this.id = id;
         this.ownerId = ownerId;
         this.name = name;
+        this.isBanned = (isBanned == 1);
     }
 
     static createTable(): Promise<RunResult> {
@@ -22,6 +24,7 @@ export class Device {
                 id text primary key not null,
                 ownerId integer not null,
                 name text not null,
+                isBanned integer default 0 not null,
                 FOREIGN KEY(ownerId) REFERENCES user(id)
             );
         `)
@@ -59,7 +62,8 @@ export class Device {
         .then((result:any) => result ? new Device(
             result.id, 
             result.ownerId, 
-            Helpers.unescapeSingleQuotes(result.name)
+            Helpers.unescapeSingleQuotes(result.name),
+            result.isBanned
             ) : null);
     }
 
@@ -94,7 +98,17 @@ export class Device {
         .then((result: any) => result.map((r:any) => new Device(
             r.id, 
             r.ownerId, 
-            Helpers.unescapeSingleQuotes(r.name)
+            Helpers.unescapeSingleQuotes(r.name),
+            r.isBanned
             )))
+    }
+
+    static setBan(deviceId: string, isBanned: number): Promise<number> {
+        return Db.run(`
+            update user
+            set isBanned = ${isBanned}
+            where id = ${deviceId}
+        `)
+        .then((result: RunResult) => result.changes);
     }
 }

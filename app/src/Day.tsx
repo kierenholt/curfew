@@ -1,8 +1,8 @@
 
 
 export function Day(props: {day: number, full: boolean}) {
-    const fullDays = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-    const shortDays = ["Mo","Tu","We","Th","Fr","Sa","Su"];
+    const fullDays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const shortDays = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 
     return (
     <span>

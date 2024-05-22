@@ -1,4 +1,4 @@
-import { BookedSlot } from "./db/bookedSlot";
+import { Booking } from "./db/booking";
 import { Device } from "./db/device";
 import { Domain } from "./db/domain";
 import { FilterAction, List } from "./db/list";
@@ -11,19 +11,19 @@ import { Helpers } from "./helpers";
 export enum RedirectPage {
     allowPage = 0, nameTheDevicePage = 1, nameTheOwnerPage = 2,
     nameTheGroupPage = 3, domainIsBlockedPage = 4, domainNotInListPage = 5,
-    bookASlotPage = 6, errorPage = 7, dashboardPage = 8
+    bookASlotPage = 6, errorPage = 7, dashboardPage = 8,
+    deviceIsBanned = 9, userIsBanned = 10, groupIsBanned = 11
 }
 
 export class Redirect {
     static BLOCK_IF_DOMAIN_NOT_FOUND: boolean = true;
 
-    hostMAC: string = "";
     device: Device | null = null;
     owner: User | null = null;
     group: UserGroup | null = null;
     domain: Domain | null = null;
     list: List | null = null;
-    bookedSlot: BookedSlot | null = null;
+    bookedSlot: Booking | null = null;
     redirectResult: RedirectPage = RedirectPage.errorPage;
     createdOn: Date = new Date();
 
@@ -33,16 +33,20 @@ export class Redirect {
         let ret = new Redirect();
 
         //get MAC
-        ret.hostMAC = DhcpServer.getMacFromIP(hostAddress);
+        let deviceId = DhcpServer.getDeviceIdFromIP(hostAddress);
         
         //find user
-        ret.device = await Device.getById(Helpers.MACtoDeviceId(ret.hostMAC));
+        ret.device = await Device.getById(Helpers.MACtoDeviceId(deviceId));
 
         if (ret.device == null) { //device not found -> name the device page
             ret.redirectResult = RedirectPage.nameTheDevicePage;
             return ret;
         }
         else { //device found - get user
+            if (ret.device.isBanned) {
+                ret.redirectResult = RedirectPage.deviceIsBanned;
+                return ret;    
+            }
             ret.owner = await ret.device.owner;
             if (ret.owner == null) {
                 //user not found -> name the owner page
@@ -50,6 +54,10 @@ export class Redirect {
                 return ret;
             }
             else {
+                if (ret.owner.isBanned) {
+                    ret.redirectResult = RedirectPage.userIsBanned;
+                    return ret;    
+                }
                 ret.group = await ret.owner.group;
                 if (ret.group == null) {
                     //group not found -> name the group page
@@ -57,6 +65,10 @@ export class Redirect {
                     return ret;
                 }
                 else {
+                    if (ret.group.isBanned) {
+                        ret.redirectResult = RedirectPage.groupIsBanned;
+                        return ret;    
+                    }
                     if (ret.group.isUnrestricted) { //member of unrestricted group
                         ret.redirectResult = RedirectPage.allowPage;
                         return ret;
@@ -90,7 +102,7 @@ export class Redirect {
                                 }
                                 else { //needs slot
                                     //has the user booked a slot?
-                                    ret.bookedSlot = await BookedSlot.bookedSlotInUse(ret.owner.id);
+                                    ret.bookedSlot = null;//await Booking.bookedSlotInUse(ret.owner.id);
                                     if (ret.bookedSlot) {
                                         ret.redirectResult = RedirectPage.allowPage;
                                         return ret;

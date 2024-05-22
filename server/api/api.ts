@@ -6,8 +6,8 @@ import { UserGroup } from '../db/userGroup';
 import { Domain } from '../db/domain';
 import { List } from '../db/list';
 import { Quota } from '../db/quota';
-import { BookedSlot } from '../db/bookedSlot';
-
+import { Booking } from '../db/booking';
+import { MakeABooking } from './makeABooking';
 
 export class API {
     static init() {
@@ -58,6 +58,16 @@ export class API {
             let ret = await Device.delete(req.params.id);
             res.status(200).json(ret);
         });
+        app.put('/api/devices/:id/isBanned=:isBanned', async (req: Request, res: Response) => {
+            let isBanned = Number(req.params.isBanned);
+            if (req.params.id.length > 0) {
+                let ret = await Device.setBan(req.params.id, isBanned);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        })
 
 
         //create user
@@ -85,6 +95,17 @@ export class API {
             let ret = await User.delete(id);
             res.status(200).json(ret);
         });
+        app.put('/api/users/:userId/isBanned=:isBanned', async (req: Request, res: Response) => {
+            let id = Number(req.params.userId);
+            let isBanned = Number(req.params.isBanned);
+            if (id > 0) {
+                let ret = await User.setBan(id, isBanned);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        })
 
 
         //create group
@@ -112,6 +133,17 @@ export class API {
             let ret = await UserGroup.delete(id);
             res.status(200).json(ret);
         });
+        app.put('/api/userGroups/:groupId/isBanned=:isBanned', async (req: Request, res: Response) => {
+            let id = Number(req.params.groupId);
+            let isBanned = Number(req.params.isBanned);
+            if (id > 0) {
+                let ret = await UserGroup.setBan(id, isBanned);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        })
 
 
         //create domain
@@ -182,26 +214,34 @@ export class API {
                 res.status(400).send("parameter error");
             }
         });
-        //no quotas
 
-        //create booked slot
-        app.post('/api/bookedSlots', async (req: Request, res: Response) => {
-        });
-        app.put('/api/bookedSlots/:id', async (req: Request, res: Response) => {
-            let id = Number(req.params.id);
-            if (id > 0 && req.body.startsOn && req.body.endsOn && req.body.userId) {
-                let ret = await BookedSlot.update(id, req.body.startsOn, req.body.endsOn, req.body.userId);
+        
+        //create bookings
+        app.post('/api/bookings', async (req: Request, res: Response) => {
+            if (req.body) {
+                let ret = await Booking.create(new Date(), req.body.userId, req.body.duration);
                 res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
         });
-        app.delete('/api/bookedSlots/:id', async (req: Request, res: Response) => {
+        app.put('/api/bookings/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
-            let ret = await BookedSlot.delete(id);
+            if (id > 0 && req.body) {
+                let ret = await Booking.update(id, req.body.startsOn, req.body.userId, req.body.groupId, req.body.day, req.body.duration, req.body.cooldown);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+        app.delete('/api/bookings/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            let ret = await Booking.delete(id);
             res.status(200).json(ret);
         });
+
 
         //get all devices
         app.get('/api/devices', async (req: Request, res: Response) => {
@@ -312,20 +352,34 @@ export class API {
 
 
         //get all booked slots
-        app.get('/api/bookedSlots', async (req: Request, res: Response) => {
-            let ret = await BookedSlot.getAll();
+        app.get('/api/bookings', async (req: Request, res: Response) => {
+            let ret = await Booking.getAll();
             res.status(200).json(ret);
         });
-        //get 1 booked slot
-        app.get('/api/bookedSlots/:id', async (req: Request, res: Response) => {
-            let id = Number(req.params.id);
-            if (id > 0) {
-                let ret = await BookedSlot.getById(id);
+        //get booked slots from user
+        app.get('/api/bookings/userId/:userId', async (req: Request, res: Response) => {
+            let userId = Number(req.params.userId);
+            if (userId > 0) {
+                let ret = await Booking.getByUserId(userId);
                 res.status(200).json(ret);
             }
-            res.status(400).send();
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+        //get 1 booked slot
+        app.get('/api/bookings/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            if (id > 0) {
+                let ret = await Booking.getById(id);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
         });
 
+        MakeABooking.init(app);
 
         app.listen(port, () => {
             console.log(`⚡️[server]: Server is running at http://localhost:${port}`);

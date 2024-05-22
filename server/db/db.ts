@@ -2,7 +2,7 @@ import { AsyncDatabase } from "promised-sqlite3";
 import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
 import { User } from "./user";
 import { Quota } from "./quota";
-import { BookedSlot } from "./bookedSlot";
+import { Booking } from "./booking";
 import { Device } from "./device";
 import { FixedSlot } from "./fixedSlot";
 import { Rule } from "./rule";
@@ -53,7 +53,7 @@ export class Db {
 
     static async createTables() {
         await Quota.createTable();
-        await BookedSlot.createTable();
+        await Booking.createTable();
         await Device.createTable();
         await Domain.createTable();
         await FixedSlot.createTable();
@@ -66,7 +66,7 @@ export class Db {
 
     static async seed() {
         //await BookableSlot.seed();
-        await BookedSlot.seed();
+        await Booking.seed();
         await Device.seed();
         await Domain.seed();
         //await FixedSlot.seed();

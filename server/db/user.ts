@@ -8,11 +8,13 @@ export class User {
     groupId: number;
     private _group: Promise<UserGroup> | undefined;
     name: string;
+    isBanned: boolean;
 
-    constructor(id: number, groupId: number, name: string) {
+    constructor(id: number, groupId: number, name: string, isBanned: number) {
         this.id = id;
         this.groupId = groupId;
         this.name = name;
+        this.isBanned = isBanned == 1;
     }
 
     static createTable(): Promise<void> {
@@ -21,6 +23,7 @@ export class User {
                 id integer primary key not null,
                 groupId integer not null,
                 name text not null,
+                isBanned integer default 0 not null,
                 FOREIGN KEY(groupId) REFERENCES userGroup(id)
             );
         `)
@@ -60,7 +63,8 @@ export class User {
         .then((result:any) => result == null ? null : new User(
             result.id, 
             result.groupId, 
-            Helpers.unescapeSingleQuotes(result.name)
+            Helpers.unescapeSingleQuotes(result.name),
+            result.isBanned
             ));
     }
 
@@ -96,7 +100,17 @@ export class User {
         .then((result: any) => result.map((r:any) => new User(
             r.id, 
             r.groupId, 
-            Helpers.unescapeSingleQuotes(r.name)
+            Helpers.unescapeSingleQuotes(r.name),
+            r.isBanned
             )))
+    }
+
+    static setBan(userId: number, isBanned: number): Promise<number> {
+        return Db.run(`
+            update user
+            set isBanned = ${isBanned}
+            where id = ${userId}
+        `)
+        .then((result: RunResult) => result.changes);
     }
 }

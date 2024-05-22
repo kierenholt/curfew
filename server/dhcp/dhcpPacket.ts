@@ -88,6 +88,14 @@ export class DhcpPacket {
         return found[0].rdata[0];
     }
 
+    get hostName(): string {
+        let found = this.options.filter(o => o.code == 12);
+        if (found.length == 0) {
+            return 'anonymous device';
+        } 
+        return found[0].rdata.toString();
+    }
+
     setAsOffer(yourIP: string, serverIP: string, 
         routerIP: string, leaseTime: number, subnet: string) {
         this.requestReply = RequestReply.reply;

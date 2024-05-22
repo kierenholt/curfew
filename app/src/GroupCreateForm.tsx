@@ -1,7 +1,6 @@
-import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, TextField, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Button, Checkbox, FormControlLabel, FormGroup, TextField } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 import { Helpers } from "./helpers";
-import { GroupSelect } from "./GroupSelect";
 import { Typography } from "@mui/joy";
 
 interface GroupCreateFormProps {
@@ -37,11 +36,11 @@ export function GroupCreateForm(props: GroupCreateFormProps) {
             />
 
 
-                <FormControlLabel control={
-                    <Checkbox onChange={(e) => setIsUnrestricted(e.target.checked)} 
-                        checked={isUnrestricted}/>
-                } label="Unrestricted access*" />
-                
+            <FormControlLabel control={
+                <Checkbox onChange={(e) => setIsUnrestricted(e.target.checked)}
+                    checked={isUnrestricted} />
+            } label="Unrestricted access*" />
+
             <Typography id="" component="p">
                 Unrestricted access to websites and apps.
                 It is recommended to enable for adults only.

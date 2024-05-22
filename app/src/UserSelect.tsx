@@ -5,7 +5,7 @@ import { IUser } from "./types";
 
 export interface UserSelectProps {
     selectedUserId: number;
-    setSelecterUserId: (n: number) => void;
+    setSelectedUserId: (n: number) => void;
 }
 
 export function UserSelect(props: UserSelectProps) {
@@ -19,7 +19,7 @@ export function UserSelect(props: UserSelectProps) {
     }, []);
 
     const handleChange = (event: SelectChangeEvent) => {
-        props.setSelecterUserId(Number(event.target.value));
+        props.setSelectedUserId(Number(event.target.value));
       };
 
     return (

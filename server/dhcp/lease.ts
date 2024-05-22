@@ -1,8 +1,10 @@
+import { Helpers } from "../helpers";
 
 export enum LeaseState { offered = 0, active = 1, expired = 2 }
 
 export class Lease {
     MAC: string;
+    deviceId: string;
     IP: string;
     state: LeaseState;
     expires: number;
@@ -15,5 +17,6 @@ export class Lease {
         this.state = LeaseState.active;
         this.expires = new Date().valueOf() + Lease.lifetime;
         this.mostRecentTransactionId = mostRecentTransactionId;
+        this.deviceId = Helpers.MACtoDeviceId(MAC);
     }
 }

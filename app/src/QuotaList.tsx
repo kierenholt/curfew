@@ -4,30 +4,18 @@ import { IQuota } from "./types";
 import { Helpers } from "./helpers";
 import { Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./pages/PageContext";
-import PersonIcon from '@mui/icons-material/Person';
+import TimelapseIcon from '@mui/icons-material/Timelapse';
 import { Day } from "./Day";
 
 export interface QuotaListProps {
-    groupId: number;
+    quotas: IQuota[];
 } 
 
 export function QuotaList(props: QuotaListProps) {
     const pageContext = useContext(PageContext);
-    let [quotas, setQuotas] = useState<IQuota[]>([]);
-
-    useEffect(() => {
-        if (props.groupId > 0) {
-            Helpers.get<IQuota[]>(`/api/quotas/${props.groupId}`)
-                .then((quotas: IQuota[]) => {
-                    setQuotas(quotas)
-                })
-        }
-    }, [props.groupId]);
-
-    
 
     return (<List>
-        {quotas.map((g: IQuota) =>
+        {props.quotas.map((g: IQuota) =>
             <ListItem color="neutral"
 
                 endAction={
@@ -43,7 +31,7 @@ export function QuotaList(props: QuotaListProps) {
                 }>
                 <ListItemButton>
                     <ListItemDecorator>
-                        <PersonIcon />
+                        <TimelapseIcon />
                     </ListItemDecorator>
                     <ListItemContent>
                         <Day day={g.day} full={true} />, {g.refreshAmount} mins 
