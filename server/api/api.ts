@@ -8,6 +8,7 @@ import { List } from '../db/list';
 import { Quota } from '../db/quota';
 import { Booking } from '../db/booking';
 import { MakeABooking } from './makeABooking';
+import { RedirectAPI } from './getRedirect';
 
 export class API {
     static init() {
@@ -380,6 +381,7 @@ export class API {
         });
 
         MakeABooking.init(app);
+        RedirectAPI.init(app);
 
         app.listen(port, () => {
             console.log(`⚡️[server]: Server is running at http://localhost:${port}`);

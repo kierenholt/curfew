@@ -11,6 +11,8 @@ export class UserGroup {
     isUnrestricted: boolean;
     isBanned: boolean;
 
+    static FIRST_GROUP_ID: number = 1;
+
     constructor(id: number, name: string, isUnrestricted: number, isBanned: number) {
         this.id = id;
         this.name = name;
@@ -18,9 +20,10 @@ export class UserGroup {
         this.isBanned = (isBanned == 1);
     }
 
-    static seed() {
-        let id = this.create("kids", false);
-        console.log("group id", id);
+    static async seed() {
+        await this.create("kids", false); //id 1
+        await this.create("adults", true); //id 2
+        await this.create("things", true); //id 3
     }
 
     static createTable(): Promise<RunResult> {
@@ -79,6 +82,9 @@ export class UserGroup {
     }
 
     static delete(id: number): Promise<number> {
+        if (id == this.FIRST_GROUP_ID) {
+            return Promise.resolve(0); //must not delete unknown group
+        }
         return Db.run(`
             delete from userGroup
             where id = ${id}

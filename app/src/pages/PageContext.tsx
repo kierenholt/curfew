@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react';
+import { createContext, useState } from 'react';
 
 import { CreateDevicePage } from './CreateDevicePage';
 import { EditUserPage } from './EditUserPage';
@@ -10,19 +10,12 @@ import { EditDevicePage } from './EditDevicePage';
 import { ManageDevicesPage } from './ManageDevicesPage';
 import { ManageUsersPage } from './ManageUsersPage';
 
-import { Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import DevicesIcon from '@mui/icons-material/Devices';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
-import TimelapseIcon from '@mui/icons-material/Timelapse';
-import HourglassTopIcon from '@mui/icons-material/HourglassTop';
-import BlockIcon from '@mui/icons-material/Block';
-
 import { ManageQuotasPage } from './ManageQuotasPage';
 import { EditQuotaPage } from './EditQuotaPage';
 import { ManageBookingsPage } from './ManageBookingsPage';
 import { UserMakesBookingPage } from './UserMakesBookingPage';
 import { ManageBansPage } from './ManageBansPage';
+import { BottomMenu } from './BottomMenu';
 
 export enum CurrentPage {
     manageDevices, editDevice, createDevice,
@@ -42,16 +35,10 @@ export const PageContext = createContext<SetPageAction>(
     { setCurrentPage: () => { }, setParams: () => { } }
 );
 
-const iconButtonStyle = {
-    padding: "2px 20px",
-    cursor: "pointer",
-}
-
 export const PageContextWrapper = () => {
     //default page
     const [currentPage, setCurrentPage] = useState<CurrentPage>(CurrentPage.userMakesBooking);
     const [params, setParams] = useState<any>({});
-    const [showUsers, setShowUsers] = useState<boolean>(false);
 
     return (
         <PageContext.Provider value={{
@@ -87,82 +74,13 @@ export const PageContextWrapper = () => {
                                                                     <UserMakesBookingPage />
                                                                     : currentPage === CurrentPage.manageBans ?
                                                                         <ManageBansPage />
-                                                        :
-                                                        <p>
-                                                            page not found
-                                                        </p>
+                                                                        :
+                                                                        <p>
+                                                                            page not found
+                                                                        </p>
             }
 
-            <ToggleButtonGroup sx={{display: "block", width: "100%"}}
-                color="primary"
-                value={showUsers}
-                exclusive
-                onChange={(e: any, value: any) => {
-                    if (value !== null) {
-                        setShowUsers(value);
-                    }
-                }}
-                aria-label="show users"
-            >
-                <ToggleButton sx={{width: "50%"}} value={true}>Users</ToggleButton>
-                <ToggleButton sx={{width: "50%"}} value={false}>Quotas</ToggleButton>
-            </ToggleButtonGroup>
-
-            {showUsers ?
-                <Stack
-                    direction="row" justifyContent="space-around" alignItems="stretch"
-                    height="100px">
-                    <Stack direction="column" alignItems="center"
-                        onClick={() => { setCurrentPage(CurrentPage.manageDevices) }}
-                        sx={iconButtonStyle}>
-                        <DevicesIcon fontSize="large" />
-                        <p>Devices</p>
-                    </Stack>
-                    <Stack direction="column" alignItems="center"
-                        onClick={() => { setCurrentPage(CurrentPage.manageUsers) }}
-                        sx={iconButtonStyle}>
-                        <PersonIcon fontSize="large" />
-                        <p>Users</p>
-                    </Stack>
-                    <Stack direction="column" alignItems="center"
-                        onClick={() => { setCurrentPage(CurrentPage.manageGroups) }}
-                        sx={iconButtonStyle}>
-                        <GroupIcon fontSize="large" />
-                        <p>Groups</p>
-                    </Stack>
-                </Stack>
-                :
-                <Stack direction="row" justifyContent="space-around" alignItems="stretch"
-                    height="100px">
-                    <Stack direction="column" alignItems="center"
-                        onClick={() => { 
-                            setParams({groupId: 0});
-                            setCurrentPage(CurrentPage.manageQuotas);
-                        }}
-                        sx={iconButtonStyle}>
-                        <TimelapseIcon fontSize="large" />
-                        <p>Quotas</p>
-                    </Stack>
-                    <Stack direction="column" alignItems="center"
-                        onClick={() => { 
-                            setParams({userId: 0});
-                            setCurrentPage(CurrentPage.manageBookings);
-                        }}
-                        sx={iconButtonStyle}>
-                        <HourglassTopIcon fontSize="large" />
-                        <p>Bookings</p>
-                    </Stack>
-                    <Stack direction="column" alignItems="center"
-                        onClick={() => { 
-                            setParams({});
-                            setCurrentPage(CurrentPage.manageBans);
-                        }}
-                        sx={iconButtonStyle}>
-                        <BlockIcon fontSize="large" />
-                        <p>Bans</p>
-                    </Stack>
-                </Stack>
-            }
+            <BottomMenu setCurrentPage={setCurrentPage} setParams={setParams} />
         </PageContext.Provider>
     );
 } 

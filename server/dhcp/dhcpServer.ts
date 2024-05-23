@@ -51,7 +51,6 @@ export class DhcpServer {
 
     static sendOffer(requestPacket: DhcpPacket) {
         let lease = this.selectAddress(requestPacket);
-        let hostname = requestPacket.hostName;
         requestPacket.setAsOffer(lease.IP, this.serverIP, 
             this.router, Lease.lifetime, this.subnet);
 
@@ -59,7 +58,7 @@ export class DhcpServer {
             Unicast.send(requestPacket, 
                 this.serverMAC, requestPacket.clientMAC,
                 this.serverIP, requestPacket.yourIP);
-            console.log("offer sent to " + hostname);
+            console.log("offer sent to " + lease.hostname);
         }
         else {
             this.socket.send(requestPacket.writeToBuffer(), 
@@ -70,7 +69,7 @@ export class DhcpServer {
                         this.socket.close();
                     }
                     else {
-                        console.log("offer sent to " + hostname);
+                        console.log("offer sent to " + lease.hostname);
                     }
             });
         }
@@ -128,8 +127,11 @@ export class DhcpServer {
                 //different MAC so they need a different IP
             }
             else { //nobody has the IP so give it away
-                let lease = new Lease(requestPacket.clientMAC, requestPacket.clientIP, 
-                    requestPacket.transactionId);
+                let lease = new Lease(
+                    requestPacket.clientMAC, 
+                    requestPacket.clientIP, 
+                    requestPacket.transactionId,
+                    requestPacket.hostName);
                 this.leases.push(lease);
                 return lease;
             }
@@ -147,13 +149,21 @@ export class DhcpServer {
         let foundOptions = requestPacket.options.filter(o => o.code == 50);
         if (foundOptions.length) {
             let requestedIP = Helpers.readIP(foundOptions[0].rdata, 0);
-            let lease = new Lease(requestPacket.clientMAC, requestedIP, requestPacket.transactionId);
+            let lease = new Lease(
+                requestPacket.clientMAC, 
+                requestedIP, 
+                requestPacket.transactionId,
+                requestPacket.hostName);
             this.leases.push(lease);
             return lease;
         }
         
         let offeredIp = Helpers.chooseRandom(this.possibleIPs);
-        let lease = new Lease(requestPacket.clientMAC, offeredIp, requestPacket.transactionId);
+        let lease = new Lease(
+            requestPacket.clientMAC, 
+            offeredIp, 
+            requestPacket.transactionId,
+            requestPacket.hostName);
         this.leases.push(lease);
         return lease;
     }
@@ -191,6 +201,15 @@ export class DhcpServer {
         }
         return "";
     }
+
+    static getHostNameFromIP(ip: string): string {
+        let found = this.leases.filter(l => l.IP == ip);
+        if (found.length) {
+            return found[0].hostname;
+        }
+        return "";
+    }
+
 }
 
 

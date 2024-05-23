@@ -34,7 +34,7 @@ export class MakeABooking {
 
         //get all users
         app.get('/api/makeABooking', async (req: Request, res: Response) => {
-            //get mac
+            //get ip
             if (req.socket.remoteAddress == null) {
                 res.status(400).send("remote address not found");
                 return;

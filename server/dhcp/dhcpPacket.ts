@@ -91,7 +91,7 @@ export class DhcpPacket {
     get hostName(): string {
         let found = this.options.filter(o => o.code == 12);
         if (found.length == 0) {
-            return 'anonymous device';
+            return '';
         } 
         return found[0].rdata.toString();
     }

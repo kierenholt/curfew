@@ -37,8 +37,23 @@ export class DnsServer {
 
             if (!packet.header.isResponse) { //query
                 let redirectResult = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
-                let isRedirected = (redirectResult.redirectResult != RedirectPage.allowPage);
+                let isRedirected = (redirectResult.redirectResult != RedirectPage.notRedirected);
                 if (isRedirected) {
+                    switch (redirectResult.redirectResult) {
+                        case RedirectPage.notRedirected:
+                        case RedirectPage.notRedirected:
+                        case RedirectPage.nameTheDevicePage:
+                        case RedirectPage.nameTheOwnerPage:
+                        case RedirectPage.nameTheGroupPage:
+                        case RedirectPage.domainIsBlockedPage:
+                        case RedirectPage.domainNotInListPage:
+                        case RedirectPage.bookASlotPage:
+                        case RedirectPage.errorPage:
+                        case RedirectPage.homePage:
+                        case RedirectPage.deviceIsBanned:
+                        case RedirectPage.userIsBanned:
+                        case RedirectPage.groupIsBanned:
+                    }
                     //block
                     packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.NULL_IP_v4, this.NULL_IP_v6)]);
                     packet.header.isResponse = true;
@@ -52,7 +67,7 @@ export class DnsServer {
                     return;
                 }
 
-                //allow
+                //no redirect
                 this.dnsForwarder.forward(buf)
                 .then(answer => {
                     //add answer
