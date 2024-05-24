@@ -6,19 +6,18 @@ import { User } from "./db/user";
 import { UserGroup } from "./db/userGroup";
 import { DhcpServer } from "./dhcp/dhcpServer";
 
-export enum RedirectPage {
-    notRedirected = 0, 
-    nameTheDevicePage = 1, nameTheOwnerPage = 2,
-    nameTheGroupPage = 3, domainIsBlockedPage = 4, domainNotInListPage = 5,
-    bookASlotPage = 6, 
-    errorPage = 7, 
-    homePage = 8,
+//copied into app
+export enum RedirectReason {
+    notRedirected = 0,
+    domainIsBlocked = 4, domainNotInList = 5,
+    needsToBook = 6,
+    error = 7,
+    curfew = 8,
     deviceIsBanned = 9, userIsBanned = 10, groupIsBanned = 11
 }
 
-export class Redirect {
+export class RedirectReasonInfo {
     static BLOCK_IF_DOMAIN_NOT_FOUND: boolean = true;
-    static LOCAL_APP_DOMAIN = "curfew";
 
     device: Device | null = null;
     owner: User | null = null;
@@ -26,83 +25,89 @@ export class Redirect {
     domain: Domain | null = null;
     list: List | null = null;
     bookedSlot: Booking | null = null;
-    redirectResult: RedirectPage = RedirectPage.errorPage;
+    redirectReason: RedirectReason = RedirectReason.error;
     createdOn: Date = new Date();
 
-    static mostRecentRedirectsByIP: {[ip: string]: Redirect } = {};
+    static LOCAL_APP_DOMAIN = "curfew";
+
+    static mostRecentRedirectsByIP: {[ip: string]: RedirectReasonInfo } = {};
     
-    static async create(hostAddress: string, fullDomain: string = ""): Promise<Redirect> {
+    static async create(hostAddress: string, fullDomain: string = ""): Promise<RedirectReasonInfo> {
         if (hostAddress.length == 0) throw("hostAddress cannot be null");
         
-        let ret = new Redirect();
+        let ret = new RedirectReasonInfo();
+        
+        //do not save if request is curfew - keep the last status
+        //going to app
+        if (fullDomain == this.LOCAL_APP_DOMAIN) {
+            ret.redirectReason = RedirectReason.curfew;
+            return ret;
+        }
+
+        //save if not going to app
         this.mostRecentRedirectsByIP[hostAddress] = ret;
         
         let obj = await this.getOrCreateDevice(hostAddress);
         ret.device = obj.device; ret.owner = obj.user; ret.group = obj.group;
 
         if (ret.device == null || ret.owner == null || ret.group == null) {
-            ret.redirectResult = RedirectPage.errorPage;
-            return ret;
-        }
-
-        if (fullDomain == this.LOCAL_APP_DOMAIN) {
-            ret.redirectResult = RedirectPage.homePage;
+            ret.redirectReason = RedirectReason.error;
             return ret;
         }
 
         if (ret.device.isBanned) {
-            ret.redirectResult = RedirectPage.deviceIsBanned;
+            ret.redirectReason = RedirectReason.deviceIsBanned;
             return ret;    
         }
 
         if (ret.owner.isBanned) {
-            ret.redirectResult = RedirectPage.userIsBanned;
+            ret.redirectReason = RedirectReason.userIsBanned;
             return ret;    
         }
 
         if (ret.group.isBanned) {
-            ret.redirectResult = RedirectPage.groupIsBanned;
+            ret.redirectReason = RedirectReason.groupIsBanned;
             return ret;    
         }
 
         if (ret.group.isUnrestricted) { //member of unrestricted group
-            ret.redirectResult = RedirectPage.notRedirected;
+            ret.redirectReason = RedirectReason.notRedirected;
             return ret;
         }
         
         ret.domain = await Domain.getFromDomainName(fullDomain);
 
         if (ret.domain == null) { //domain not found -> page
-            ret.redirectResult = this.BLOCK_IF_DOMAIN_NOT_FOUND ? 
-                RedirectPage.domainIsBlockedPage :
-                RedirectPage.notRedirected;
+            ret.redirectReason = this.BLOCK_IF_DOMAIN_NOT_FOUND ? 
+                RedirectReason.domainIsBlocked :
+                RedirectReason.notRedirected;
                 return ret;
         }
         //list id found
         ret.list = await ret.domain.list;
         if (ret.list == null) { //list not found -> page
-            ret.redirectResult = RedirectPage.domainNotInListPage;
+            ret.redirectReason = RedirectReason.domainNotInList;
             return ret;
         }
         //domain is always allowed
         if (ret.list.filterAction == FilterAction.alwaysAllow) {
-            ret.redirectResult = RedirectPage.notRedirected;
+            ret.redirectReason = RedirectReason.notRedirected;
             return ret;
         }   
         //domain is always blocked -> page
         else if (ret.list.filterAction == FilterAction.alwaysBlock) {
-            ret.redirectResult = RedirectPage.domainIsBlockedPage;
+            ret.redirectReason = RedirectReason.domainIsBlocked;
             return ret;
         }
         else { //needs slot
             //has the user booked a slot?
             ret.bookedSlot = null;//await Booking.bookedSlotInUse(ret.owner.id);
             if (ret.bookedSlot) {
-                ret.redirectResult = RedirectPage.notRedirected;
+                ret.redirectReason = RedirectReason.notRedirected;
                 return ret;
             }
             else { //slot not booked or no slots available -> book a slot page
-                ret.redirectResult = RedirectPage.bookASlotPage;
+                ret.redirectReason = RedirectReason.needsToBook;
                 return ret;
             }
         }

@@ -1,18 +1,19 @@
+import { Button } from "@mui/material";
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "./PageContext";
+import { CurrentPage, PageContext } from "./ManagementIndex";
 import { UserEditForm } from "../UserEditForm";
 
-export interface EditQuotaPageProps {
-    params: any //groupId day
+export interface EditUserPageProps {
+    params: any //userId
 }
 
-export const EditQuotaPage = (props: EditQuotaPageProps) => {
+export function EditUserPage(props: EditUserPageProps) {
     const pageContext = useContext(PageContext);
     
     return (
         <>
             <p>
-                Edit quota
+                Edit user details
             </p>
             <UserEditForm onEdited={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} 
                 userId={props.params.userId} />

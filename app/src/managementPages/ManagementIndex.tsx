@@ -13,7 +13,6 @@ import { ManageUsersPage } from './ManageUsersPage';
 import { ManageQuotasPage } from './ManageQuotasPage';
 import { EditQuotaPage } from './EditQuotaPage';
 import { ManageBookingsPage } from './ManageBookingsPage';
-import { UserMakesBookingPage } from './UserMakesBookingPage';
 import { ManageBansPage } from './ManageBansPage';
 import { BottomMenu } from './BottomMenu';
 
@@ -22,7 +21,7 @@ export enum CurrentPage {
     manageUsers, editUser, createUser,
     manageGroups, editGroup, createGroup,
     manageQuotas, editQuota,
-    manageBookings, userMakesBooking,
+    manageBookings,
     manageBans
 }
 
@@ -35,7 +34,7 @@ export const PageContext = createContext<SetPageAction>(
     { setCurrentPage: () => { }, setParams: () => { } }
 );
 
-export const PageContextWrapper = () => {
+export const ManagementIndex = () => {
     //default page
     const [currentPage, setCurrentPage] = useState<CurrentPage>(CurrentPage.userMakesBooking);
     const [params, setParams] = useState<any>({});
@@ -70,14 +69,12 @@ export const PageContextWrapper = () => {
                                                             <EditQuotaPage params={params} />
                                                             : currentPage === CurrentPage.manageBookings ?
                                                                 <ManageBookingsPage params={params} />
-                                                                : currentPage === CurrentPage.userMakesBooking ?
-                                                                    <UserMakesBookingPage />
-                                                                    : currentPage === CurrentPage.manageBans ?
-                                                                        <ManageBansPage />
-                                                                        :
-                                                                        <p>
-                                                                            page not found
-                                                                        </p>
+                                                                : currentPage === CurrentPage.manageBans ?
+                                                                    <ManageBansPage />
+                                                                    :
+                                                                    <p>
+                                                                        page not found
+                                                                    </p>
             }
 
             <BottomMenu setCurrentPage={setCurrentPage} setParams={setParams} />

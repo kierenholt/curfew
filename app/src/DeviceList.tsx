@@ -3,7 +3,7 @@ import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Ico
 import { IDevice } from "./types";
 import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
-import { CurrentPage, PageContext } from "./pages/PageContext";
+import { CurrentPage, PageContext } from "./managementPages/ManagementIndex";
 import DevicesIcon from '@mui/icons-material/Devices';
 
 

@@ -3,7 +3,7 @@ import { DnsForwarder } from "./dnsForwarder";
 import { DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
 import { Redirector } from "../redirector";
-import { RedirectPage } from "../redirect";
+import { RedirectReason } from "../redirectReason";
 
 export interface RedirectResult {
     isRedirected: boolean; 
@@ -37,25 +37,16 @@ export class DnsServer {
 
             if (!packet.header.isResponse) { //query
                 let redirectResult = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
-                let isRedirected = (redirectResult.redirectResult != RedirectPage.notRedirected);
+                let isRedirected = (redirectResult.redirectReason != RedirectReason.notRedirected);
                 if (isRedirected) {
-                    switch (redirectResult.redirectResult) {
-                        case RedirectPage.notRedirected:
-                        case RedirectPage.notRedirected:
-                        case RedirectPage.nameTheDevicePage:
-                        case RedirectPage.nameTheOwnerPage:
-                        case RedirectPage.nameTheGroupPage:
-                        case RedirectPage.domainIsBlockedPage:
-                        case RedirectPage.domainNotInListPage:
-                        case RedirectPage.bookASlotPage:
-                        case RedirectPage.errorPage:
-                        case RedirectPage.homePage:
-                        case RedirectPage.deviceIsBanned:
-                        case RedirectPage.userIsBanned:
-                        case RedirectPage.groupIsBanned:
-                    }
+                    //if user wants to find out status, they can enter curfew into browser
                     //block
-                    packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.NULL_IP_v4, this.NULL_IP_v6)]);
+                    if (redirectResult.redirectReason == RedirectReason.curfew) {
+                        packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.LOCALHOST)]);
+                    }
+                    else {
+                        packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.NULL_IP_v4, this.NULL_IP_v6)]);
+                    }
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;
                     this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {

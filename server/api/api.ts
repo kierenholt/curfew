@@ -25,7 +25,7 @@ export class API {
                 return;
             }
 
-            let redirect = Redirector.getRequest(req.socket.remoteAddress);
+            let redirect = Redirector.getRequestReason(req.socket.remoteAddress);
             if (redirect == null) {
                 res.status(500).json({}); //dashboard?
                 return;
