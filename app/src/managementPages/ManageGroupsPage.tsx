@@ -1,6 +1,6 @@
 import { Button } from "@mui/material";
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "./ManagementIndex";
+import { CurrentPage, PageContext } from "./PageContent";
 import { UserGroupList } from "../GroupList";
 
 export interface ManageGroupsProps {

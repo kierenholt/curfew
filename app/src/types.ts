@@ -79,3 +79,26 @@ export interface IBooking {
     duration: number;
     cooldown: number;
 }
+
+export interface IRequest {
+    id: number;
+    deviceId: string;
+    domain: string;
+    requestedOn: Date;
+    redirectReason: RedirectReason;
+    redirectDestination: RedirectDestination;
+} 
+
+//copied into app
+export enum RedirectReason {
+    error = 0,
+    curfew = 1,
+    domainIsAlwaysAllowed = 10, domainIsAlwaysBlocked = 11,
+    filterNotFound = 12,
+    needsToBook = 13, hasBooked = 14,
+    deviceIsBanned = 21, userIsBanned = 22, groupIsBanned = 23
+}
+
+export enum RedirectDestination {
+    app = 1, blocked = 0, allow = 2
+}

@@ -3,7 +3,7 @@ import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Ico
 import { IUser } from "./types";
 import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
-import { CurrentPage, PageContext } from "./managementPages/ManagementIndex";
+import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import PersonIcon from '@mui/icons-material/Person';
 
 

@@ -3,12 +3,12 @@ import { Redirector } from '../redirector';
 import { Device } from '../db/device';
 import { User } from '../db/user';
 import { UserGroup } from '../db/userGroup';
-import { Domain } from '../db/domain';
-import { List } from '../db/list';
+import { DomainFilter } from '../db/domainFilter';
 import { Quota } from '../db/quota';
 import { Booking } from '../db/booking';
 import { MakeABooking } from './makeABooking';
-import { RedirectAPI } from './getRedirect';
+import { DnsRequest } from '../db/dnsRequest';
+import { RequestHistory } from './requestHistory';
 
 export class API {
     static init() {
@@ -18,22 +18,6 @@ export class API {
         //app.use(express.urlencoded()); // to support URL-encoded bodies
 
         const port = 5000;
-
-        app.get('/api/portal', async (req: Request, res: Response) => {
-            if (req.socket.remoteAddress == undefined) {
-                res.status(500).json({});
-                return;
-            }
-
-            let redirect = Redirector.getRequestReason(req.socket.remoteAddress);
-            if (redirect == null) {
-                res.status(500).json({}); //dashboard?
-                return;
-            }
-
-            res.status(200).send(redirect);
-        });
-        
 
         //https://developer.accela.com/docs/construct-apiNamingConventions.html
         //create device
@@ -150,7 +134,7 @@ export class API {
         //create domain
         app.post('/api/domains', async (req: Request, res: Response) => {
             if (req.body.component && req.body.listId) {
-                let ret = await Domain.create(req.body.component, req.body.listId);
+                let ret = await DomainFilter.create(req.body.component, req.body.groupId, req.body.filterAction);
                 res.status(200).json(ret);
             }
             else {
@@ -160,7 +144,7 @@ export class API {
         app.put('/api/domains/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0 && req.body.component && req.body.listId) {
-                let ret = await Domain.update(id, req.body.component, req.body.listId);
+                let ret = await DomainFilter.update(id, req.body.component, req.body.groupId, req.body.filterAction);
                 res.status(200).json(ret);
             }
             else {
@@ -169,34 +153,7 @@ export class API {
         });
         app.delete('/api/domains/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
-            let ret = await Domain.delete(id);
-            res.status(200).json(ret);
-        });
-
-
-        //create list
-        app.post('/api/lists', async (req: Request, res: Response) => {
-            if (req.body.name && req.body.filterAction) {
-                let ret = await List.create(req.body.name, req.body.filterAction);
-                res.status(200).json(ret);
-            }
-            else {
-                res.status(400).send("parameter error");
-            }
-        });
-        app.put('/api/lists/:id', async (req: Request, res: Response) => {
-            let id = Number(req.params.id);
-            if (id > 0 && req.body.name && req.body.filterAction) {
-                let ret = await List.update(id, req.body.name, req.body.filterAction);
-                res.status(200).json(ret);
-            }
-            else {
-                res.status(400).send("parameter error");
-            }
-        });
-        app.delete('/api/lists/:id', async (req: Request, res: Response) => {
-            let id = Number(req.params.id);
-            let ret = await List.delete(id);
+            let ret = await DomainFilter.delete(id);
             res.status(200).json(ret);
         });
 
@@ -243,6 +200,14 @@ export class API {
             res.status(200).json(ret);
         });
 
+        //no create requests
+        //no update
+        app.delete('/api/requests/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            let ret = await DnsRequest.delete(id);
+            res.status(200).json(ret);
+        });
+
 
         //get all devices
         app.get('/api/devices', async (req: Request, res: Response) => {
@@ -253,6 +218,17 @@ export class API {
         app.get('/api/devices/:id', async (req: Request, res: Response) => {
             let ret = await Device.getById(req.params.id);
             res.status(200).json(ret);
+        });
+        //get devices of user
+        app.get('/api/devices/owner/:ownerId', async (req: Request, res: Response) => {
+            let ownerId = Number(req.params.ownerId);
+            if (ownerId > 0) {
+                let ret = await Device.getByOwnerId(ownerId);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
         });
 
 
@@ -294,14 +270,14 @@ export class API {
 
         //get all domains
         app.get('/api/domains', async (req: Request, res: Response) => {
-            let ret = await Domain.getAll();
+            let ret = await DomainFilter.getAll();
             res.status(200).json(ret);
         });
         //get 1 domain
         app.get('/api/domains/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0) {
-                let ret = await Domain.getById(id);
+                let ret = await DomainFilter.getById(id);
                 res.status(200).json(ret);
             }
             else {
@@ -309,23 +285,6 @@ export class API {
             }
         });
 
-
-        //get all lists
-        app.get('/api/lists', async (req: Request, res: Response) => {
-            let ret = await List.getAll();
-            res.status(200).json(ret);
-        });
-        //get 1 list
-        app.get('/api/lists/:id', async (req: Request, res: Response) => {
-            let id = Number(req.params.id);
-            if (id > 0) {
-                let ret = await List.getById(id);
-                res.status(200).json(ret);
-            }
-            else {
-                res.status(400).send();
-            }
-        });
 
 
         //get all quotas
@@ -380,8 +339,26 @@ export class API {
             }
         });
 
+
+        //get all requests
+        app.get('/api/requests', async (req: Request, res: Response) => {
+            let ret = await DnsRequest.getAll();
+            res.status(200).json(ret);
+        });
+        //of device
+        app.get('/api/requests/device/:deviceId', async (req: Request, res: Response) => {
+            let deviceId = Number(req.params.deviceId);
+            if (deviceId > 0) {
+                let ret = await DnsRequest.getByDeviceId(req.params.deviceId);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+
         MakeABooking.init(app);
-        RedirectAPI.init(app);
+        RequestHistory.init(app);
 
         app.listen(port, () => {
             console.log(`⚡️[server]: Server is running at http://localhost:${port}`);

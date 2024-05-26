@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "./ManagementIndex";
+import { CurrentPage, PageContext } from "./PageContent";
 import { QuotaEditForm } from "../QuotaEditForm";
 
 export interface EditQuotaPageProps {

@@ -3,7 +3,7 @@ import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, Ico
 import { IQuota } from "./types";
 import { Helpers } from "./helpers";
 import { Edit } from "@mui/icons-material";
-import { CurrentPage, PageContext } from "./managementPages/ManagementIndex";
+import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import TimelapseIcon from '@mui/icons-material/Timelapse';
 import { Day } from "./Day";
 

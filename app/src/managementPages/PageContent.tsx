@@ -15,6 +15,8 @@ import { EditQuotaPage } from './EditQuotaPage';
 import { ManageBookingsPage } from './ManageBookingsPage';
 import { ManageBansPage } from './ManageBansPage';
 import { BottomMenu } from './BottomMenu';
+import { MakeABookingPage } from './MakeABookingPage';
+import { RequestHistoryPage } from './RequestHistoryPage';
 
 export enum CurrentPage {
     manageDevices, editDevice, createDevice,
@@ -22,7 +24,9 @@ export enum CurrentPage {
     manageGroups, editGroup, createGroup,
     manageQuotas, editQuota,
     manageBookings,
-    manageBans
+    manageBans,
+    userMakesBooking,
+    redirectHistory
 }
 
 interface SetPageAction {
@@ -34,7 +38,7 @@ export const PageContext = createContext<SetPageAction>(
     { setCurrentPage: () => { }, setParams: () => { } }
 );
 
-export const ManagementIndex = () => {
+export const PageContent = () => {
     //default page
     const [currentPage, setCurrentPage] = useState<CurrentPage>(CurrentPage.userMakesBooking);
     const [params, setParams] = useState<any>({});
@@ -71,10 +75,12 @@ export const ManagementIndex = () => {
                                                                 <ManageBookingsPage params={params} />
                                                                 : currentPage === CurrentPage.manageBans ?
                                                                     <ManageBansPage />
-                                                                    :
-                                                                    <p>
-                                                                        page not found
-                                                                    </p>
+                                                                    : currentPage === CurrentPage.userMakesBooking ?
+                                                                        <MakeABookingPage />
+                                                                        : currentPage === CurrentPage.redirectHistory ?
+                                                                            <RequestHistoryPage />
+                                                                            :
+                                                                            <RequestHistoryPage /> //default
             }
 
             <BottomMenu setCurrentPage={setCurrentPage} setParams={setParams} />

@@ -5,11 +5,9 @@ import { Quota } from "./quota";
 import { Booking } from "./booking";
 import { Device } from "./device";
 import { FixedSlot } from "./fixedSlot";
-import { Rule } from "./rule";
-import { List } from "./list";
 import { UserGroup } from "./userGroup";
-import { Domain } from "./domain";
-import { HistoryItem } from "./historyItem";
+import { DomainFilter } from "./domainFilter";
+import { DnsRequest } from "./dnsRequest";
 
 
 
@@ -55,24 +53,17 @@ export class Db {
         await Quota.createTable();
         await Booking.createTable();
         await Device.createTable();
-        await Domain.createTable();
+        await DomainFilter.createTable();
         await FixedSlot.createTable();
-        await HistoryItem.createTable();
-        await List.createTable();
-        await Rule.createTable();
+        await DnsRequest.createTable();
         await User.createTable();
         await UserGroup.createTable();
     }
 
     static async seed() {
-        //await BookableSlot.seed();
         await Booking.seed();
         await Device.seed();
-        await Domain.seed();
-        //await FixedSlot.seed();
-        //await HistoryItem.seed();
-        await List.seed();
-        //await Rule.seed();
+        await DomainFilter.seed();
         await User.seed();
         await UserGroup.seed();
     }

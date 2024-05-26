@@ -67,6 +67,19 @@ export class Device {
             ) : null);
     }
 
+    static getByOwnerId(ownerId: number): Promise<Device[]> {
+        return Db.all(`
+            select * from device
+            where ownerId='${ownerId}'
+        `)
+        .then((result: any) => result.map((r:any) => new Device(
+            r.id, 
+            r.ownerId, 
+            Helpers.unescapeSingleQuotes(r.name),
+            r.isBanned
+        )))
+    }
+
     static updateOwner(id: string, ownerId: number): Promise<number> {
         return Db.run(`
             update device

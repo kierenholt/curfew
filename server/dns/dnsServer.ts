@@ -2,8 +2,7 @@ import { RemoteInfo, Socket, createSocket } from "dgram";
 import { DnsForwarder } from "./dnsForwarder";
 import { DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
-import { Redirector } from "../redirector";
-import { RedirectReason } from "../redirectReason";
+import { RedirectDestination, Redirector } from "../redirector";
 
 export interface RedirectResult {
     isRedirected: boolean; 
@@ -36,15 +35,14 @@ export class DnsServer {
             console.log("Request received for " + packet.questions[0].name);
 
             if (!packet.header.isResponse) { //query
-                let redirectResult = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
-                let isRedirected = (redirectResult.redirectReason != RedirectReason.notRedirected);
-                if (isRedirected) {
-                    //if user wants to find out status, they can enter curfew into browser
-                    //block
-                    if (redirectResult.redirectReason == RedirectReason.curfew) {
+                let destination = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
+                if (destination == RedirectDestination.blocked ||
+                    destination == RedirectDestination.app) {
+                    
+                    if (destination == RedirectDestination.app) { //app
                         packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.LOCALHOST)]);
                     }
-                    else {
+                    else { //blocked
                         packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.NULL_IP_v4, this.NULL_IP_v6)]);
                     }
                     packet.header.isResponse = true;

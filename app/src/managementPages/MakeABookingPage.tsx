@@ -29,7 +29,7 @@ export interface MakeABookingResponse {
     status: BookingStatus;
 }
 
-export function UserMakesBookingPage() {
+export function MakeABookingPage() {
     const [response, setResponse] = useState<MakeABookingResponse | null>(null);
 
     useEffect(() => {
