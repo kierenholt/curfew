@@ -6,7 +6,8 @@ import { API as API } from "./api/api";
 import { Quota } from "./db/quota";
 
 const DHCP_ENABLED = false;
-const DNS_ENABLED = false;
+const DHCP_MOCKED = true;
+const DNS_ENABLED = true;
 const TEST_SOCKET = false;
 const API_ENABLED = true;
 
@@ -15,16 +16,19 @@ async function run() {
     //let c = await BookedSlot.bookedSlotExistsNow(5);
     //console.log(c);
     let q = await Quota.getByGroupIdDay(1, 0);
-    console.log(q);
+    //console.log(q);
     
     //DHCP SERVER
     if (DHCP_ENABLED) {
         DhcpServer.init();
     }
+    if (DHCP_MOCKED) {
+        DhcpServer.addDebugLeases();
+    }
 
     //DNS SERVER
     if (DNS_ENABLED) {
-        DnsServer.init();
+        DnsServer.init(5300);
     }
 
     //API

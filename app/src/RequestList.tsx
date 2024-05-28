@@ -17,8 +17,10 @@ export function RequestList(props: RequestListProps) {
                     </ListItemDecorator>
                     <ListItemContent>
                         {g.domain}
-                        <AllowDenyIcon redirectDestination={g.redirectDestination} />
                     </ListItemContent>
+                    <ListItemDecorator>
+                        <AllowDenyIcon redirectDestination={g.redirectDestination} />
+                    </ListItemDecorator>
                 </ListItemButton>
             </ListItem>)}
     </List>

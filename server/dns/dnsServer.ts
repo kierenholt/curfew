@@ -12,7 +12,6 @@ export interface RedirectResult {
 
 
 export class DnsServer {
-    static PORT = 53;
     static socket: Socket;
     static dnsForwarder: DnsForwarder;
     static dnsRedirector: Redirector;
@@ -21,13 +20,13 @@ export class DnsServer {
     static NULL_IP_v6: Buffer = Buffer.from([100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]); //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
     static LOCALHOST: string = "127.0.0.1";
 
-    static init() {
+    static init(port: number = 53) {
         this.socket = createSocket('udp4');
-        this.dnsForwarder = new DnsForwarder(DnsServer.PORT, this.socket);
+        this.dnsForwarder = new DnsForwarder(port, this.socket);
         this.dnsRedirector = new Redirector();
 
-        this.socket.bind(DnsServer.PORT, () => {
-            console.log('DNS server listening on UDP port ', DnsServer.PORT);
+        this.socket.bind(port, () => {
+            console.log('DNS server listening on UDP port ', port);
         });
         
         this.socket.on('message', async (buf: Buffer, requestInfo: RemoteInfo) => {        

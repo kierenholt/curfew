@@ -3,6 +3,7 @@ import { DhcpPacket, MessageType, RequestReply } from "./dhcpPacket";
 import { Lease, LeaseState } from "./lease";
 import { Helpers } from "../helpers";
 import { Unicast } from "../python/unicast";
+import { runInThisContext } from "vm";
 
 export class DhcpServer {
     static SERVER_PORT = 67;
@@ -89,6 +90,7 @@ export class DhcpServer {
                 this.serverMAC, requestPacket.clientMAC,
                 this.serverIP, requestPacket.yourIP);
             console.log("ack sent to " + hostname);
+            console.log('leases: ', this.leases);
         }
         else {
             this.socket.send(requestPacket.writeToBuffer(), 
@@ -100,6 +102,7 @@ export class DhcpServer {
                 }
                 else {
                     console.log("ack sent to " + hostname);
+                    console.log('leases: ', this.leases);
                 }
             });
         }
@@ -210,6 +213,21 @@ export class DhcpServer {
         return "";
     }
 
+    static addDebugLeases() {
+        this.leases.push(new Lease(
+            "a0:59:50:24:4c:df",
+            "192.168.0.115",
+            1,
+            "SavilleLaptopMock"
+        ));
+
+        this.leases.push(new Lease(
+            "18:35:d1:f3:3d:69",
+            "127.0.0.1",
+            2,
+            "ubuntuMock"
+        ))
+    }
 }
 
 

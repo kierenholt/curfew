@@ -34,7 +34,7 @@ export class DnsRequest {
 
     static create(deviceId: string, domain: string, redirectReason: RedirectReason, redirectDestination: RedirectDestination): Promise<number> {
         return Db.run(`
-            insert into history (deviceId, domain, requestedOn, redirectReason, redirectDestination)
+            insert into request (deviceId, domain, requestedOn, redirectReason, redirectDestination)
             values ('${deviceId}', '${domain}', ${new Date().valueOf()}, ${redirectReason.valueOf()}, ${redirectDestination.valueOf()})
         `)
         .then(result => result.lastID);
@@ -42,7 +42,7 @@ export class DnsRequest {
 
     static update(id: number, deviceId: string, domain: string, requestedOn: Date, redirectReason: RedirectReason, redirectDestination: RedirectDestination): Promise<number> {
         return Db.run(`
-            update history 
+            update request 
             set deviceId='${deviceId}', 
             domain='${domain}', 
             requestedOn=${requestedOn.valueOf()},
@@ -50,12 +50,12 @@ export class DnsRequest {
             redirectDestination=${redirectDestination.valueOf()}
             where id=${id}
             `)
-        .then(result => result.lastID);
+        .then(result => result.changes);
     }
 
     static getById(id: number): Promise<DnsRequest | null> {
         return Db.get(`
-            select * from history
+            select * from request
             where id = ${id}
         `)
         .then((result:any) => result ? new DnsRequest(
@@ -69,7 +69,7 @@ export class DnsRequest {
 
     static getAll(): Promise<DnsRequest[]> {
         return Db.all(`
-            select * from history
+            select * from request
         `)
         .then((result:any) => result.map((r: any) => new DnsRequest(
             r.id, 
@@ -82,7 +82,7 @@ export class DnsRequest {
 
     static delete(id: number): Promise<number> {
         return Db.run(`
-            delete from history
+            delete from request
             where id = ${id}
         `)
         .then((result: RunResult) => result.changes);
@@ -90,7 +90,7 @@ export class DnsRequest {
 
     static getByDeviceId(deviceId: string): Promise<DnsRequest[]> {
         return Db.all(`
-            select * from history
+            select * from request
             where deviceId = '${deviceId}'
             order by requestedOn desc
         `)

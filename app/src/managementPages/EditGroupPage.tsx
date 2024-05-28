@@ -14,7 +14,8 @@ export function EditGroupPage(props: EditGroupProps) {
             <p>
                 edit group details
             </p>
-            <GroupEditForm onCreated={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} 
+            <GroupEditForm 
+                onCreated={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} 
                 groupId={props.params.groupId} />
         </>
     )

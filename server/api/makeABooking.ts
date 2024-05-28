@@ -27,6 +27,7 @@ export interface MakeABookingResponse {
     maxDurationOfNextBook: number;
     timeRemainingOnCurrentBooking: number;
     status: BookingStatus;
+    error: string;
 }
 
 export class MakeABooking {
@@ -36,20 +37,20 @@ export class MakeABooking {
         app.get('/api/makeABooking', async (req: Request, res: Response) => {
             //get ip
             if (req.socket.remoteAddress == null) {
-                res.status(400).send("remote address not found");
+                res.status(400).json({ error: "remote address not found"});
                 return;
             }
             
             let deviceId = DhcpServer.getDeviceIdFromIP(req.socket.remoteAddress);
             let device = await Device.getById(deviceId);
             if (device == null) {
-                res.status(400).send("device not found");
+                res.status(400).json({ error: "device not found"});
                 return;
             }
 
             let user = await User.getById(device.ownerId);
             if (user == null) {
-                res.status(400).send("user not found with id " + device.ownerId);
+                res.status(400).json({ error: "user not found with id " + device.ownerId});
                 return;
             }
 
@@ -61,7 +62,8 @@ export class MakeABooking {
             let todaysQuota = allQuotas.filter(q => q.day == today)[0];
 
             let includingRollovers = [];
-            for (let d = today ; d != today ; d = (d+6)%7) {
+            // work backwards from today
+            for (let d = today ; d != (today+1)%7 ; d = (d+6)%7) {
                 let found = allQuotas.filter(q => q.day == d)[0];
                 includingRollovers.push(found);
                 if (!found.rollsOver) {
@@ -69,7 +71,7 @@ export class MakeABooking {
                 }
             }
             if (includingRollovers.length == 7) {
-                res.status(400).send("at least one day must not be a rollover day");
+                res.status(400).json({ error: "at least one day must not be a rollover day"});
                 return;
             }
             
@@ -84,26 +86,26 @@ export class MakeABooking {
             let bookings =  await Booking.getByUserIdAfter(device.ownerId, bookingsStarted);
 
             //split into past bookings and current
-            let pastBookings = bookings.filter(b => b.startsOn.valueOf() + b.endsOn * 60000 < now.valueOf());
-            let inProgressBookings = bookings.filter(b => b.startsOn.valueOf() + b.endsOn * 60000 >= now.valueOf());
+            let pastBookings = bookings.filter(b => b.endsOn.valueOf() < now.valueOf());
+            let inProgressBookings = bookings.filter(b => b.endsOn.valueOf() >= now.valueOf());
             if (inProgressBookings.length > 1) {
-                res.status(400).send("more than one booking is in progress. Error.");
+                res.status(400).json({ error: "more than one booking is in progress. Error."});
                 return;
             }
             let timeRemainingOnCurrentBooking = 0;
             if (inProgressBookings.length == 1) {
                 let inProgressBooking = inProgressBookings[0];
-                timeRemainingOnCurrentBooking = (inProgressBooking.startsOn.valueOf() + inProgressBooking.endsOn*60000 - now.valueOf())/60000;
+                timeRemainingOnCurrentBooking = (inProgressBooking.endsOn.valueOf() - now.valueOf())/60000;
             }
 
-            let pastBookingsTotalTimeMins = Helpers.sum(pastBookings.map(p => p.endsOn));
+            let pastBookingsTotalTimeMins = Helpers.sum(pastBookings.map(p => p.duration));
             let inProgressBookingsTotalTimeMins = Helpers.sum(inProgressBookings.map(p => (now.valueOf() - p.startsOn.valueOf()))) / 60000;
 
             //any cooldown
             let mostRecentSpentBooking = pastBookings.sort((a,b) => b.startsOn.valueOf() - a.startsOn.valueOf())[0];
             let cooldownRemainingMins = 0;
             if (mostRecentSpentBooking) {
-                let cooldownEnds = mostRecentSpentBooking.startsOn.valueOf() + (mostRecentSpentBooking.endsOn + mostRecentSpentBooking.cooldown) * 60000;
+                let cooldownEnds = mostRecentSpentBooking.endsOn.valueOf() + mostRecentSpentBooking.cooldown * 60000;
                 cooldownRemainingMins = (cooldownEnds - now.valueOf()) / 60000;
                 if (cooldownRemainingMins < 0) cooldownRemainingMins = 0;
             }
@@ -142,7 +144,8 @@ export class MakeABooking {
                 cooldownRemainingMins: cooldownRemainingMins,
                 maxDurationOfNextBook: maxDurationOfNextBook,
                 timeRemainingOnCurrentBooking: timeRemainingOnCurrentBooking,
-                status: status
+                status: status,
+                error: "", 
             }
 
             res.status(200).json(ret);

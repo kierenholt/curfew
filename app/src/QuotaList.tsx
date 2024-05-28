@@ -9,6 +9,7 @@ import { Day } from "./Day";
 
 export interface QuotaListProps {
     quotas: IQuota[];
+    allowEdit: boolean;
 } 
 
 export function QuotaList(props: QuotaListProps) {
@@ -18,7 +19,8 @@ export function QuotaList(props: QuotaListProps) {
         {props.quotas.map((g: IQuota) =>
             <ListItem color="neutral"
 
-                endAction={
+                endAction={props.allowEdit 
+                    ? 
                     <>
                     <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                         onClick={() => {
@@ -28,6 +30,8 @@ export function QuotaList(props: QuotaListProps) {
                         <Edit />
                     </IconButton>
                     </>
+                    : 
+                    <></>
                 }>
                 <ListItemButton>
                     <ListItemDecorator>

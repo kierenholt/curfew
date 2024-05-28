@@ -18,6 +18,7 @@ export class API {
         //app.use(express.urlencoded()); // to support URL-encoded bodies
 
         const port = 5000;
+        const IP4_HOST = "0.0.0.0"; //https://nodejs.org/dist/latest-v4.x/docs/api/http.html#http_server_listen_port_hostname_backlog_callback
 
         //https://developer.accela.com/docs/construct-apiNamingConventions.html
         //create device
@@ -296,7 +297,7 @@ export class API {
         app.get('/api/quotas/:groupId&:day', async (req: Request, res: Response) => {
             let groupId = Number(req.params.groupId);
             let day = Number(req.params.day);
-            if (groupId > 0 && day > 0) {
+            if (groupId > 0 && day >= 0) {
                 let ret = await Quota.getByGroupIdDay(groupId, day);
                 res.status(200).json(ret);
             }
@@ -347,8 +348,8 @@ export class API {
         });
         //of device
         app.get('/api/requests/device/:deviceId', async (req: Request, res: Response) => {
-            let deviceId = Number(req.params.deviceId);
-            if (deviceId > 0) {
+            let deviceId = req.params.deviceId;
+            if (deviceId) {
                 let ret = await DnsRequest.getByDeviceId(req.params.deviceId);
                 res.status(200).json(ret);
             }
@@ -360,7 +361,7 @@ export class API {
         MakeABooking.init(app);
         RequestHistory.init(app);
 
-        app.listen(port, () => {
+        app.listen(port, IP4_HOST, () => {
             console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
         });
     }

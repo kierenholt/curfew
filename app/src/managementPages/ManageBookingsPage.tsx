@@ -9,7 +9,7 @@ export interface ManageBookingsPageProps {
 }
 
 export function ManageBookingsPage(props: ManageBookingsPageProps) {
-    const [userId, setUserId] = useState<number>(props.params ? props.params.userId : 0);
+    const [userId, setUserId] = useState<number>(props?.params?.userId ?? 1);
     const [bookings, setBookings] = useState<IBooking[]>([]);
 
     useEffect(() => {

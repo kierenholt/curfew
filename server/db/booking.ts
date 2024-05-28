@@ -74,7 +74,7 @@ export class Booking {
             cooldown=${cooldown}
             where id=${id}
         `)
-        .then(result => result.lastID);
+        .then(result => result.changes);
     }
 
 
@@ -146,6 +146,10 @@ export class Booking {
         return this._user;
     }
 
+    get duration() {
+        return (this.endsOn.valueOf() - this.startsOn.valueOf()) / 60000;
+    }
+
     static getAll(): Promise<Booking[]> {
         return Db.all(`
             select * from bookedSlot
@@ -154,4 +158,6 @@ export class Booking {
             new Booking(r.id, r.startsOn, r.userId, r.groupId, r.day, r.endsOn, r.cooldown)
         ))
     }
+
+    
 }

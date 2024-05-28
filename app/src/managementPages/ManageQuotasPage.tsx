@@ -9,7 +9,7 @@ export interface ManageQuotasProps {
 }
 
 export function ManageQuotasPage(props: ManageQuotasProps) {
-    const [groupId, setGroupId] = useState<number>(props.params ? props.params.groupId : 0);
+    const [groupId, setGroupId] = useState<number>(props?.params?.groupId ?? 1);
 
     let [quotas, setQuotas] = useState<IQuota[]>([]);
 
@@ -31,7 +31,7 @@ export function ManageQuotasPage(props: ManageQuotasProps) {
             { groupId === 0 ? 
                 <p>please select a group first</p>
             :
-                <QuotaList quotas={quotas} />
+                <QuotaList quotas={quotas} allowEdit={true}/>
             }
         </>
     )

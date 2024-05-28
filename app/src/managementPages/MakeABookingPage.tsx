@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Helpers } from "../helpers"
-import { IBooking, IQuota } from "../types";
+import { IBooking, IQuota, IRequest } from "../types";
 import { Stack } from "@mui/material";
 import { BookingList } from "../BookingList";
 import { QuotaList } from "../QuotaList";
 import { BookingCreateForm } from "../BookingCreateForm";
+import { RequestList } from "../RequestList";
+import { CurrentPage, PageContext } from "./PageContent";
 
 export enum BookingStatus {
     quotaExceeded,
@@ -27,98 +29,110 @@ export interface MakeABookingResponse {
     maxDurationOfNextBook: number;
     timeRemainingOnCurrentBooking: number;
     status: BookingStatus;
+    error: string;
 }
 
 export function MakeABookingPage() {
-    const [response, setResponse] = useState<MakeABookingResponse | null>(null);
-
+    const pageContext = useContext(PageContext);
+    const [response, setResponse] = useState<MakeABookingResponse>();
+    const [requests, setRequests] = useState<IRequest[]>([]);
+    
     useEffect(() => {
-        Helpers.get<any>('/api/makeABooking')
+        Helpers.get<IRequest[]>('/api/requestHistory')
+            .then((requests: IRequest[]) => {
+                setRequests(requests);
+            })
+
+            Helpers.get<MakeABookingResponse>('/api/makeABooking')
             .then((result: MakeABookingResponse) => {
                 setResponse(result);
             })
-    })
+    }, [])
 
     return (
-        <>{
-            response != null
+        response === undefined
+            ?
+            <p>an error has occurred</p>
+            :
+            response.error.length
                 ?
-                <>
-                    (response.status === BookingStatus.bookingInProgress ?
-                    <>
-                        <h2>
-                            YOUR STATUS: Booked
-                        </h2>
-                        <p>
-                            No need to book. You should already have access.
-                            You have {response.timeRemainingOnCurrentBooking} mins 
-                            remaining on your current booking.
-                        </p>
-                    </>
-                    :
-                    response.status === BookingStatus.cooldownRemaining ?
-                    <>
-                        <h2>
-                            YOUR STATUS: Cooling down
-                        </h2>
-                        <p>
-                            You will be able to start another booking
-                            in ${response.cooldownRemainingMins} minutes.
-                        </p>
-                    </>
-                    :
-                    response.status === BookingStatus.needsToBook ?
-                    <>
-                        <h2>
-                            YOUR STATUS: You need to book
-                        </h2>
-                        <p>
-                            For more screen time, make a booking now. 
-                            You can book up to {response.maxDurationOfNextBook} mins.
-                        </p>
-                        <BookingCreateForm onCreated={() => null} 
-                            userId={response.userId} quota={response.todaysQuota} 
-                            maxDurationOfNextBook={response.maxDurationOfNextBook} />
-                    </>
-                    :
-                    response.status === BookingStatus.quotaExceeded ?
-                    <>
-                        <h2>
-                            YOUR STATUS: Quota exceeded
-                        </h2>
-                        <p>
-                            Please wait until tomorrow for more screen time.
-                        </p>
-                    </>
-                    :
-                    <p>
-                        Status error
-                    </p>
-                    )
-                    <Stack direction="column">
-                        {response.inProgressBookings.length > 0 ? 
-                        <>
-                            <h2>Bookings in progress</h2>
-                            <BookingList bookings={response.inProgressBookings} />
-                            Total mins: {response.inProgressBookingsTotalTimeMins}
-                        </>
-                        : ""}
-
-                        <h2>Completed bookings</h2>
-                        <BookingList bookings={response.pastBookings} />
-                        Total mins: {response.pastBookingsTotalTimeMins}
-                        
-                        <h2>Quotas</h2>
-                        <QuotaList quotas={response.quotasIncludingRollovers} />
-                        Total available mins: {response.totalQuotaTime} 
-                    </Stack>
-                </>
-
+                <p>{response.error}</p>
                 :
-                <p>
-                    Response error
-                </p>
-        }
-        </>
+                <>
+
+                    <h2>Your requests</h2>
+                    <RequestList requests={requests} />
+            
+                    {response.status === BookingStatus.bookingInProgress ?
+                        <>
+                            <h3>
+                                YOUR STATUS: You have an open booking
+                            </h3>
+                            <p>
+                                You should already have access with {response.timeRemainingOnCurrentBooking} mins
+                                remaining on your current booking.
+                            </p>
+                        </>
+                        :
+                        response.status === BookingStatus.cooldownRemaining ?
+                            <>
+                                <h3>
+                                    YOUR STATUS: Cooling down
+                                </h3>
+                                <p>
+                                    You will be able to start another booking
+                                    in ${response.cooldownRemainingMins} minutes.
+                                </p>
+                            </>
+                            :
+                            response.status === BookingStatus.needsToBook ?
+                                <>
+                                    <h3>
+                                        YOUR STATUS: If you want unrestricted screen time, you will need to book.
+                                    </h3>
+                                    <p>
+                                        You can book up to {response.maxDurationOfNextBook} mins.
+                                    </p>
+                                    <BookingCreateForm 
+                                        onCreated={() => pageContext.setCurrentPage(CurrentPage.userMakesBooking)}
+                                        userId={response.userId} 
+                                        quota={response.todaysQuota}
+                                        maxDurationOfNextBook={response.maxDurationOfNextBook} />
+                                </>
+                                :
+                                response.status === BookingStatus.quotaExceeded ?
+                                    <>
+                                        <h3>
+                                            YOUR STATUS: Quota exceeded
+                                        </h3>
+                                        <p>
+                                            Please wait until tomorrow for more screen time.
+                                        </p>
+                                    </>
+                                    :
+                                    <p>
+                                        Status error
+                                    </p>
+                    }
+                    
+                    <Stack direction="column">
+                        {response.inProgressBookings.length > 0 ?
+                            <>
+                                <h2>Bookings in progress</h2>
+                                <BookingList bookings={response.inProgressBookings} />
+                                Total used mins: {response.inProgressBookingsTotalTimeMins}
+                            </>
+                            : ""}
+
+                        <h2>Today's completed bookings</h2>
+                        <BookingList bookings={response.pastBookings} />
+                        Total used mins: {response.pastBookingsTotalTimeMins}
+
+                        <h2>Today's quotas</h2>
+                        <QuotaList quotas={response.quotasIncludingRollovers} allowEdit={false}/>
+                        Total available mins: {response.totalQuotaTime}
+                    </Stack>
+
+                    </>
     )
 }

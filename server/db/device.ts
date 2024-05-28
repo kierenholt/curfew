@@ -51,7 +51,7 @@ export class Device {
             name='${name}'
             where id='${id}'
         `)
-        .then(result => result.lastID);
+        .then(result => result.changes);
     }
 
     static getById(id: string): Promise<Device | null> {
@@ -118,9 +118,9 @@ export class Device {
 
     static setBan(deviceId: string, isBanned: number): Promise<number> {
         return Db.run(`
-            update user
+            update device
             set isBanned = ${isBanned}
-            where id = ${deviceId}
+            where id = '${deviceId}'
         `)
         .then((result: RunResult) => result.changes);
     }

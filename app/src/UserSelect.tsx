@@ -9,12 +9,12 @@ export interface UserSelectProps {
 }
 
 export function UserSelect(props: UserSelectProps) {
-    const [Users, setUsers] = useState<IUser[]>([]);
+    const [users, setUsers] = useState<IUser[]>([]);
 
     useEffect(() => {
         Helpers.get<IUser[]>("/api/users/")
-            .then((Users: IUser[]) => {
-                setUsers(Users)
+            .then((users: IUser[]) => {
+                setUsers(users)
         })
     }, []);
 
@@ -32,7 +32,7 @@ export function UserSelect(props: UserSelectProps) {
                 value={props.selectedUserId == null ? "" : props.selectedUserId.toString()}
                 onChange={handleChange}
             >
-                {Users.map(g => 
+                {users.map(g => 
                     <MenuItem value={g.id}>{g.name}</MenuItem>
                 )}
             </Select>

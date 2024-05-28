@@ -55,7 +55,7 @@ export class DomainFilter {
             filterAction=${filterAction.valueOf()}
             where id=${id}
         `)
-        .then(result => result.lastID);
+        .then(result => result.changes);
     }
 
     static getById(id: number): Promise<DomainFilter | null> {

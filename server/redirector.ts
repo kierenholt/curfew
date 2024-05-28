@@ -22,7 +22,7 @@ export enum RedirectDestination {
 
 export class Redirector {
 
-    static BLOCK_IF_DOMAIN_NOT_FOUND: boolean = true;
+    static BLOCK_IF_DOMAIN_NOT_FOUND: boolean = false;
     static LOCAL_APP_DOMAIN = "curfew";
 
     static async redirectTo(hostAddress: string, fullDomain: string = ""): Promise<RedirectDestination> {
@@ -119,13 +119,13 @@ export class Redirector {
                 hostname = deviceId;
             }
             let username = "owner of " + hostname;
-            let userId = await User.create(UserGroup.FIRST_GROUP_ID, hostname);
-            let unknownGroup = await UserGroup.getById(UserGroup.FIRST_GROUP_ID);
+            let userId = await User.create(UserGroup.FIRST_GROUP_ID, username);
+            let firstGroup = await UserGroup.getById(UserGroup.FIRST_GROUP_ID);
             await Device.create(deviceId, userId, hostname);
             return {
                 device: new Device(deviceId, userId, hostname, 0),
-                user: new User(userId, unknownGroup.id, username, 0),
-                group: unknownGroup
+                user: new User(userId, UserGroup.FIRST_GROUP_ID, username, 0),
+                group: firstGroup
             }
         }
         else { //device found - get user

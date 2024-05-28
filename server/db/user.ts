@@ -49,10 +49,10 @@ export class User {
         return Db.run(`
             update user 
             set groupId=${groupId}, 
-            name='${name}',
+            name='${name}'
             where id=${id}
         `)
-        .then(result => result.lastID);
+        .then(result => result.changes);
     }
 
     static getById(id: number): Promise<User | null> {

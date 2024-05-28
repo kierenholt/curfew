@@ -46,7 +46,7 @@ export function BookingCreateForm(props: BookingCreateFormProps) {
                 onChange={handleChange}
             />
 
-            <Button onClick={save} >Save</Button>
+            <Button onClick={save} >Book</Button>
         </FormGroup>
     )
 }

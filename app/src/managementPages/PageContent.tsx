@@ -16,7 +16,7 @@ import { ManageBookingsPage } from './ManageBookingsPage';
 import { ManageBansPage } from './ManageBansPage';
 import { BottomMenu } from './BottomMenu';
 import { MakeABookingPage } from './MakeABookingPage';
-import { RequestHistoryPage } from './RequestHistoryPage';
+import { ManageRequestsPage } from './ManageRequestsPage';
 
 export enum CurrentPage {
     manageDevices, editDevice, createDevice,
@@ -26,7 +26,7 @@ export enum CurrentPage {
     manageBookings,
     manageBans,
     userMakesBooking,
-    redirectHistory
+    manageRequests
 }
 
 interface SetPageAction {
@@ -75,12 +75,12 @@ export const PageContent = () => {
                                                                 <ManageBookingsPage params={params} />
                                                                 : currentPage === CurrentPage.manageBans ?
                                                                     <ManageBansPage />
+                                                                    : currentPage === CurrentPage.manageRequests ?
+                                                                        <ManageRequestsPage params={params} />
                                                                     : currentPage === CurrentPage.userMakesBooking ?
                                                                         <MakeABookingPage />
-                                                                        : currentPage === CurrentPage.redirectHistory ?
-                                                                            <RequestHistoryPage />
                                                                             :
-                                                                            <RequestHistoryPage /> //default
+                                                                            <MakeABookingPage /> //default
             }
 
             <BottomMenu setCurrentPage={setCurrentPage} setParams={setParams} />

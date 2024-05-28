@@ -54,10 +54,10 @@ export class UserGroup {
         return Db.run(`
             update userGroup
             set name='${name}', 
-            isUnrestricted=${isUnrestricted ? 1: 0},
+            isUnrestricted=${isUnrestricted ? 1: 0}
             where id=${id}
         `)
-        .then(result => result.lastID);
+        .then(result => result.changes);
     }
 
     static getById(id: number): Promise<UserGroup> {
@@ -108,7 +108,7 @@ export class UserGroup {
 
     static setBan(groupId: number, isBanned: number): Promise<number> {
         return Db.run(`
-            update user
+            update userGroup
             set isBanned = ${isBanned}
             where id = ${groupId}
         `)
