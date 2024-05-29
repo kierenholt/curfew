@@ -83,11 +83,11 @@ export class MakeABooking {
             let numDays = days.length;
             let bookingsStarted = new Date(now.valueOf() - 86400 * (numDays - 1));
             bookingsStarted.setHours(0,0,0,0);
-            let bookings =  await Booking.getByUserIdAfter(device.ownerId, bookingsStarted);
+            let bookings =  await Booking.getByUserIdAfter(device.ownerId, bookingsStarted.valueOf());
 
             //split into past bookings and current
-            let pastBookings = bookings.filter(b => b.endsOn.valueOf() < now.valueOf());
-            let inProgressBookings = bookings.filter(b => b.endsOn.valueOf() >= now.valueOf());
+            let pastBookings = bookings.filter(b => b.endsOn < now.valueOf());
+            let inProgressBookings = bookings.filter(b => b.endsOn >= now.valueOf());
             if (inProgressBookings.length > 1) {
                 res.status(400).json({ error: "more than one booking is in progress. Error."});
                 return;
@@ -95,17 +95,17 @@ export class MakeABooking {
             let timeRemainingOnCurrentBooking = 0;
             if (inProgressBookings.length == 1) {
                 let inProgressBooking = inProgressBookings[0];
-                timeRemainingOnCurrentBooking = (inProgressBooking.endsOn.valueOf() - now.valueOf())/60000;
+                timeRemainingOnCurrentBooking = (inProgressBooking.endsOn - now.valueOf())/60000;
             }
 
             let pastBookingsTotalTimeMins = Helpers.sum(pastBookings.map(p => p.duration));
-            let inProgressBookingsTotalTimeMins = Helpers.sum(inProgressBookings.map(p => (now.valueOf() - p.startsOn.valueOf()))) / 60000;
+            let inProgressBookingsTotalTimeMins = Helpers.sum(inProgressBookings.map(p => (now.valueOf() - p.startsOn))) / 60000;
 
             //any cooldown
-            let mostRecentSpentBooking = pastBookings.sort((a,b) => b.startsOn.valueOf() - a.startsOn.valueOf())[0];
+            let mostRecentSpentBooking = pastBookings.sort((a,b) => b.startsOn - a.startsOn)[0];
             let cooldownRemainingMins = 0;
             if (mostRecentSpentBooking) {
-                let cooldownEnds = mostRecentSpentBooking.endsOn.valueOf() + mostRecentSpentBooking.cooldown * 60000;
+                let cooldownEnds = mostRecentSpentBooking.endsOn + mostRecentSpentBooking.cooldown * 60000;
                 cooldownRemainingMins = (cooldownEnds - now.valueOf()) / 60000;
                 if (cooldownRemainingMins < 0) cooldownRemainingMins = 0;
             }

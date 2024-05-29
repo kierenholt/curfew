@@ -6,14 +6,14 @@ export class FixedSlot {
     id: number;
     groupId: number;
     private _group: Promise<UserGroup> | undefined;
-    startsOn: Date;
-    endsOn: Date;
+    startsOn: number;
+    endsOn: number;
 
     constructor(id: number, groupId: number, startsOn: number, endsOn: number) {
         this.id = id;
         this.groupId = groupId;
-        this.startsOn = new Date(startsOn);
-        this.endsOn = new Date(endsOn);
+        this.startsOn = startsOn;
+        this.endsOn = endsOn;
     }
 
     static createTable(): Promise<RunResult> {
@@ -28,20 +28,20 @@ export class FixedSlot {
         `)
     }
 
-    static create(groupId: number, startsOn: Date, endsOn: Date): Promise<number> {
+    static create(groupId: number, startsOn: number, endsOn: number): Promise<number> {
         return Db.run(`
             insert into slot (groupId, startsOn, endsOn)
-            values (${groupId}, ${startsOn.valueOf()}, ${endsOn.valueOf()})
+            values (${groupId}, ${startsOn}, ${endsOn})
         `)
         .then(result => result.lastID);
     }
 
-    static update(id: number, groupId: number, startsOn: Date, endsOn: Date): Promise<number> {
+    static update(id: number, groupId: number, startsOn: number, endsOn: number): Promise<number> {
         return Db.run(`
             update slot 
             set groupId=${groupId}, 
-            startsOn=${startsOn.valueOf()}, 
-            endsOn=${endsOn.valueOf()}
+            startsOn=${startsOn}, 
+            endsOn=${endsOn}
             where id=${id}
         `)
         .then(result => result.changes);

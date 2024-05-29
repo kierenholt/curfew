@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { CurrentPage, PageContext } from "./PageContent";
-import { DeviceList } from "../DeviceList";
+import { PageContext } from "./PageContent";
 import { RequestList } from "../RequestList";
 import { Helpers } from "../helpers";
 import { DeviceSelect } from "../DeviceSelect";
@@ -31,7 +30,6 @@ export function ManageRequestsPage(props: ManageRequestsProps) {
             <DeviceSelect selectedDeviceId={deviceId} 
                 setSelectedDeviceId={(id: string) => setDeviceId(id)} />
             <RequestList requests={requests} />
-
         </>
     )
 }

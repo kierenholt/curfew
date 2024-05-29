@@ -6,7 +6,7 @@ export class DnsRequest {
     id: number;
     deviceId: string;
     domain: string;
-    requestedOn: Date;
+    requestedOn: number;
     redirectReason: RedirectReason;
     redirectDestination: RedirectDestination;
 
@@ -14,7 +14,7 @@ export class DnsRequest {
         this.id = id;
         this.deviceId = deviceId;
         this.domain = domain;
-        this.requestedOn = new Date(requestedOn);
+        this.requestedOn = requestedOn;
         this.redirectReason = redirectReason as RedirectReason;
         this.redirectDestination = redirectDestination as RedirectDestination;
     }
@@ -45,7 +45,7 @@ export class DnsRequest {
             update request 
             set deviceId='${deviceId}', 
             domain='${domain}', 
-            requestedOn=${requestedOn.valueOf()},
+            requestedOn=${requestedOn},
             redirectReason=${redirectReason.valueOf()},
             redirectDestination=${redirectDestination.valueOf()}
             where id=${id}

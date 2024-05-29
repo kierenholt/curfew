@@ -1,7 +1,7 @@
 import { Booking } from "./db/booking";
 import { Device } from "./db/device";
 import { DnsRequest } from "./db/dnsRequest";
-import { DomainFilter, FilterAction } from "./db/domainFilter";
+import { Filter, FilterAction } from "./db/filter";
 import { User } from "./db/user";
 import { UserGroup } from "./db/userGroup";
 import { DhcpServer } from "./dhcp/dhcpServer";
@@ -69,7 +69,7 @@ export class Redirector {
             return RedirectDestination.allow;
         }
 
-        let domainFilter: DomainFilter | null = await DomainFilter.getFromDomainNameAndGroup(fullDomain, group.id);
+        let domainFilter: Filter | null = await Filter.getFromDomainNameAndGroup(fullDomain, group.id);
 
         if (domainFilter == null) { //domain not listed
             if (this.BLOCK_IF_DOMAIN_NOT_FOUND) {
@@ -83,13 +83,13 @@ export class Redirector {
         }
             
         //domain is always allowed
-        if (domainFilter.filterAction == FilterAction.alwaysAllow) {
+        if (domainFilter.action == FilterAction.alwaysAllow) {
             DnsRequest.create(device.id, fullDomain, RedirectReason.domainIsAlwaysAllowed, RedirectDestination.allow);
             return RedirectDestination.allow;
         }
 
         //domain is always blocked -> page
-        if (domainFilter.filterAction == FilterAction.alwaysDeny) {
+        if (domainFilter.action == FilterAction.alwaysDeny) {
             DnsRequest.create(device.id, fullDomain, RedirectReason.domainIsAlwaysBlocked, RedirectDestination.blocked);
             return RedirectDestination.blocked;
         }

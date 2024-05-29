@@ -5,22 +5,25 @@ import { Quota } from "./quota";
 
 export class Booking {
     id: number;
-    startsOn: Date;
+    startsOn: number;
     userId: number;
     private _user: Promise<User | null> | undefined = undefined;
     groupId: number;
     day: number;
-    endsOn: Date;
+    endsOn: number;
     cooldown: number;
+    duration: number;
     
     constructor(id: number, startsOn: number, userId: number, groupId: number, day: number, endsOn: number, cooldown: number) {
         this.id = id;
-        this.startsOn = new Date(startsOn);
+        this.startsOn = startsOn;
         this.userId = userId;
         this.groupId = groupId;
         this.day = day;
-        this.endsOn = new Date(endsOn);
+        this.endsOn = endsOn;
         this.cooldown = cooldown;
+
+        this.duration = Math.round((this.endsOn - this.startsOn) / 60000);
     }
 
     static async seed() {
@@ -43,30 +46,30 @@ export class Booking {
         `)
     }
 
-    static async create(startsOn: Date, userId: number, duration: number): Promise<number> {
+    static async create(startsOn: number, userId: number, duration: number): Promise<number> {
         
         let user = await User.getById(userId);
         if (user == null) {
             return 0;
         }
-        let quota = await Quota.getByGroupIdDay(user.groupId, startsOn.getDay());
+        let quota = await Quota.getByGroupIdDay(user.groupId, (new Date(startsOn)).getDay());
         if (quota == null) {
             return 0;
         }
         
-        let endsOn = startsOn.valueOf() + duration*60000;
+        let endsOn = startsOn + duration*60000;
         return Db.run(`
             insert into bookedSlot (startsOn, userId, groupId, day, endsOn, cooldown)
-            values (${startsOn.valueOf()}, ${user.id}, ${user.groupId}, ${quota.day}, ${endsOn}, ${quota.cooldown})
+            values (${startsOn}, ${user.id}, ${user.groupId}, ${quota.day}, ${endsOn}, ${quota.cooldown})
         `)
         .then(result => result.lastID);
     }
 
-    static update(id: number, startsOn: Date, userId: number, groupId: number, day: number, duration: number, cooldown: number): Promise<number> {
-        let endsOn = startsOn.valueOf() + duration* 60000;
+    static update(id: number, startsOn: number, userId: number, groupId: number, day: number, duration: number, cooldown: number): Promise<number> {
+        let endsOn = startsOn + duration* 60000;
         return Db.run(`
             update bookedSlot
-            set startsOn=${startsOn.valueOf()},
+            set startsOn=${startsOn},
             userId=${userId}
             groupId=${groupId}
             day=${day}
@@ -104,11 +107,11 @@ export class Booking {
     }
 
     //use for checking bookings against quotas, when user makes a booking
-    static getByUserIdAfter(userId: number, after: Date): Promise<Booking[]> {
+    static getByUserIdAfter(userId: number, after: number): Promise<Booking[]> {
         return Db.all(`
             select * from bookedSlot
             where userId = ${userId}
-            and startsOn > ${after.valueOf()}
+            and startsOn > ${after}
         `)
         .then((result: any) => result.map((r:any) => 
             new Booking(r.id, r.startsOn, r.userId, r.groupId, r.day, r.endsOn, r.cooldown)
@@ -144,10 +147,6 @@ export class Booking {
             this._user = User.getById(this.userId);
         }
         return this._user;
-    }
-
-    get duration() {
-        return (this.endsOn.valueOf() - this.startsOn.valueOf()) / 60000;
     }
 
     static getAll(): Promise<Booking[]> {

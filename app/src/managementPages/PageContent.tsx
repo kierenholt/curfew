@@ -77,8 +77,8 @@ export const PageContent = () => {
                                                                     <ManageBansPage />
                                                                     : currentPage === CurrentPage.manageRequests ?
                                                                         <ManageRequestsPage params={params} />
-                                                                    : currentPage === CurrentPage.userMakesBooking ?
-                                                                        <MakeABookingPage />
+                                                                        : currentPage === CurrentPage.userMakesBooking ?
+                                                                            <MakeABookingPage />
                                                                             :
                                                                             <MakeABookingPage /> //default
             }

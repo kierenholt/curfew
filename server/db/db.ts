@@ -6,7 +6,7 @@ import { Booking } from "./booking";
 import { Device } from "./device";
 import { FixedSlot } from "./fixedSlot";
 import { UserGroup } from "./userGroup";
-import { DomainFilter } from "./domainFilter";
+import { Filter } from "./filter";
 import { DnsRequest } from "./dnsRequest";
 
 
@@ -53,7 +53,7 @@ export class Db {
         await Quota.createTable();
         await Booking.createTable();
         await Device.createTable();
-        await DomainFilter.createTable();
+        await Filter.createTable();
         await FixedSlot.createTable();
         await DnsRequest.createTable();
         await User.createTable();
@@ -63,7 +63,7 @@ export class Db {
     static async seed() {
         await Booking.seed();
         await Device.seed();
-        await DomainFilter.seed();
+        await Filter.seed();
         await User.seed();
         await UserGroup.seed();
     }

@@ -15,28 +15,12 @@ export interface IUser {
 }
 
 
-export interface IRule {
-    id: number;
-    groupId: number;
-}
-
-export enum FilterAction {
-    alwaysBlock = 0, alwaysAllow = 1, needsSlot = 2 
-}
-
 export interface IList {
     id: number;
     name: string;
     filterAction: FilterAction;
 }
 
-
-export interface IHistoryItem {
-    id: number;
-    MAC: string;
-    domain: string;
-    requestedOn: number;
-}
 
 
 export interface IFixedSlot {
@@ -46,11 +30,18 @@ export interface IFixedSlot {
     endsOn: number;
 }
 
-export interface IDomain {
+export interface IFilter {
     id: number;
     component: string;
-    listId: number;
+    groupId: number;
+    action: FilterAction;
 }
+
+
+export enum FilterAction {
+    alwaysAllow = 1, needsBooking = 2, alwaysDeny = 3
+}
+
 
 
 export interface IDevice {
@@ -72,19 +63,20 @@ export interface IQuota {
 
 export interface IBooking {
     id: number;
-    startsOn: Date;
+    startsOn: number;
     userId: number;
     groupId: number;
     day: number;
-    duration: number;
+    endsOn: number;
     cooldown: number;
+    duration: number;
 }
 
 export interface IRequest {
     id: number;
     deviceId: string;
     domain: string;
-    requestedOn: Date;
+    requestedOn: number;
     redirectReason: RedirectReason;
     redirectDestination: RedirectDestination;
 } 

@@ -3,7 +3,7 @@ import { Redirector } from '../redirector';
 import { Device } from '../db/device';
 import { User } from '../db/user';
 import { UserGroup } from '../db/userGroup';
-import { DomainFilter } from '../db/domainFilter';
+import { Filter } from '../db/filter';
 import { Quota } from '../db/quota';
 import { Booking } from '../db/booking';
 import { MakeABooking } from './makeABooking';
@@ -133,28 +133,28 @@ export class API {
 
 
         //create domain
-        app.post('/api/domains', async (req: Request, res: Response) => {
+        app.post('/api/filters', async (req: Request, res: Response) => {
             if (req.body.component && req.body.listId) {
-                let ret = await DomainFilter.create(req.body.component, req.body.groupId, req.body.filterAction);
+                let ret = await Filter.create(req.body.component, req.body.groupId, req.body.filterAction);
                 res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
         });
-        app.put('/api/domains/:id', async (req: Request, res: Response) => {
+        app.put('/api/filters/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0 && req.body.component && req.body.listId) {
-                let ret = await DomainFilter.update(id, req.body.component, req.body.groupId, req.body.filterAction);
+                let ret = await Filter.update(id, req.body.component, req.body.groupId, req.body.filterAction);
                 res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
         });
-        app.delete('/api/domains/:id', async (req: Request, res: Response) => {
+        app.delete('/api/filters/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
-            let ret = await DomainFilter.delete(id);
+            let ret = await Filter.delete(id);
             res.status(200).json(ret);
         });
 
@@ -178,7 +178,7 @@ export class API {
         //create bookings
         app.post('/api/bookings', async (req: Request, res: Response) => {
             if (req.body) {
-                let ret = await Booking.create(new Date(), req.body.userId, req.body.duration);
+                let ret = await Booking.create(new Date().valueOf(), req.body.userId, req.body.duration);
                 res.status(200).json(ret);
             }
             else {
@@ -270,15 +270,15 @@ export class API {
 
 
         //get all domains
-        app.get('/api/domains', async (req: Request, res: Response) => {
-            let ret = await DomainFilter.getAll();
+        app.get('/api/filters', async (req: Request, res: Response) => {
+            let ret = await Filter.getAll();
             res.status(200).json(ret);
         });
         //get 1 domain
-        app.get('/api/domains/:id', async (req: Request, res: Response) => {
+        app.get('/api/filters/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0) {
-                let ret = await DomainFilter.getById(id);
+                let ret = await Filter.getById(id);
                 res.status(200).json(ret);
             }
             else {
