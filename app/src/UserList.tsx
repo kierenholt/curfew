@@ -4,7 +4,7 @@ import { IUser } from "./types";
 import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
-import PersonIcon from '@mui/icons-material/Person';
+import { BookingIcon, UserIcon } from "./Icon";
 
 
 export function UserList() {
@@ -17,6 +17,13 @@ export function UserList() {
                 setUsers(users)
             })
     }, []);
+
+    const linkToBookings = (u: IUser): React.ReactNode => {
+        return <BookingIcon onClick={() => {
+            pageContext.setParams({userId: u.id});
+            pageContext.setCurrentPage(CurrentPage.manageBookings);
+        }} />
+    }
 
     const deleteUser = (id: number) => {
         Helpers.delete(`/api/users/${id}`)
@@ -34,6 +41,7 @@ export function UserList() {
 
                 endAction={
                     <>
+                    {linkToBookings(g)}
                     <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                         onClick={() => {
                             pageContext.setParams({userId: g.id})
@@ -49,7 +57,7 @@ export function UserList() {
                 }>
                 <ListItemButton>
                     <ListItemDecorator>
-                        <PersonIcon />
+                        <UserIcon />
                     </ListItemDecorator>
                     <ListItemContent>
                         {g.name}

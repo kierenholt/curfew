@@ -3,6 +3,7 @@ import { DnsForwarder } from "./dnsForwarder";
 import { DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
 import { RedirectDestination, Redirector } from "../redirector";
+import { DetectNetwork } from "../localnetwork";
 
 export interface RedirectResult {
     isRedirected: boolean; 
@@ -18,12 +19,13 @@ export class DnsServer {
 
     static NULL_IP_v4: string = "240.0.0.0";
     static NULL_IP_v6: Buffer = Buffer.from([100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]); //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
-    static LOCALHOST: string = "127.0.0.1";
+    static appIP: string;
 
     static init(port: number = 53) {
         this.socket = createSocket('udp4');
-        this.dnsForwarder = new DnsForwarder(port, this.socket);
+        this.dnsForwarder = new DnsForwarder(this.socket);
         this.dnsRedirector = new Redirector();
+        this.appIP = DetectNetwork.localIP;
 
         this.socket.bind(port, () => {
             console.log('DNS server listening on UDP port ', port);
@@ -39,7 +41,7 @@ export class DnsServer {
                     destination == RedirectDestination.app) {
                     
                     if (destination == RedirectDestination.app) { //app
-                        packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.LOCALHOST)]);
+                        packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.appIP)]);
                     }
                     else { //blocked
                         packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.NULL_IP_v4, this.NULL_IP_v6)]);

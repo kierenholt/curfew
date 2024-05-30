@@ -3,13 +3,8 @@ import { CurrentPage } from "./PageContent";
 import { useState } from "react";
 
 import DevicesIcon from '@mui/icons-material/Devices';
-import PersonIcon from '@mui/icons-material/Person';
 import GroupIcon from '@mui/icons-material/Group';
-import TimelapseIcon from '@mui/icons-material/Timelapse';
-import HourglassTopIcon from '@mui/icons-material/HourglassTop';
-import BlockIcon from '@mui/icons-material/Block';
-import CloudIcon from '@mui/icons-material/Cloud';
-import { Cloud } from "@mui/icons-material";
+import { BanIcon, BookingIcon, FilterIcon, QuotaIcon, RequestIcon, UserIcon } from "../Icon";
 
 export interface BottomMenuProps {
     setCurrentPage: (p: CurrentPage) => void,
@@ -60,7 +55,7 @@ export const BottomMenu = (props: BottomMenuProps) => {
                         props.setCurrentPage(CurrentPage.manageUsers) 
                     }}
                     sx={iconButtonStyle}>
-                    <PersonIcon fontSize="large" />
+                    <UserIcon fontSize="large" />
                     <p>Users</p>
                 </Stack>
                 <Stack direction="column" alignItems="center"
@@ -72,6 +67,15 @@ export const BottomMenu = (props: BottomMenuProps) => {
                     <GroupIcon fontSize="large" />
                     <p>Groups</p>
                 </Stack>
+                <Stack direction="column" alignItems="center"
+                    onClick={() => { 
+                        props.setParams({});
+                        props.setCurrentPage(CurrentPage.manageBans);
+                    }}
+                    sx={iconButtonStyle}>
+                    <BanIcon fontSize="large" />
+                    <p>Bans</p>
+                </Stack>
             </Stack>
             :
             <Stack direction="row" justifyContent="space-around" alignItems="stretch"
@@ -82,7 +86,7 @@ export const BottomMenu = (props: BottomMenuProps) => {
                         props.setCurrentPage(CurrentPage.manageQuotas);
                     }}
                     sx={iconButtonStyle}>
-                    <TimelapseIcon fontSize="large" />
+                    <QuotaIcon fontSize="large" />
                     <p>Quotas</p>
                 </Stack>
                 <Stack direction="column" alignItems="center"
@@ -91,17 +95,8 @@ export const BottomMenu = (props: BottomMenuProps) => {
                         props.setCurrentPage(CurrentPage.manageBookings);
                     }}
                     sx={iconButtonStyle}>
-                    <HourglassTopIcon fontSize="large" />
+                    <BookingIcon fontSize="large" />
                     <p>Bookings</p>
-                </Stack>
-                <Stack direction="column" alignItems="center"
-                    onClick={() => { 
-                        props.setParams({});
-                        props.setCurrentPage(CurrentPage.manageBans);
-                    }}
-                    sx={iconButtonStyle}>
-                    <BlockIcon fontSize="large" />
-                    <p>Bans</p>
                 </Stack>
                 <Stack direction="column" alignItems="center"
                     onClick={() => { 
@@ -109,8 +104,17 @@ export const BottomMenu = (props: BottomMenuProps) => {
                         props.setCurrentPage(CurrentPage.manageRequests);
                     }}
                     sx={iconButtonStyle}>
-                    <CloudIcon fontSize="large" />
+                    <RequestIcon fontSize="large" />
                     <p>Requests</p>
+                </Stack>
+                <Stack direction="column" alignItems="center"
+                    onClick={() => { 
+                        props.setParams({});
+                        props.setCurrentPage(CurrentPage.manageFilters);
+                    }}
+                    sx={iconButtonStyle}>
+                    <FilterIcon fontSize="large" />
+                    <p>Filters</p>
                 </Stack>
             </Stack>
         }

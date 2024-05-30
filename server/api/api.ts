@@ -132,10 +132,10 @@ export class API {
         })
 
 
-        //create domain
+        //create filter
         app.post('/api/filters', async (req: Request, res: Response) => {
-            if (req.body.component && req.body.listId) {
-                let ret = await Filter.create(req.body.component, req.body.groupId, req.body.filterAction);
+            if (req.body.component && req.body.groupId) {
+                let ret = await Filter.create(req.body.component, req.body.groupId, req.body.action);
                 res.status(200).json(ret);
             }
             else {
@@ -144,8 +144,9 @@ export class API {
         });
         app.put('/api/filters/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
-            if (id > 0 && req.body.component && req.body.listId) {
-                let ret = await Filter.update(id, req.body.component, req.body.groupId, req.body.filterAction);
+            let groupId = Number(req.body.groupId);
+            if (id > 0 && req.body.component && groupId > 0) {
+                let ret = await Filter.update(id, req.body.component, groupId, req.body.action);
                 res.status(200).json(ret);
             }
             else {
@@ -269,7 +270,7 @@ export class API {
         });
 
 
-        //get all domains
+        //get all filters
         app.get('/api/filters', async (req: Request, res: Response) => {
             let ret = await Filter.getAll();
             res.status(200).json(ret);
@@ -279,6 +280,17 @@ export class API {
             let id = Number(req.params.id);
             if (id > 0) {
                 let ret = await Filter.getById(id);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send();
+            }
+        });
+        //get filters of group
+        app.get('/api/filters/userGroup/:groupId', async (req: Request, res: Response) => {
+            let id = Number(req.params.groupId);
+            if (id > 0) {
+                let ret = await Filter.getByGroupId(id);
                 res.status(200).json(ret);
             }
             else {

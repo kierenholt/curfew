@@ -1,6 +1,6 @@
 import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent } from "@mui/joy";
 import { IBooking } from "./types";
-import HourglassTopIcon from '@mui/icons-material/HourglassTop';
+import { BookingIcon } from "./Icon";
 
 export interface BookingListProps {
     bookings: IBooking[];
@@ -13,7 +13,7 @@ export function BookingList(props: BookingListProps) {
             <ListItem color="neutral">
                 <ListItemButton>
                     <ListItemDecorator>
-                        <HourglassTopIcon />
+                        <BookingIcon />
                     </ListItemDecorator>
                     <ListItemContent>
                         {new Date(g.startsOn).toLocaleString()}, 

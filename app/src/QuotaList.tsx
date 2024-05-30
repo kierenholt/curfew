@@ -1,11 +1,10 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, } from "react"
 import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, IconButton } from "@mui/joy";
 import { IQuota } from "./types";
-import { Helpers } from "./helpers";
 import { Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
-import TimelapseIcon from '@mui/icons-material/Timelapse';
 import { Day } from "./Day";
+import { QuotaIcon } from "./Icon";
 
 export interface QuotaListProps {
     quotas: IQuota[];
@@ -35,7 +34,7 @@ export function QuotaList(props: QuotaListProps) {
                 }>
                 <ListItemButton>
                     <ListItemDecorator>
-                        <TimelapseIcon />
+                        <QuotaIcon />
                     </ListItemDecorator>
                     <ListItemContent>
                         <Day day={g.day} full={true} />, {g.refreshAmount} mins 

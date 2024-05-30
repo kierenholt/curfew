@@ -105,10 +105,14 @@ export class Redirector {
         return RedirectDestination.blocked;
     }
 
-    static async getOrCreateDevice(IP: string): Promise<{device: Device | null, user: User | null, group: UserGroup | null}> {
+    static async getOrCreateDevice(IP: string): 
+        Promise<{device: Device | null, user: User | null, group: UserGroup | null}> {
 
         //get MAC
         let deviceId = DhcpServer.getDeviceIdFromIP(IP);
+        if (deviceId.length == 0) {
+            return { device: null, user: null, group: null }
+        }
 
         //find user
         let device = await Device.getById(deviceId);
@@ -121,7 +125,12 @@ export class Redirector {
             let username = "owner of " + hostname;
             let userId = await User.create(UserGroup.FIRST_GROUP_ID, username);
             let firstGroup = await UserGroup.getById(UserGroup.FIRST_GROUP_ID);
-            await Device.create(deviceId, userId, hostname);
+            try {
+                await Device.create(deviceId, userId, hostname);
+            }
+            catch {
+                return { device: null, user: null, group: null }
+            }
             return {
                 device: new Device(deviceId, userId, hostname, 0),
                 user: new User(userId, UserGroup.FIRST_GROUP_ID, username, 0),

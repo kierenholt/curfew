@@ -126,9 +126,7 @@ export class Booking {
             where userId = ${userId}
             and startsOn < ${now} and endsOn > ${now}
         `)
-        .then((result: any) => result.map((r:any) => 
-            r.length > 0
-        ))
+        .then((result: any) => result.length > 0)
     }
 
     static delete(id: number): Promise<number> {

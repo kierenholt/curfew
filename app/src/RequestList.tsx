@@ -1,16 +1,21 @@
-import { Accordion } from "@mui/material";
-import { IRequest, RedirectDestination, RedirectReason } from "./types";
-import CloudIcon from '@mui/icons-material/Cloud';
+import { Accordion, AccordionActions, Button } from "@mui/material";
+import { IDevice, IRequest, IUser, RedirectDestination, RedirectReason } from "./types";
 import { AllowDenyIcon } from "./AllowDenyIcon";
 import { AccordionDetails, AccordionSummary } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { DateFormatter } from "./DateFormatter";
+import { RequestIcon } from "./Icon";
+import { CurrentPage, PageContext } from "./managementPages/PageContent";
+import { useContext } from "react";
+import { Helpers } from "./helpers";
 
 export interface RequestListProps {
     requests: IRequest[];
 }
 
 export function RequestList(props: RequestListProps) {
+    const pageContext = useContext(PageContext);
+    
     const details = (r: IRequest): string => {
         switch (r.redirectReason) {
             case RedirectReason.deviceIsBanned:
@@ -20,15 +25,15 @@ export function RequestList(props: RequestListProps) {
             case RedirectReason.groupIsBanned:
                 return "the group is banned";
             case RedirectReason.domainIsAlwaysAllowed:
-                return "the domain is always allowed";
+                return "the domain is allowed by a filter";
             case RedirectReason.domainIsAlwaysBlocked:
-                return "the domain is always blocked";
+                return "the domain is blocked by a filter";
             case RedirectReason.filterNotFound:
-                return "no filter action is chosen for this domain";
+                return "no filter matches the domain";
             case RedirectReason.hasBooked:
-                return "a slot is booked";
+                return "the domain requires a slot, which is booked";
             case RedirectReason.needsToBook:
-                return "a slot needs to be booked";
+                return "the domain requires a slot but no slot is booked";
             case RedirectReason.error:
                 return "an error occured";
             default:
@@ -47,21 +52,38 @@ export function RequestList(props: RequestListProps) {
         }
     }
 
+    const goToCreateFilterPage = (r: IRequest) => {
+        Helpers.get<IDevice>(`/api/devices/${r.deviceId}`)
+            .then((d: IDevice) => Helpers.get<IUser>(`/api/users/${d.ownerId}`))
+            .then((u: IUser) => {
+                let spl = r.domain.split(".");
+                let index = Math.max(spl.length - 2,0)
+                let component = spl[index];
+                pageContext.setParams({component: component, groupId: u.groupId})
+                pageContext.setCurrentPage(CurrentPage.createFilter);
+            })
+    }
+
     return (
         <>
-            {props.requests.map((g: IRequest, i: number) =>
+            {props.requests.map((r: IRequest, i: number) =>
                 <Accordion color="neutral">
                     <AccordionSummary style={{ alignItems: "center" }}
                         expandIcon={<ExpandMoreIcon />}>
 
-                        <CloudIcon />
-                        {g.domain}
-                        <AllowDenyIcon redirectDestination={g.redirectDestination} />
-                        {DateFormatter.agoFormat(g.requestedOn)}
+                        <RequestIcon />
+                        {r.domain}
+                        <AllowDenyIcon redirectDestination={r.redirectDestination} />
+                        {DateFormatter.agoFormat(r.requestedOn)}
                     </AccordionSummary>
                     <AccordionDetails>
-                        {action(g)} because {details(g)}
+                        {action(r)} because {details(r)}
                     </AccordionDetails>
+                    <AccordionActions>
+                        <Button onClick={() => goToCreateFilterPage(r)}>
+                            Create Filter
+                        </Button>
+                    </AccordionActions>
                 </Accordion>)}
         </>
     )

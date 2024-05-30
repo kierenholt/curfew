@@ -4,18 +4,20 @@ import { TestSocket } from "./dns/testSocket";
 import { Db } from "./db/db";
 import { API as API } from "./api/api";
 import { Quota } from "./db/quota";
+import { DetectNetwork } from "./localnetwork";
 
-const DHCP_ENABLED = false;
+const DHCP_ENABLED = true;
 const DHCP_MOCKED = true;
 const DNS_ENABLED = true;
 const TEST_SOCKET = false;
 const API_ENABLED = true;
 
 async function run() {
+    DetectNetwork.init();
     await Db.init();
     //let c = await BookedSlot.bookedSlotExistsNow(5);
     //console.log(c);
-    let q = await Quota.getByGroupIdDay(1, 0);
+    //let q = await Quota.getByGroupIdDay(1, 0);
     //console.log(q);
     
     //DHCP SERVER
@@ -28,7 +30,7 @@ async function run() {
 
     //DNS SERVER
     if (DNS_ENABLED) {
-        DnsServer.init(5300);
+        DnsServer.init(53);
     }
 
     //API

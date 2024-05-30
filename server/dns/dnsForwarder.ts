@@ -9,12 +9,11 @@ export class DnsForwarder {
     socket: Socket;
     UPSTREAM_SERVER_IP: string = '1.1.1.1';
     TTL: number = 30;
-    port: number;
+    port: number = 53;
     promisesById: any = {};
 
-    constructor(port: number, socket: Socket) {
+    constructor(socket: Socket) {
         this.cache = new Cache();
-        this.port = port;
         this.socket = socket;
     }
 

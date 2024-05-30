@@ -3,7 +3,7 @@ import { DhcpPacket, MessageType, RequestReply } from "./dhcpPacket";
 import { Lease, LeaseState } from "./lease";
 import { Helpers } from "../helpers";
 import { Unicast } from "../python/unicast";
-import { runInThisContext } from "vm";
+import { DetectNetwork } from "../localnetwork";
 
 export class DhcpServer {
     static SERVER_PORT = 67;
@@ -16,13 +16,16 @@ export class DhcpServer {
     static subnet: string = '255.255.255.0';
     static router: string = '192.168.0.1';
     static broadcastIP: string = '192.168.0.255';
-    static serverIP: string = '192.168.0.78';
+    static serverIP: string;
+    static serverMAC: string;
     static hostname: string = "curfew";
-    static serverMAC: string = '30:f7:72:45:53:f5';
 
     static leases: Lease[] = [];
 
     static init() {
+        this.serverIP = DetectNetwork.localIP;
+        this.serverMAC = DetectNetwork.mac;
+
         this.socket = createSocket({ type: 'udp4', reuseAddr: true });
 
         this.socket.bind(DhcpServer.SERVER_PORT, DhcpServer.INADDR_ANY, () => {
@@ -214,17 +217,18 @@ export class DhcpServer {
     }
 
     static addDebugLeases() {
-        this.leases.push(new Lease(
+        /*this.leases.push(new Lease(
             "a0:59:50:24:4c:df",
             "192.168.0.115",
             1,
             "SavilleLaptopMock"
         ));
+        */
 
         this.leases.push(new Lease(
             "18:35:d1:f3:3d:69",
             "127.0.0.1",
-            2,
+            77,
             "ubuntuMock"
         ))
     }

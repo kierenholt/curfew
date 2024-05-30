@@ -81,7 +81,7 @@ export function MakeABookingPage() {
                                 </h3>
                                 <p>
                                     You will be able to start another booking
-                                    in ${response.cooldownRemainingMins} minutes.
+                                    in {response.cooldownRemainingMins} minutes.
                                 </p>
                             </>
                             :

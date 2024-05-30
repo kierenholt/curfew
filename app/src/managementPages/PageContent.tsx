@@ -17,6 +17,9 @@ import { ManageBansPage } from './ManageBansPage';
 import { BottomMenu } from './BottomMenu';
 import { MakeABookingPage } from './MakeABookingPage';
 import { ManageRequestsPage } from './ManageRequestsPage';
+import { ManageFiltersPage } from './ManageFiltersPage';
+import { CreateFilterPage } from './CreateFilterPage';
+import { EditFilterPage } from './EditFilterPage';
 
 export enum CurrentPage {
     manageDevices, editDevice, createDevice,
@@ -26,7 +29,8 @@ export enum CurrentPage {
     manageBookings,
     manageBans,
     userMakesBooking,
-    manageRequests
+    manageRequests,
+    manageFilters, editFilter, createFilter
 }
 
 interface SetPageAction {
@@ -75,12 +79,18 @@ export const PageContent = () => {
                                                                 <ManageBookingsPage params={params} />
                                                                 : currentPage === CurrentPage.manageBans ?
                                                                     <ManageBansPage />
-                                                                    : currentPage === CurrentPage.manageRequests ?
-                                                                        <ManageRequestsPage params={params} />
-                                                                        : currentPage === CurrentPage.userMakesBooking ?
-                                                                            <MakeABookingPage />
-                                                                            :
-                                                                            <MakeABookingPage /> //default
+                                                                    : currentPage === CurrentPage.manageFilters ?
+                                                                        <ManageFiltersPage params={params} />
+                                                                        : currentPage === CurrentPage.createFilter ?
+                                                                            <CreateFilterPage params={params}/>
+                                                                            : currentPage === CurrentPage.editFilter ?
+                                                                                <EditFilterPage params={params} />
+                                                                                : currentPage === CurrentPage.manageRequests ?
+                                                                                    <ManageRequestsPage params={params} />
+                                                                                    : currentPage === CurrentPage.userMakesBooking ?
+                                                                                        <MakeABookingPage />
+                                                                                        :
+                                                                                        <MakeABookingPage /> //default
             }
 
             <BottomMenu setCurrentPage={setCurrentPage} setParams={setParams} />

@@ -9,8 +9,8 @@ export enum FilterAction {
 
 export class Filter {
     id: number;
-    component: string;
     groupId: number;
+    component: string;
     action: FilterAction;
     static blackList: string[] = ["youtube","googlevideo","roblox","classroom6x","tiktok","unity","snapchat","goguardian","-tiktok","unity3d","classroom6x","goguardian","classroom6x","tiktokcdn","facebook","brawlstars","tiktokcdn-eu","tiktokv","apple","aaplimg","brawlstargame","brawlstarsgame","brawlstars","vungle","gameduo","liftoff","applovin","inner-activ","inmobicdn","inmobi","applvn","tiktokcdn-us","stats","ocsp","supercell","rbxcdn","crazygames","epicgames","epicgames","yohoho","poki","1001games","friv","numuki","coolmathgames","raft-wars","ytimg","fbcdn","brawlstars","snapchat"];
 
@@ -23,7 +23,11 @@ export class Filter {
 
     static seed() {
         for (let word of Filter.blackList) {
-            Filter.create(word, UserGroup.FIRST_GROUP_ID, FilterAction.needsBooking);
+            Filter.create(
+                word, 
+                UserGroup.FIRST_GROUP_ID, 
+                FilterAction.alwaysAllow
+            );
         }
     }
 
@@ -49,7 +53,7 @@ export class Filter {
 
     static update(id: number, component: string, groupId: number, action: FilterAction): Promise<number> {
         return Db.run(`
-            update filter 
+            update filter
             set component='${component}', 
             groupId=${groupId},
             action=${action.valueOf()}
@@ -68,6 +72,18 @@ export class Filter {
             result.component, 
             result.groupId,
             result.action) : null);
+    }
+
+    static getByGroupId(groupId: number): Promise<Filter[]> {
+        return Db.all(`
+            select * from filter
+            where groupId = ${groupId}
+        `)
+        .then((result: any) => result.map((r:any) => new Filter(
+            r.id, 
+            r.component, 
+            r.groupId,
+            r.action)))
     }
 
     static getFromDomainNameAndGroup(domainName: string, groupId: number): Promise<Filter | null> {
