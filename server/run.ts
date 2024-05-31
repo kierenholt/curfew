@@ -3,10 +3,9 @@ import { DnsServer } from "./dns/dnsServer";
 import { TestSocket } from "./dns/testSocket";
 import { Db } from "./db/db";
 import { API as API } from "./api/api";
-import { Quota } from "./db/quota";
 import { DetectNetwork } from "./localnetwork";
 
-const DHCP_ENABLED = true;
+const DHCP_ENABLED = false;
 const DHCP_MOCKED = true;
 const DNS_ENABLED = true;
 const TEST_SOCKET = false;

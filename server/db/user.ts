@@ -1,4 +1,4 @@
-import { Database, RunResult } from "sqlite3";
+import { RunResult } from "sqlite3";
 import { Db } from "./db";
 import { UserGroup } from "./userGroup";
 import { Helpers } from "../helpers";
@@ -91,6 +91,19 @@ export class User {
             this._group = UserGroup.getById(this.groupId);
         }
         return this._group;
+    }
+
+    static getByGroupId(groupId: number): Promise<User[]> {
+        return Db.all(`
+            select * from user
+            where groupId=${groupId}
+        `)
+        .then((result: any) => result.map((r:any) => new User(
+            r.id, 
+            r.groupId, 
+            Helpers.unescapeSingleQuotes(r.name),
+            r.isBanned
+            )))
     }
 
     static getAll(): Promise<User[]> {

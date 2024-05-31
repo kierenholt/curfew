@@ -1,5 +1,5 @@
 import { Accordion, AccordionActions, Button } from "@mui/material";
-import { IDevice, IRequest, IUser, RedirectDestination, RedirectReason } from "./types";
+import { IDevice, IFilter, IRequest, IUser, RedirectDestination, RedirectReason } from "./types";
 import { AllowDenyIcon } from "./AllowDenyIcon";
 import { AccordionDetails, AccordionSummary } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -55,12 +55,19 @@ export function RequestList(props: RequestListProps) {
     const goToCreateFilterPage = (r: IRequest) => {
         Helpers.get<IDevice>(`/api/devices/${r.deviceId}`)
             .then((d: IDevice) => Helpers.get<IUser>(`/api/users/${d.ownerId}`))
-            .then((u: IUser) => {
+            .then(async (u: IUser) => {
                 let spl = r.domain.split(".");
                 let index = Math.max(spl.length - 2,0)
                 let component = spl[index];
-                pageContext.setParams({component: component, groupId: u.groupId})
-                pageContext.setCurrentPage(CurrentPage.createFilter);
+                let found = await Helpers.get<IFilter>(`/api/filters/component/${component}/group/${u.groupId}`)
+                if (found) { //edit
+                    pageContext.setParams({component: found.component, groupId: found.groupId})
+                    pageContext.setCurrentPage(CurrentPage.editFilter);
+                }
+                else { //create
+                    pageContext.setParams({component: component, groupId: u.groupId})
+                    pageContext.setCurrentPage(CurrentPage.createFilter);
+                }
             })
     }
 

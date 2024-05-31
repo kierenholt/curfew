@@ -12,7 +12,7 @@ export class Filter {
     groupId: number;
     component: string;
     action: FilterAction;
-    static blackList: string[] = ["youtube","googlevideo","roblox","classroom6x","tiktok","unity","snapchat","goguardian","-tiktok","unity3d","classroom6x","goguardian","classroom6x","tiktokcdn","facebook","brawlstars","tiktokcdn-eu","tiktokv","apple","aaplimg","brawlstargame","brawlstarsgame","brawlstars","vungle","gameduo","liftoff","applovin","inner-activ","inmobicdn","inmobi","applvn","tiktokcdn-us","stats","ocsp","supercell","rbxcdn","crazygames","epicgames","epicgames","yohoho","poki","1001games","friv","numuki","coolmathgames","raft-wars","ytimg","fbcdn","brawlstars","snapchat"];
+    static blackList: string[] = ["youtube","googlevideo","roblox","classroom6x","tiktok","unity","snapchat","goguardian","unity3d","tiktokcdn","facebook","brawlstars","tiktokcdn-eu","tiktokv","apple","aaplimg","brawlstargame","brawlstars","vungle","gameduo","liftoff","applovin","inner-activ","inmobicdn","inmobi","applvn","tiktokcdn-us","stats","ocsp","supercell","rbxcdn","crazygames","epicgames","epicgames","yohoho","poki","1001games","friv","numuki","coolmathgames","raft-wars","ytimg","fbcdn","brawlstars","snapchat"];
 
     constructor(id: number, component: string, groupId: number, action: number) {
         this.id = id;
@@ -78,12 +78,25 @@ export class Filter {
         return Db.all(`
             select * from filter
             where groupId = ${groupId}
+            order by component asc
         `)
         .then((result: any) => result.map((r:any) => new Filter(
             r.id, 
             r.component, 
             r.groupId,
             r.action)))
+    }
+
+    static getFromComponentAndGroup(component: string, groupId: number): Promise<Filter | null> {
+        return Db.get(`
+            select * from filter
+            where groupId = ${groupId} and component = '${component}' 
+        `)
+        .then((result: any) => result ? new Filter(
+            result.id, 
+            result.component, 
+            result.groupId,
+            result.action) : null);
     }
 
     static getFromDomainNameAndGroup(domainName: string, groupId: number): Promise<Filter | null> {

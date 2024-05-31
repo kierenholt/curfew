@@ -78,8 +78,19 @@ export class API {
         });
         app.delete('/api/users/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
-            let ret = await User.delete(id);
-            res.status(200).json(ret);
+            if (id > 0) {
+                let devices = await Device.getByOwnerId(id);
+                if (devices.length  == 0) {
+                    let ret = await User.delete(id);
+                    res.status(200).json(ret);
+                }
+                else {
+                    res.status(409).send("user has devices. Delete them first.");
+                }
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
         });
         app.put('/api/users/:userId/isBanned=:isBanned', async (req: Request, res: Response) => {
             let id = Number(req.params.userId);
@@ -116,8 +127,19 @@ export class API {
         });
         app.delete('/api/userGroups/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
-            let ret = await UserGroup.delete(id);
-            res.status(200).json(ret);
+            if (id > 0) {
+                let users = await User.getByGroupId(id);
+                if (users.length == 0) {
+                    let ret = await UserGroup.delete(id);
+                    res.status(200).json(ret);
+                }
+                else {
+                    res.status(409).send("group has users. Delete them first.");
+                }
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
         });
         app.put('/api/userGroups/:groupId/isBanned=:isBanned', async (req: Request, res: Response) => {
             let id = Number(req.params.groupId);
@@ -280,6 +302,17 @@ export class API {
             let id = Number(req.params.id);
             if (id > 0) {
                 let ret = await Filter.getById(id);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send();
+            }
+        });
+        //get by component and group
+        app.get('/api/filters/component/:component/group/:groupId', async (req: Request, res: Response) => {
+            let id = Number(req.params.groupId);
+            if (id > 0) {
+                let ret = await Filter.getFromComponentAndGroup(req.params.component, id);
                 res.status(200).json(ret);
             }
             else {
