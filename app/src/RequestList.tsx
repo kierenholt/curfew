@@ -61,7 +61,7 @@ export function RequestList(props: RequestListProps) {
                 let component = spl[index];
                 let found = await Helpers.get<IFilter>(`/api/filters/component/${component}/group/${u.groupId}`)
                 if (found) { //edit
-                    pageContext.setParams({component: found.component, groupId: found.groupId})
+                    pageContext.setParams({id: found.id})
                     pageContext.setCurrentPage(CurrentPage.editFilter);
                 }
                 else { //create

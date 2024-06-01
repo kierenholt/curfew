@@ -18,12 +18,6 @@ export function UserList() {
             })
     }, []);
 
-    const linkToBookings = (u: IUser): React.ReactNode => {
-        return <BookingIcon onClick={() => {
-            pageContext.setParams({userId: u.id});
-            pageContext.setCurrentPage(CurrentPage.manageBookings);
-        }} />
-    }
 
     const deleteUser = (id: number) => {
         Helpers.delete(`/api/users/${id}`)
@@ -41,18 +35,24 @@ export function UserList() {
 
                 endAction={
                     <>
-                    {linkToBookings(g)}
-                    <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
-                        onClick={() => {
-                            pageContext.setParams({userId: g.id})
-                            pageContext.setCurrentPage(CurrentPage.editUser)
-                        }}>
-                        <Edit />
-                    </IconButton>
-                    <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
-                        onClick={() => deleteUser(g.id)}>
-                        <Delete />
-                    </IconButton>
+                        <IconButton aria-label="Bookings" size="sm" variant="plain" color="neutral"
+                            onClick={() => {
+                                pageContext.setParams({ userId: g.id });
+                                pageContext.setCurrentPage(CurrentPage.manageBookings);
+                            }}>
+                            <BookingIcon />
+                        </IconButton>
+                        <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
+                            onClick={() => {
+                                pageContext.setParams({ userId: g.id })
+                                pageContext.setCurrentPage(CurrentPage.editUser)
+                            }}>
+                            <Edit />
+                        </IconButton>
+                        <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
+                            onClick={() => deleteUser(g.id)}>
+                            <Delete />
+                        </IconButton>
                     </>
                 }>
                 <ListItemButton>

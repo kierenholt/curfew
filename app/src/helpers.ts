@@ -90,7 +90,10 @@ export class Helpers {
     }
 
     static get<T>(url: string): Promise<T> {
-        return fetch(url)
+        let domain = window.location.origin; //http://someurl.com
+        let port = 5000;
+        url = `${domain}:${port}${url}`;
+        return fetch(url, {mode: "cors"})
             .then((req: Response) => req.json())
     }
 

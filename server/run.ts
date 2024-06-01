@@ -4,12 +4,9 @@ import { TestSocket } from "./dns/testSocket";
 import { Db } from "./db/db";
 import { API as API } from "./api/api";
 import { DetectNetwork } from "./localnetwork";
+import * as dotenv from "dotenv";
+dotenv.config();
 
-const DHCP_ENABLED = false;
-const DHCP_MOCKED = true;
-const DNS_ENABLED = true;
-const TEST_SOCKET = false;
-const API_ENABLED = true;
 
 async function run() {
     DetectNetwork.init();
@@ -20,24 +17,24 @@ async function run() {
     //console.log(q);
     
     //DHCP SERVER
-    if (DHCP_ENABLED) {
+    if (Number(process.env.DHCP_ENABLED)) {
         DhcpServer.init();
     }
-    if (DHCP_MOCKED) {
+    if (Number(process.env.DHCP_MOCKED)) {
         DhcpServer.addDebugLeases();
     }
 
     //DNS SERVER
-    if (DNS_ENABLED) {
-        DnsServer.init(53);
+    if (Number(process.env.DNS_ENABLED)) {
+        DnsServer.init();
     }
 
     //API
-    if (API_ENABLED) {
+    if (Number(process.env.API_ENABLED)) {
         API.init();
     }
 
-    if (TEST_SOCKET) {
+    if (Number(process.env.TEST_SOCKET)) {
         let s = new TestSocket();
         s.listen();
         s.send();

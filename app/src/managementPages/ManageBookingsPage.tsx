@@ -3,7 +3,7 @@ import { UserSelect } from "../UserSelect";
 import { BookingList } from "../BookingList";
 import { Helpers } from "../helpers";
 import { IBooking } from "../types";
-
+  
 export interface ManageBookingsPageProps {
     params: any //userId
 }
@@ -30,7 +30,9 @@ export function ManageBookingsPage(props: ManageBookingsPageProps) {
             { userId === 0 ? 
                 <p>please select a user first</p>
             :
-                <BookingList bookings={bookings} />
+                <BookingList bookings={bookings} 
+                    setBookings={setBookings} 
+                    allowEdit={true}/>
             }
         </>
     )

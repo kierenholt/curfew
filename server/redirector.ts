@@ -23,12 +23,13 @@ export enum RedirectDestination {
 export class Redirector {
 
     static BLOCK_IF_DOMAIN_NOT_FOUND: boolean = false;
+    static BLOCK_IF_DEVICE_NOT_FOUND: boolean = false;
     static LOCAL_APP_DOMAIN = "curfew";
 
     static async redirectTo(hostAddress: string, fullDomain: string = ""): Promise<RedirectDestination> {
         
         if (hostAddress.length == 0) {
-            console.error("hostAddress cannot be null");
+            console.error("hostAddress should not be null");
             return RedirectDestination.blocked;
         }
         
@@ -41,8 +42,8 @@ export class Redirector {
         let obj = await this.getOrCreateDevice(hostAddress);
         
         if (obj.device == null || obj.user == null || obj.group == null) {
-            console.error("device / owner / group should not be null");
-            return RedirectDestination.blocked;
+            //console.error("device / owner / group should not be null");
+            return this.BLOCK_IF_DEVICE_NOT_FOUND ? RedirectDestination.blocked : RedirectDestination.allow;
         }
         
         let device: Device = obj.device;

@@ -1,12 +1,13 @@
 import { useContext, useEffect, useState } from "react"
 import { Helpers } from "../helpers"
-import { IBooking, IQuota, IRequest } from "../types";
+import { IBooking, IDevice, IQuota, IRequest, IUser } from "../types";
 import { Stack } from "@mui/material";
 import { BookingList } from "../BookingList";
 import { QuotaList } from "../QuotaList";
 import { BookingCreateForm } from "../BookingCreateForm";
 import { RequestList } from "../RequestList";
 import { CurrentPage, PageContext } from "./PageContent";
+import { DeviceIcon, UserIcon } from "../Icon";
 
 export enum BookingStatus {
     quotaExceeded,
@@ -17,7 +18,8 @@ export enum BookingStatus {
 }
 
 export interface MakeABookingResponse {
-    userId: number;
+    user: IUser;
+    device: IDevice;
     todaysQuota: IQuota;
     totalQuotaTime: number;
     quotasIncludingRollovers: IQuota[];
@@ -38,12 +40,15 @@ export function MakeABookingPage() {
     const [requests, setRequests] = useState<IRequest[]>([]);
     
     useEffect(() => {
+        
+    /*
         Helpers.get<IRequest[]>('/api/requestHistory')
             .then((requests: IRequest[]) => {
                 setRequests(requests);
-            })
-
+            });
+*/
             Helpers.get<MakeABookingResponse>('/api/makeABooking')
+            //(window as any).get('/api/makeABooking')
             .then((result: MakeABookingResponse) => {
                 setResponse(result);
             })
@@ -59,7 +64,10 @@ export function MakeABookingPage() {
                 <p>{response.error}</p>
                 :
                 <>
-
+                    <Stack direction="row" justifyContent="space-around">
+                        <p><UserIcon />{response.user.name}</p>
+                        <p><DeviceIcon />{response.device.name}</p>
+                    </Stack>
                     <h2>Your requests</h2>
                     <RequestList requests={requests} />
             
@@ -95,7 +103,7 @@ export function MakeABookingPage() {
                                     </p>
                                     <BookingCreateForm 
                                         onCreated={() => pageContext.setCurrentPage(CurrentPage.userMakesBooking)}
-                                        userId={response.userId} 
+                                        userId={response.user.id} 
                                         quota={response.todaysQuota}
                                         maxDurationOfNextBook={response.maxDurationOfNextBook} />
                                 </>
@@ -119,13 +127,13 @@ export function MakeABookingPage() {
                         {response.inProgressBookings.length > 0 ?
                             <>
                                 <h2>Bookings in progress</h2>
-                                <BookingList bookings={response.inProgressBookings} />
+                                <BookingList bookings={response.inProgressBookings} allowEdit={false} setBookings={() => {}}/>
                                 Total used mins: {response.inProgressBookingsTotalTimeMins}
                             </>
                             : ""}
 
                         <h2>Today's completed bookings</h2>
-                        <BookingList bookings={response.pastBookings} />
+                        <BookingList bookings={response.pastBookings} allowEdit={false} setBookings={() => {}}/>
                         Total used mins: {response.pastBookingsTotalTimeMins}
 
                         <h2>Today's quotas</h2>

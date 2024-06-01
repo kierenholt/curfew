@@ -14,8 +14,9 @@ export function EditFilterPage(props: EditFilterPageProps) {
             <p>
                 Edit Filter
             </p>
-            <FilterEditForm onEdited={() => pageContext.setCurrentPage(CurrentPage.manageFilters)} 
-                id={props.params.id} />
+            <FilterEditForm 
+                onEdited={() => pageContext.setCurrentPage(CurrentPage.manageFilters)} 
+                id={props.params.id}/>
         </>
     )
 }

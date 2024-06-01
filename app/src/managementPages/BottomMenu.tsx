@@ -2,9 +2,8 @@ import { ToggleButtonGroup, ToggleButton, Stack } from "@mui/material";
 import { CurrentPage } from "./PageContent";
 import { useState } from "react";
 
-import DevicesIcon from '@mui/icons-material/Devices';
 import GroupIcon from '@mui/icons-material/Group';
-import { BanIcon, BookingIcon, FilterIcon, QuotaIcon, RequestIcon, UserIcon } from "../Icon";
+import { BanIcon, BookingIcon, DeviceIcon, FilterIcon, QuotaIcon, RequestIcon, UserIcon } from "../Icon";
 
 export interface BottomMenuProps {
     setCurrentPage: (p: CurrentPage) => void,
@@ -46,7 +45,7 @@ export const BottomMenu = (props: BottomMenuProps) => {
                         props.setCurrentPage(CurrentPage.manageDevices) 
                     }}
                     sx={iconButtonStyle}>
-                    <DevicesIcon fontSize="large" />
+                    <DeviceIcon fontSize="large" />
                     <p>Devices</p>
                 </Stack>
                 <Stack direction="column" alignItems="center"

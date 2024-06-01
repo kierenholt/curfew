@@ -5,7 +5,7 @@ import { IUserGroup } from "./types";
 import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
-import { QuotaIcon } from "./Icon";
+import { FilterIcon, QuotaIcon } from "./Icon";
 
 export function UserGroupList() {
     const pageContext = useContext(PageContext);
@@ -18,20 +18,6 @@ export function UserGroupList() {
             })
     }, []);
 
-
-    const linkToQuotas = (g: IUserGroup): React.ReactNode => {
-        return <QuotaIcon onClick={() => {
-            pageContext.setParams({groupId: g.id});
-            pageContext.setCurrentPage(CurrentPage.manageQuotas);
-        }} />
-    }
-
-    const linkToFilters = (g: IUserGroup): React.ReactNode => {
-        return <QuotaIcon onClick={() => {
-            pageContext.setParams({groupId: g.id});
-            pageContext.setCurrentPage(CurrentPage.manageFilters);
-        }} />
-    }
 
     const deleteGroup = (id: number) => {
         Helpers.delete(`/api/userGroups/${id}`)
@@ -49,19 +35,31 @@ export function UserGroupList() {
 
                 endAction={
                     <>
-                    {linkToQuotas(g)}
-                    {linkToFilters(g)}
-                    <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
-                        onClick={() => {
-                            pageContext.setParams({groupId: g.id});
-                            pageContext.setCurrentPage(CurrentPage.editGroup);
-                        }}>
-                        <Edit />
-                    </IconButton>
-                    <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
-                        onClick={() => deleteGroup(g.id)}>
-                        <Delete />
-                    </IconButton>
+                        <IconButton aria-label="Quotas" size="sm" variant="plain" color="neutral"
+                            onClick={() => {
+                                pageContext.setParams({ groupId: g.id });
+                                pageContext.setCurrentPage(CurrentPage.manageQuotas);
+                            }}>
+                            <QuotaIcon />
+                        </IconButton>
+                        <IconButton aria-label="Filters" size="sm" variant="plain" color="neutral"
+                            onClick={() => {
+                                pageContext.setParams({ groupId: g.id });
+                                pageContext.setCurrentPage(CurrentPage.manageFilters);
+                            }} >
+                            <FilterIcon />
+                        </IconButton >
+                        <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
+                            onClick={() => {
+                                pageContext.setParams({ groupId: g.id });
+                                pageContext.setCurrentPage(CurrentPage.editGroup);
+                            }}>
+                            <Edit />
+                        </IconButton>
+                        <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
+                            onClick={() => deleteGroup(g.id)}>
+                            <Delete />
+                        </IconButton>
                     </>
                 }>
                 <ListItemButton>

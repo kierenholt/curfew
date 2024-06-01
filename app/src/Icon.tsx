@@ -6,6 +6,7 @@ import CloudIcon from '@mui/icons-material/Cloud';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
 import CheckIcon from '@mui/icons-material/Check';
+import DevicesIcon from '@mui/icons-material/Devices';
 
 export const BookingIcon = HourglassTopIcon;
 export const UserIcon = PersonIcon;
@@ -14,3 +15,4 @@ export const RequestIcon = CloudIcon;
 export const FilterIcon = FilterListIcon;
 export const QuotaIcon = TimelapseIcon;
 export const AllowIcon = CheckIcon;
+export const DeviceIcon = DevicesIcon;

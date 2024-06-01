@@ -15,7 +15,8 @@ export enum BookingStatus {
 }
 
 export interface MakeABookingResponse {
-    userId: number;
+    user: User;
+    device: Device;
     todaysQuota: Quota;
     totalQuotaTime: number;
     quotasIncludingRollovers: Quota[];
@@ -133,7 +134,8 @@ export class MakeABooking {
             }
 
             let ret: MakeABookingResponse = {
-                userId: user.id,
+                user: user,
+                device: device,
                 todaysQuota: todaysQuota,
                 totalQuotaTime: Math.floor(totalQuotaTime),
                 quotasIncludingRollovers: includingRollovers,

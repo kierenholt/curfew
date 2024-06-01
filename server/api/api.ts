@@ -9,16 +9,19 @@ import { Booking } from '../db/booking';
 import { MakeABooking } from './makeABooking';
 import { DnsRequest } from '../db/dnsRequest';
 import { RequestHistory } from './requestHistory';
+var cors = require('cors')
 
 export class API {
     static init() {
         const app: Express = express();
 
         app.use(express.json());       // to support JSON-encoded bodies
+        //app.use(cors); //breaks everything do not use
         //app.use(express.urlencoded()); // to support URL-encoded bodies
+        app.use(express.static(process.env.APP_PATH as string));
 
-        const port = 5000;
-        const IP4_HOST = "0.0.0.0"; //https://nodejs.org/dist/latest-v4.x/docs/api/http.html#http_server_listen_port_hostname_backlog_callback
+        const port: number = Number(process.env.API_PORT);
+        const INADDR_ANY = "0.0.0.0"; //https://nodejs.org/dist/latest-v4.x/docs/api/http.html#http_server_listen_port_hostname_backlog_callback
 
         //https://developer.accela.com/docs/construct-apiNamingConventions.html
         //create device
@@ -406,7 +409,12 @@ export class API {
         MakeABooking.init(app);
         RequestHistory.init(app);
 
-        app.listen(port, IP4_HOST, () => {
+        //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
+        app.get("*", (req,res) => {
+            res.sendFile(process.env.APP_PATH as string & "/index.html");
+        })
+
+        app.listen(port, INADDR_ANY, () => {
             console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
         });
     }

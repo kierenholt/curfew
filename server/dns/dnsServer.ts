@@ -21,7 +21,8 @@ export class DnsServer {
     static NULL_IP_v6: Buffer = Buffer.from([100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]); //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
     static appIP: string;
 
-    static init(port: number = 53) {
+    static init() {
+        let port: number = Number(process.env.DNS_PORT);
         this.socket = createSocket('udp4');
         this.dnsForwarder = new DnsForwarder(this.socket);
         this.dnsRedirector = new Redirector();
