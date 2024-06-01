@@ -29,17 +29,6 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script>
-      window["get"] = (url) => {
-        let domain = window.location.origin; //http://someurl.com
-        let port = 5000;
-        url = `${domain}:${port}${url}`;
-        return window.fetch(url, {
-          method: 'GET'
-        })
-        .then((req) => req.json())
-      }
-    </script>
     <div id="root"></div>
     <!--
       This HTML file is a template.

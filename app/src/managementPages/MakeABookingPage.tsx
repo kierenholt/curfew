@@ -38,17 +38,16 @@ export function MakeABookingPage() {
     const pageContext = useContext(PageContext);
     const [response, setResponse] = useState<MakeABookingResponse>();
     const [requests, setRequests] = useState<IRequest[]>([]);
-    
+
     useEffect(() => {
-        
-    /*
+
+
         Helpers.get<IRequest[]>('/api/requestHistory')
             .then((requests: IRequest[]) => {
                 setRequests(requests);
             });
-*/
-            Helpers.get<MakeABookingResponse>('/api/makeABooking')
-            //(window as any).get('/api/makeABooking')
+
+        Helpers.get<MakeABookingResponse>('/api/makeABooking')
             .then((result: MakeABookingResponse) => {
                 setResponse(result);
             })
@@ -70,7 +69,7 @@ export function MakeABookingPage() {
                     </Stack>
                     <h2>Your requests</h2>
                     <RequestList requests={requests} />
-            
+
                     {response.status === BookingStatus.bookingInProgress ?
                         <>
                             <h3>
@@ -101,9 +100,9 @@ export function MakeABookingPage() {
                                     <p>
                                         You can book up to {response.maxDurationOfNextBook} mins.
                                     </p>
-                                    <BookingCreateForm 
+                                    <BookingCreateForm
                                         onCreated={() => pageContext.setCurrentPage(CurrentPage.userMakesBooking)}
-                                        userId={response.user.id} 
+                                        userId={response.user.id}
                                         quota={response.todaysQuota}
                                         maxDurationOfNextBook={response.maxDurationOfNextBook} />
                                 </>
@@ -122,25 +121,25 @@ export function MakeABookingPage() {
                                         Status error
                                     </p>
                     }
-                    
+
                     <Stack direction="column">
                         {response.inProgressBookings.length > 0 ?
                             <>
                                 <h2>Bookings in progress</h2>
-                                <BookingList bookings={response.inProgressBookings} allowEdit={false} setBookings={() => {}}/>
+                                <BookingList bookings={response.inProgressBookings} allowEdit={false} setBookings={() => { }} />
                                 Total used mins: {response.inProgressBookingsTotalTimeMins}
                             </>
                             : ""}
 
                         <h2>Today's completed bookings</h2>
-                        <BookingList bookings={response.pastBookings} allowEdit={false} setBookings={() => {}}/>
+                        <BookingList bookings={response.pastBookings} allowEdit={false} setBookings={() => { }} />
                         Total used mins: {response.pastBookingsTotalTimeMins}
 
                         <h2>Today's quotas</h2>
-                        <QuotaList quotas={response.quotasIncludingRollovers} allowEdit={false}/>
+                        <QuotaList quotas={response.quotasIncludingRollovers} allowEdit={false} />
                         Total available mins: {response.totalQuotaTime}
                     </Stack>
 
-                    </>
+                </>
     )
 }

@@ -90,28 +90,25 @@ export class Helpers {
     }
 
     static get<T>(url: string): Promise<T> {
-        let domain = window.location.origin; //http://someurl.com
-        let port = 5000;
-        url = `${domain}:${port}${url}`;
-        return fetch(url, {mode: "cors"})
+        return fetch(url)
             .then((req: Response) => req.json())
     }
 
     static post<T>(url: string, data: any): Promise<T> {
         return fetch(url, { method: "post", body: JSON.stringify(data),
-            mode: 'cors', headers: { 'Content-Type': 'application/json' }, })
+            headers: { 'Content-Type': 'application/json' }, })
             .then((req: Response) => req.json())
     }
 
     static put<T>(url: string, data: any): Promise<T> {
         return fetch(url, { method: "put", body: JSON.stringify(data),
-            mode: 'cors', headers: { 'Content-Type': 'application/json' }, })
+            headers: { 'Content-Type': 'application/json' }, })
             .then((req: Response) => req.json())
     }
 
     static delete(url: string): Promise<number> {
         return fetch(url, { method: "delete",
-            mode: 'cors', headers: { 'Content-Type': 'application/json' }, })
+            headers: { 'Content-Type': 'application/json' }, })
             .then((req: Response) => req.json())
     }
 

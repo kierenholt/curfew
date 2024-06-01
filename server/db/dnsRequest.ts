@@ -93,6 +93,7 @@ export class DnsRequest {
             select * from request
             where deviceId = '${deviceId}'
             order by requestedOn desc
+            limit 20
         `)
         .then((result:any) => result.map((r:any) => new DnsRequest(
             r.id, 
