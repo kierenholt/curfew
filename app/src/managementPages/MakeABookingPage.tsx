@@ -14,7 +14,10 @@ export enum BookingStatus {
     cooldownRemaining,
     bookingInProgress,
     needsToBook,
-    none
+    none,
+    deviceBanned,
+    userBanned,
+    groupBanned
 }
 
 export interface MakeABookingResponse {
@@ -56,9 +59,9 @@ export function MakeABookingPage() {
     return (
         response === undefined
             ?
-            <p>an error has occurred</p>
+            <></>
             :
-            response.error.length
+            response.error.length > 0
                 ?
                 <p>{response.error}</p>
                 :
@@ -101,7 +104,7 @@ export function MakeABookingPage() {
                                         You can book up to {response.maxDurationOfNextBook} mins.
                                     </p>
                                     <BookingCreateForm
-                                        onCreated={() => pageContext.setCurrentPage(CurrentPage.userMakesBooking)}
+                                        onCreated={() => window.location.reload()}
                                         userId={response.user.id}
                                         quota={response.todaysQuota}
                                         maxDurationOfNextBook={response.maxDurationOfNextBook} />
@@ -117,9 +120,39 @@ export function MakeABookingPage() {
                                         </p>
                                     </>
                                     :
-                                    <p>
-                                        Status error
-                                    </p>
+                                    response.status === BookingStatus.userBanned ?
+                                        <>
+                                            <h3>
+                                                YOUR STATUS: User is banned
+                                            </h3>
+                                            <p>
+                                                Talk to your parent about ways that you might redeem yourself.
+                                            </p>
+                                        </>
+                                        :
+                                        response.status === BookingStatus.deviceBanned ?
+                                            <>
+                                                <h3>
+                                                    YOUR STATUS: Device is banned
+                                                </h3>
+                                                <p>
+                                                    Perhaps think of something else to do.
+                                                </p>
+                                            </>
+                                            :
+                                            response.status === BookingStatus.groupBanned ?
+                                                <>
+                                                    <h3>
+                                                        YOUR STATUS: Group is banned
+                                                    </h3>
+                                                    <p>
+                                                        Now is a great time to discover your other passions.
+                                                    </p>
+                                                </>
+                                                :
+                                                <p>
+                                                    Status error
+                                                </p>
                     }
 
                     <Stack direction="column">

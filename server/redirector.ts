@@ -23,7 +23,7 @@ export enum RedirectDestination {
 export class Redirector {
 
     static BLOCK_IF_DOMAIN_NOT_FOUND: boolean = false;
-    static BLOCK_IF_DEVICE_NOT_FOUND: boolean = false;
+    static BLOCK_IF_DEVICE_NOT_FOUND: boolean = true;
     static LOCAL_APP_DOMAIN = "curfew";
 
     static async redirectTo(hostAddress: string, fullDomain: string = ""): Promise<RedirectDestination> {

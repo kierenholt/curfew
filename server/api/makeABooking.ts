@@ -5,13 +5,18 @@ import { Helpers } from '../helpers';
 import { Booking } from '../db/booking';
 import { DhcpServer } from '../dhcp/dhcpServer';
 import { Device } from '../db/device';
+import { UserGroup } from '../db/userGroup';
+import { stat } from 'fs';
 
 export enum BookingStatus {
     quotaExceeded, 
     cooldownRemaining,
     bookingInProgress,
     needsToBook,
-    none
+    none,
+    deviceBanned,
+    userBanned,
+    groupBanned
 }
 
 export interface MakeABookingResponse {
@@ -54,6 +59,9 @@ export class MakeABooking {
                 res.status(400).json({ error: "user not found with id " + device.ownerId});
                 return;
             }
+
+            // group
+            let group = await UserGroup.getById(user.groupId);
 
             let now = new Date();
             let today:number = now.getDay();
@@ -131,6 +139,17 @@ export class MakeABooking {
                 else {
                     status = BookingStatus.needsToBook;
                 }
+            }
+
+            //bans
+            if (device.isBanned) {
+                status = BookingStatus.deviceBanned;
+            }
+            else if (user.isBanned) {
+                status = BookingStatus.userBanned;
+            }
+            else if (group.isBanned) {
+                status = BookingStatus.groupBanned;
             }
 
             let ret: MakeABookingResponse = {
