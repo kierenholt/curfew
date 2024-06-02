@@ -1,4 +1,4 @@
-import { Button, FormGroup, TextField } from "@mui/material";
+import { Button, Checkbox, FormControlLabel, FormGroup, TextField } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 import { Helpers } from "./helpers";
 import { GroupSelect } from "./GroupSelect";
@@ -10,6 +10,7 @@ interface UserCreateFormProps {
 export function UserCreateForm(props: UserCreateFormProps) {
     const [name, setName] = useState<string>("");
     const [groupId, setGroupId] = useState<number>(0);
+    const [isAdministrator, setIsAdministrator] = useState<boolean>(false);
 
     const save = () => {
         if (name && groupId > 0)
@@ -37,6 +38,11 @@ export function UserCreateForm(props: UserCreateFormProps) {
 
             <GroupSelect setSelectedGroupId={setGroupId} selectedGroupId={groupId} />
 
+            <FormControlLabel control={
+                <Checkbox onChange={(e) => setIsAdministrator(e.target.checked)}
+                    checked={isAdministrator} />
+            } label="Administrator" />
+            
             <Button onClick={save} >Save</Button>
         </FormGroup>
     )

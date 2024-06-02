@@ -1,5 +1,4 @@
 import express, { Express, Request, Response } from 'express';
-import { Redirector } from '../redirector';
 import { Device } from '../db/device';
 import { User } from '../db/user';
 import { UserGroup } from '../db/userGroup';
@@ -9,6 +8,7 @@ import { Booking } from '../db/booking';
 import { MakeABooking } from './makeABooking';
 import { DnsRequest } from '../db/dnsRequest';
 import { RequestHistory } from './requestHistory';
+import { DetectUser } from './detectUser';
 var cors = require('cors')
 
 export class API {
@@ -62,7 +62,7 @@ export class API {
         //create user
         app.post('/api/users', async (req: Request, res: Response) => {
             if (req.body.name && req.body.groupId) {
-                let ret = await User.create(req.body.groupId, req.body.name);
+                let ret = await User.create(req.body.groupId, req.body.name, req.body.isAdministrator);
                 res.status(200).json(ret);
             }
             else {
@@ -72,7 +72,7 @@ export class API {
         app.put('/api/users/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0 && req.body.name && req.body.groupId) {
-                let ret = await User.update(id, req.body.groupId, req.body.name);
+                let ret = await User.update(id, req.body.groupId, req.body.name, req.body.isAdministrator);
                 res.status(200).json(ret);
             }
             else {
@@ -236,9 +236,16 @@ export class API {
         });
 
 
-        //get all devices
+        //get all devices includes lastRequestedOn
         app.get('/api/devices', async (req: Request, res: Response) => {
-            let ret = await Device.getAll();
+            let devices = await Device.getAll();
+            let promises = devices.map(d => DnsRequest.getMostRecentRequest(d.id));
+            let requests = await Promise.all(promises);
+            let ret: any = [];
+            for (let i = 0; i < devices.length; i++) {
+                ret[i] = devices[i];
+                ret[i].lastRequestedOn = (requests[i] == null ? null : requests[i]?.requestedOn);
+            }
             res.status(200).json(ret);
         });
         //get 1 device
@@ -259,9 +266,16 @@ export class API {
         });
 
 
-        //get all users
+        //get all users, includes hasDevices
         app.get('/api/users', async (req: Request, res: Response) => {
-            let ret = await User.getAll();
+            let users = await User.getAll();
+            let promises = users.map(u => Device.getByOwnerId(u.id));
+            let devices = await Promise.all(promises);
+            let ret: any = [];
+            for (let i = 0; i < users.length; i++) {
+                ret[i] = users[i];
+                ret[i].hasDevices = devices[i].length > 0;
+            }
             res.status(200).json(ret);
         });
         //get 1 user
@@ -277,9 +291,16 @@ export class API {
         });
 
 
-        //get all user groups
+        //get all user groups includes hasUsers
         app.get('/api/userGroups', async (req: Request, res: Response) => {
-            let ret = await UserGroup.getAll();
+            let groups = await UserGroup.getAll();
+            let promises = groups.map(g => User.getByGroupId(g.id));
+            let users = await Promise.all(promises);
+            let ret: any = [];
+            for (let i = 0; i < groups.length; i++) {
+                ret[i] = groups[i];
+                ret[i].hasUsers = users[i].length > 0;
+            }
             res.status(200).json(ret);
         });
         //get 1 user groups
@@ -408,6 +429,7 @@ export class API {
 
         MakeABooking.init(app);
         RequestHistory.init(app);
+        DetectUser.init(app);
 
         //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
         app.get("*", (req,res) => {

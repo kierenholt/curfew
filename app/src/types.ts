@@ -4,6 +4,7 @@ export interface IUserGroup {
     name: string;
     isUnrestricted: boolean;
     isBanned: boolean;
+    hasUsers?: boolean;
 }
 
 
@@ -12,6 +13,8 @@ export interface IUser {
     groupId: number;
     name: string;
     isBanned: boolean;
+    isAdministrator: boolean;
+    hasDevices?: boolean;
 }
 
 
@@ -49,6 +52,7 @@ export interface IDevice {
     ownerId: number;
     name: string;
     isBanned: boolean;
+    lastRequestedOn?: number;
 }
 
 export interface IQuota {

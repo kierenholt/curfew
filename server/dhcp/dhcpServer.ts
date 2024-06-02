@@ -216,6 +216,10 @@ export class DhcpServer {
         return "";
     }
 
+    static hasIP(IP: string) {
+        return this.leases.filter(l => l.IP == IP).length > 0;
+    }
+
     static addDebugLeases() {
         /*this.leases.push(new Lease(
             "a0:59:50:24:4c:df",
@@ -231,7 +235,6 @@ export class DhcpServer {
             77,
             "ubuntuMock"
         ))
-
     }
 }
 

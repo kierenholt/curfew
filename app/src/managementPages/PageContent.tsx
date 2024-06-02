@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 import { CreateDevicePage } from './CreateDevicePage';
 import { EditUserPage } from './EditUserPage';
@@ -20,6 +20,8 @@ import { ManageRequestsPage } from './ManageRequestsPage';
 import { ManageFiltersPage } from './ManageFiltersPage';
 import { CreateFilterPage } from './CreateFilterPage';
 import { EditFilterPage } from './EditFilterPage';
+import { UserContext } from './DetectUser';
+import { Header } from './Header';
 
 export enum CurrentPage {
     manageDevices, editDevice, createDevice,
@@ -52,6 +54,7 @@ export const PageContent = () => {
             setCurrentPage: setCurrentPage,
             setParams: setParams
         }}>
+            <Header />
             {
                 currentPage === CurrentPage.manageDevices ?
                     <ManageDevicesPage />
@@ -82,7 +85,7 @@ export const PageContent = () => {
                                                                     : currentPage === CurrentPage.manageFilters ?
                                                                         <ManageFiltersPage params={params} />
                                                                         : currentPage === CurrentPage.createFilter ?
-                                                                            <CreateFilterPage params={params}/>
+                                                                            <CreateFilterPage params={params} />
                                                                             : currentPage === CurrentPage.editFilter ?
                                                                                 <EditFilterPage params={params} />
                                                                                 : currentPage === CurrentPage.manageRequests ?
@@ -92,8 +95,14 @@ export const PageContent = () => {
                                                                                         :
                                                                                         <MakeABookingPage /> //default
             }
-
-            <BottomMenu setCurrentPage={setCurrentPage} setParams={setParams} />
+            {
+                //userContext?.user?.isAdministrator
+                true
+                    ?
+                    <BottomMenu setCurrentPage={setCurrentPage} setParams={setParams} />
+                    :
+                    <></>
+            }
         </PageContext.Provider>
     );
 } 

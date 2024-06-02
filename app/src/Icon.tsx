@@ -7,6 +7,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import TimelapseIcon from '@mui/icons-material/Timelapse';
 import CheckIcon from '@mui/icons-material/Check';
 import DevicesIcon from '@mui/icons-material/Devices';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 export const BookingIcon = HourglassTopIcon;
 export const UserIcon = PersonIcon;
@@ -16,3 +17,4 @@ export const FilterIcon = FilterListIcon;
 export const QuotaIcon = TimelapseIcon;
 export const AllowIcon = CheckIcon;
 export const DeviceIcon = DevicesIcon;
+export const AdministratorIcon = AccountCircleIcon;

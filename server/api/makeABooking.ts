@@ -3,25 +3,19 @@ import { User } from '../db/user';
 import { Quota } from '../db/quota';
 import { Helpers } from '../helpers';
 import { Booking } from '../db/booking';
-import { DhcpServer } from '../dhcp/dhcpServer';
-import { Device } from '../db/device';
 import { UserGroup } from '../db/userGroup';
-import { stat } from 'fs';
 
 export enum BookingStatus {
-    quotaExceeded, 
+    quotaExceeded,
     cooldownRemaining,
     bookingInProgress,
     needsToBook,
     none,
-    deviceBanned,
     userBanned,
     groupBanned
 }
 
 export interface MakeABookingResponse {
-    user: User;
-    device: Device;
     todaysQuota: Quota;
     totalQuotaTime: number;
     quotasIncludingRollovers: Quota[];
@@ -40,23 +34,11 @@ export class MakeABooking {
     static init(app: Express) {
 
         //get all users
-        app.get('/api/makeABooking', async (req: Request, res: Response) => {
-            //get ip
-            if (req.socket.remoteAddress == null) {
-                res.status(400).json({ error: "remote address not found"});
-                return;
-            }
-            
-            let deviceId = DhcpServer.getDeviceIdFromIP(req.socket.remoteAddress);
-            let device = await Device.getById(deviceId);
-            if (device == null) {
-                res.status(400).json({ error: "device not found"});
-                return;
-            }
+        app.get('/api/user/:userId/makeABooking', async (req: Request, res: Response) => {
 
-            let user = await User.getById(device.ownerId);
+            let user = await User.getById(Number(req.params.userId));
             if (user == null) {
-                res.status(400).json({ error: "user not found with id " + device.ownerId});
+                res.status(400).send("user id not found");
                 return;
             }
 
@@ -64,7 +46,7 @@ export class MakeABooking {
             let group = await UserGroup.getById(user.groupId);
 
             let now = new Date();
-            let today:number = now.getDay();
+            let today: number = now.getDay();
 
             //get all recent days including rollovers
             let allQuotas = (await Quota.getByGroupId(user.groupId));
@@ -72,7 +54,7 @@ export class MakeABooking {
 
             let includingRollovers = [];
             // work backwards from today
-            for (let d = today ; d != (today+1)%7 ; d = (d+6)%7) {
+            for (let d = today; d != (today + 1) % 7; d = (d + 6) % 7) {
                 let found = allQuotas.filter(q => q.day == d)[0];
                 includingRollovers.push(found);
                 if (!found.rollsOver) {
@@ -80,10 +62,10 @@ export class MakeABooking {
                 }
             }
             if (includingRollovers.length == 7) {
-                res.status(400).json({ error: "at least one day must not be a rollover day"});
+                res.status(400).json({ error: "at least one day must not be a rollover day" });
                 return;
             }
-            
+
             //times and days
             let totalQuotaTime = Helpers.sum(includingRollovers.map(r => r.refreshAmount));
             let days = includingRollovers.map(r => r.day);
@@ -91,27 +73,27 @@ export class MakeABooking {
             //get all bookings made by user
             let numDays = days.length;
             let bookingsStarted = new Date(now.valueOf() - 86400 * (numDays - 1));
-            bookingsStarted.setHours(0,0,0,0);
-            let bookings =  await Booking.getByUserIdAfter(device.ownerId, bookingsStarted.valueOf());
+            bookingsStarted.setHours(0, 0, 0, 0);
+            let bookings = await Booking.getByUserIdAfter(user.id, bookingsStarted.valueOf());
 
             //split into past bookings and current
             let pastBookings = bookings.filter(b => b.endsOn < now.valueOf());
             let inProgressBookings = bookings.filter(b => b.endsOn >= now.valueOf());
             if (inProgressBookings.length > 1) {
-                res.status(400).json({ error: "more than one booking is in progress. Error."});
+                res.status(400).json({ error: "more than one booking is in progress. Error." });
                 return;
             }
             let timeRemainingOnCurrentBooking = 0;
             if (inProgressBookings.length == 1) {
                 let inProgressBooking = inProgressBookings[0];
-                timeRemainingOnCurrentBooking = (inProgressBooking.endsOn - now.valueOf())/60000;
+                timeRemainingOnCurrentBooking = (inProgressBooking.endsOn - now.valueOf()) / 60000;
             }
 
             let pastBookingsTotalTimeMins = Helpers.sum(pastBookings.map(p => p.duration));
             let inProgressBookingsTotalTimeMins = Helpers.sum(inProgressBookings.map(p => (now.valueOf() - p.startsOn))) / 60000;
 
             //any cooldown
-            let mostRecentSpentBooking = pastBookings.sort((a,b) => b.startsOn - a.startsOn)[0];
+            let mostRecentSpentBooking = pastBookings.sort((a, b) => b.startsOn - a.startsOn)[0];
             let cooldownRemainingMins = 0;
             if (mostRecentSpentBooking) {
                 let cooldownEnds = mostRecentSpentBooking.endsOn + mostRecentSpentBooking.cooldown * 60000;
@@ -142,10 +124,7 @@ export class MakeABooking {
             }
 
             //bans
-            if (device.isBanned) {
-                status = BookingStatus.deviceBanned;
-            }
-            else if (user.isBanned) {
+            if (user.isBanned) {
                 status = BookingStatus.userBanned;
             }
             else if (group.isBanned) {
@@ -153,8 +132,6 @@ export class MakeABooking {
             }
 
             let ret: MakeABookingResponse = {
-                user: user,
-                device: device,
                 todaysQuota: todaysQuota,
                 totalQuotaTime: Math.floor(totalQuotaTime),
                 quotasIncludingRollovers: includingRollovers,
@@ -166,7 +143,7 @@ export class MakeABooking {
                 maxDurationOfNextBook: Math.floor(maxDurationOfNextBook),
                 timeRemainingOnCurrentBooking: Math.floor(timeRemainingOnCurrentBooking),
                 status: status,
-                error: "", 
+                error: "",
             }
 
             res.status(200).json(ret);

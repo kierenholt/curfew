@@ -29,6 +29,7 @@ export class DnsRequest {
                 redirectReason integer not null,
                 redirectDestination integer not null
             );
+            create index ix_request_requestedOn on request(deviceId, requestedOn desc);
         `)
     }
 
@@ -102,5 +103,21 @@ export class DnsRequest {
             r.requestedOn, 
             r.redirectReason,
             r.redirectDestination)));
+    }
+
+    static getMostRecentRequest(deviceId: string): Promise<DnsRequest | null> {
+        return Db.get(`
+            select * from request
+            where deviceId = '${deviceId}'
+            order by requestedOn desc
+            limit 1
+        `)
+        .then((result:any) => result ? new DnsRequest(
+            result.id, 
+            result.deviceId, 
+            result.domain, 
+            result.requestedOn, 
+            result.redirectReason,
+            result.redirectDestination) : null);
     }
 }

@@ -1,4 +1,4 @@
-import { Button, FormGroup, TextField } from "@mui/material";
+import { Button, Checkbox, FormControlLabel, FormGroup, TextField } from "@mui/material";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Helpers } from "./helpers";
 import { IUser } from "./types";
@@ -12,12 +12,14 @@ interface UserEditFormProps {
 export function UserEditForm(props: UserEditFormProps) {
     const [name, setName] = useState<string>("");
     const [groupId, setGroupId] = useState<number>(0);
+    const [isAdministrator, setIsAdministrator] = useState<boolean>(false);
 
     useEffect(() => {
         Helpers.get<IUser>(`/api/users/${props.userId}`)
             .then((user: IUser) => {
                 setName(user.name);
                 setGroupId(user.groupId);
+                setIsAdministrator(user.isAdministrator);
             })
     }, [props.userId])
 
@@ -47,6 +49,11 @@ export function UserEditForm(props: UserEditFormProps) {
             />
 
             <GroupSelect setSelectedGroupId={setGroupId} selectedGroupId={groupId} />
+
+            <FormControlLabel control={
+                <Checkbox onChange={(e) => setIsAdministrator(e.target.checked)}
+                    checked={isAdministrator} />
+            } label="Administrator" />
 
             <Button onClick={save} >Save</Button>
         </FormGroup>

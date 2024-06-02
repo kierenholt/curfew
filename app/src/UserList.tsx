@@ -5,6 +5,7 @@ import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import { BookingIcon, UserIcon } from "./Icon";
+import { Tooltip } from "@mui/material";
 
 
 export function UserList() {
@@ -49,10 +50,15 @@ export function UserList() {
                             }}>
                             <Edit />
                         </IconButton>
-                        <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
-                            onClick={() => deleteUser(g.id)}>
-                            <Delete />
-                        </IconButton>
+                        <Tooltip title={g.hasDevices ? "if you wish to delete this user, delete their devices first." : "click to delete this user"}>
+                            <span>
+                                <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
+                                    onClick={() => deleteUser(g.id)}
+                                    disabled={g.hasDevices}>
+                                    <Delete />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
                     </>
                 }>
                 <ListItemButton>

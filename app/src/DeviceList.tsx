@@ -5,6 +5,7 @@ import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import { DeviceIcon, RequestIcon } from "./Icon";
+import { DateFormatter } from "./DateFormatter";
 
 
 export function DeviceList() {
@@ -61,6 +62,13 @@ export function DeviceList() {
                     </ListItemDecorator>
                     <ListItemContent>
                         {g.name}
+                        {
+                            g.lastRequestedOn
+                                ?
+                                `last requested ${DateFormatter.agoFormat(g.lastRequestedOn)}`
+                                :
+                                ``
+                        }
                     </ListItemContent>
                 </ListItemButton>
             </ListItem>)}

@@ -7,7 +7,6 @@ export class Device {
     id: string;
     ownerId: number;
     name: string;
-    static SAMSUNG_MAC: string = "ba:cc:ba:1a:1d:41"; 
     private _owner: Promise<User | null> | undefined;
     isBanned: boolean;
 
@@ -31,8 +30,6 @@ export class Device {
     }
 
     static seed() {
-        //this.create(Helpers.MACtoDeviceId(this.SAMSUNG_MAC), 2, "kieren's samsung");
-        this.create('1835d1f33d69', 1, "ubuntu");
     }
 
     static create(id: string, ownerId: number, name: string): Promise<number> {
@@ -40,6 +37,7 @@ export class Device {
         return Db.run(`
             insert into device (id, ownerId, name)
             values ('${id}', ${ownerId}, '${name}')
+            on conflict(id) ignore
         `)
         .then(result => result.lastID);
     }

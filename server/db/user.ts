@@ -9,12 +9,18 @@ export class User {
     private _group: Promise<UserGroup> | undefined;
     name: string;
     isBanned: boolean;
+    isAdministrator: boolean;
 
-    constructor(id: number, groupId: number, name: string, isBanned: number) {
+    constructor(id: number, 
+        groupId: number, 
+        name: string, 
+        isBanned: number,
+        isAdministrator: number) {
         this.id = id;
         this.groupId = groupId;
         this.name = name;
         this.isBanned = isBanned == 1;
+        this.isAdministrator = isAdministrator == 1;
     }
 
     static createTable(): Promise<void> {
@@ -24,32 +30,34 @@ export class User {
                 groupId integer not null,
                 name text not null,
                 isBanned integer default 0 not null,
+                isAdministrator integer not null,
                 FOREIGN KEY(groupId) REFERENCES userGroup(id)
             );
         `)
     }
 
     static async seed() {
-        await this.create(1, "Gisele");
-        await this.create(1, "Arthur");
-        await this.create(1, "Eddie");
+        //await this.create(1, "Gisele", false);
+        //await this.create(1, "Arthur", false);
+        //await this.create(1, "Eddie");
     }
 
-    static create(groupId: number, name: string): Promise<number> {
+    static create(groupId: number, name: string, isAdministrator: boolean): Promise<number> {
         name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
-            insert into user (groupId, name)
-            values (${groupId}, '${name}')
+            insert into user (groupId, name, isAdministrator)
+            values (${groupId}, '${name}', ${isAdministrator ? 1 : 0})
         `)
         .then(result => result.lastID);
     }
 
-    static update(id: number, groupId: number, name: string): Promise<number> {
+    static update(id: number, groupId: number, name: string, isAdministrator: boolean): Promise<number> {
         name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
             update user 
             set groupId=${groupId}, 
-            name='${name}'
+            name='${name}',
+            isAdministrator=${isAdministrator ? 1 : 0}
             where id=${id}
         `)
         .then(result => result.changes);
@@ -64,7 +72,8 @@ export class User {
             result.id, 
             result.groupId, 
             Helpers.unescapeSingleQuotes(result.name),
-            result.isBanned
+            result.isBanned,
+            result.isAdministrator
             ));
     }
 
@@ -102,7 +111,8 @@ export class User {
             r.id, 
             r.groupId, 
             Helpers.unescapeSingleQuotes(r.name),
-            r.isBanned
+            r.isBanned,
+            r.isAdministrator
             )))
     }
 
@@ -114,7 +124,22 @@ export class User {
             r.id, 
             r.groupId, 
             Helpers.unescapeSingleQuotes(r.name),
-            r.isBanned
+            r.isBanned,
+            r.isAdministrator
+            )))
+    }
+
+    static getAllAdministrators(): Promise<User[]> {
+        return Db.all(`
+            select * from user
+            where isAdministrator = 1
+        `)
+        .then((result: any) => result.map((r:any) => new User(
+            r.id, 
+            r.groupId, 
+            Helpers.unescapeSingleQuotes(r.name),
+            r.isBanned,
+            r.isAdministrator
             )))
     }
 

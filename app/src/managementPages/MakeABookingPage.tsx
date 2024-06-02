@@ -1,13 +1,12 @@
 import { useContext, useEffect, useState } from "react"
 import { Helpers } from "../helpers"
-import { IBooking, IDevice, IQuota, IRequest, IUser } from "../types";
+import { IBooking, IQuota, IRequest } from "../types";
 import { Stack } from "@mui/material";
 import { BookingList } from "../BookingList";
 import { QuotaList } from "../QuotaList";
 import { BookingCreateForm } from "../BookingCreateForm";
 import { RequestList } from "../RequestList";
-import { CurrentPage, PageContext } from "./PageContent";
-import { DeviceIcon, UserIcon } from "../Icon";
+import { UserContext } from "./DetectUser";
 
 export enum BookingStatus {
     quotaExceeded,
@@ -15,14 +14,11 @@ export enum BookingStatus {
     bookingInProgress,
     needsToBook,
     none,
-    deviceBanned,
     userBanned,
     groupBanned
 }
 
 export interface MakeABookingResponse {
-    user: IUser;
-    device: IDevice;
     todaysQuota: IQuota;
     totalQuotaTime: number;
     quotasIncludingRollovers: IQuota[];
@@ -38,23 +34,23 @@ export interface MakeABookingResponse {
 }
 
 export function MakeABookingPage() {
-    const pageContext = useContext(PageContext);
+    const userContext = useContext(UserContext);
     const [response, setResponse] = useState<MakeABookingResponse>();
     const [requests, setRequests] = useState<IRequest[]>([]);
 
     useEffect(() => {
+        if (userContext != null) {
+            Helpers.get<IRequest[]>(`/api/device/${userContext.user.id}/requestHistory`)
+                .then((requests: IRequest[]) => {
+                    setRequests(requests);
+                });
 
-
-        Helpers.get<IRequest[]>('/api/requestHistory')
-            .then((requests: IRequest[]) => {
-                setRequests(requests);
-            });
-
-        Helpers.get<MakeABookingResponse>('/api/makeABooking')
-            .then((result: MakeABookingResponse) => {
-                setResponse(result);
-            })
-    }, [])
+            Helpers.get<MakeABookingResponse>(`/api/user/${userContext.user.id}/makeABooking`)
+                .then((result: MakeABookingResponse) => {
+                    setResponse(result);
+                })
+        }
+    }, [userContext])
 
     return (
         response === undefined
@@ -66,10 +62,6 @@ export function MakeABookingPage() {
                 <p>{response.error}</p>
                 :
                 <>
-                    <Stack direction="row" justifyContent="space-around">
-                        <p><UserIcon />{response.user.name}</p>
-                        <p><DeviceIcon />{response.device.name}</p>
-                    </Stack>
                     <h2>Your requests</h2>
                     <RequestList requests={requests} />
 
@@ -105,7 +97,7 @@ export function MakeABookingPage() {
                                     </p>
                                     <BookingCreateForm
                                         onCreated={() => window.location.reload()}
-                                        userId={response.user.id}
+                                        userId={userContext == null ? 0 : userContext.user.id}
                                         quota={response.todaysQuota}
                                         maxDurationOfNextBook={response.maxDurationOfNextBook} />
                                 </>
@@ -130,16 +122,6 @@ export function MakeABookingPage() {
                                             </p>
                                         </>
                                         :
-                                        response.status === BookingStatus.deviceBanned ?
-                                            <>
-                                                <h3>
-                                                    YOUR STATUS: Device is banned
-                                                </h3>
-                                                <p>
-                                                    Perhaps think of something else to do.
-                                                </p>
-                                            </>
-                                            :
                                             response.status === BookingStatus.groupBanned ?
                                                 <>
                                                     <h3>

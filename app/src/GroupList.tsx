@@ -6,6 +6,7 @@ import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import { FilterIcon, QuotaIcon } from "./Icon";
+import { Tooltip } from "@mui/material";
 
 export function UserGroupList() {
     const pageContext = useContext(PageContext);
@@ -56,10 +57,15 @@ export function UserGroupList() {
                             }}>
                             <Edit />
                         </IconButton>
-                        <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
-                            onClick={() => deleteGroup(g.id)}>
-                            <Delete />
-                        </IconButton>
+                        <Tooltip title={g.hasUsers ? "if you wish to delete this groups, delete the users first." : "click to delete this group"}>
+                            <span>
+                                <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
+                                    onClick={() => deleteGroup(g.id)}
+                                    disabled={g.hasUsers}>
+                                    <Delete />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
                     </>
                 }>
                 <ListItemButton>

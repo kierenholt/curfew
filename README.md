@@ -27,5 +27,6 @@ add detail to group list, user list etc.
 booking list shows detail i.e. start to end time
 group requests that were close together
 add filter icon to some requests
-only show bottom links to admins, create isadmin column on user table
- 
+
+# TODO MUCH LATER
+allow manual dhcp entries

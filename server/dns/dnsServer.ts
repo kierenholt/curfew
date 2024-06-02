@@ -21,6 +21,9 @@ export class DnsServer {
     static NULL_IP_v6: Buffer = Buffer.from([100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]); //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
     static appIP: string;
 
+    // https://en.wikipedia.org/wiki/List_of_DNS_record_types
+    static BLOCK_HTTPS = true;
+
     static init() {
         let port: number = Number(process.env.DNS_PORT);
         this.socket = createSocket('udp4');
@@ -37,6 +40,11 @@ export class DnsServer {
             console.log("Request received for " + packet.questions[0].name);
 
             if (!packet.header.isResponse) { //query
+                // block type 65
+                if (this.BLOCK_HTTPS && packet.questions[0].qtype == 65) {
+                    return;
+                }
+
                 let destination = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
                 if (destination == RedirectDestination.blocked ||
                     destination == RedirectDestination.app) {
