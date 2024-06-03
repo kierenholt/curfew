@@ -4,7 +4,7 @@ import { IUser } from "./types";
 import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
-import { BookingIcon, UserIcon } from "./Icon";
+import { AdministratorIcon, BookingIcon, UserIcon } from "./Icon";
 import { Tooltip } from "@mui/material";
 
 
@@ -63,7 +63,15 @@ export function UserList() {
                 }>
                 <ListItemButton>
                     <ListItemDecorator>
-                        <UserIcon />
+                        {
+                            g.isAdministrator
+                                ?
+                                <Tooltip title={"this user is an administrator"}>
+                                    <AdministratorIcon />
+                                </Tooltip>
+                                :
+                                <UserIcon />
+                        }
                     </ListItemDecorator>
                     <ListItemContent>
                         {g.name}

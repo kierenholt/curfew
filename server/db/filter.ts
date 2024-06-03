@@ -26,7 +26,7 @@ export class Filter {
             Filter.create(
                 word, 
                 UserGroup.FIRST_GROUP_ID, 
-                FilterAction.alwaysAllow
+                FilterAction.needsBooking
             );
         }
     }

@@ -25,16 +25,21 @@ export function UserEditForm(props: UserEditFormProps) {
 
     const save = () => {
         if (props.userId > 0 && name && groupId > 0)
-        Helpers.put<number>(`/api/users/${props.userId}`, {name: name, groupId: groupId})
-            .then((updated: number) => {
-                if (updated > 0) {
-                    props.onEdited();
-                }
-            })
+            Helpers.put<number>(`/api/users/${props.userId}`,
+                {
+                    name: name,
+                    groupId: groupId,
+                    isAdministrator: isAdministrator
+                })
+                .then((updated: number) => {
+                    if (updated > 0) {
+                        props.onEdited();
+                    }
+                })
     }
 
     return (
-        
+
         <FormGroup>
             <TextField
                 id="User-name"

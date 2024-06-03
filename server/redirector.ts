@@ -49,6 +49,9 @@ export class Redirector {
         let owner: User | null;
         if (device == null) {
             let deviceName = DhcpServer.getHostNameFromIP(hostAddress);
+            if (deviceName.length == 0) {
+                deviceName = deviceId;
+            }
             [device, owner] = await Redirector.createNewDeviceAndUser(deviceId, deviceName);
         }
         else {

@@ -37,9 +37,9 @@ export class Device {
         return Db.run(`
             insert into device (id, ownerId, name)
             values ('${id}', ${ownerId}, '${name}')
-            on conflict(id) ignore
+            on conflict(id) do nothing
         `)
-        .then(result => result.lastID);
+        .then(result => result.lastID ?? id);
     }
 
     static update(id: string, ownerId: number, name: string): Promise<number> {

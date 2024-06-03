@@ -26,7 +26,10 @@ when add user to reason for ban (if user is banned)
 add detail to group list, user list etc.
 booking list shows detail i.e. start to end time
 group requests that were close together
-add filter icon to some requests
+add filtered icon to requests that were filtered / banned
+add setup alerts 
+
 
 # TODO MUCH LATER
 allow manual dhcp entries
+instant update the request list

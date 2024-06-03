@@ -3,6 +3,7 @@ import { DhcpServer } from '../dhcp/dhcpServer';
 import { Device } from '../db/device';
 import { User } from '../db/user';
 import { Redirector } from '../redirector';
+import { hostname } from 'os';
 
 interface DetectUserResponse {
     user: User | null;
@@ -32,6 +33,9 @@ export class DetectUser {
             let user: User | null;
             if (device == null) {
                 let deviceName = DhcpServer.getHostNameFromIP(req.socket.remoteAddress);
+                if (deviceName.length == 0) {
+                    deviceName = deviceId;
+                }
                 [device, user] = await Redirector.createNewDeviceAndUser(deviceId, deviceName);
             }
             else {

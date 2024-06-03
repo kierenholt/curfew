@@ -46,6 +46,7 @@ export const PageContext = createContext<SetPageAction>(
 
 export const PageContent = () => {
     //default page
+    const userContext = useContext(UserContext);
     const [currentPage, setCurrentPage] = useState<CurrentPage>(CurrentPage.userMakesBooking);
     const [params, setParams] = useState<any>({});
 
@@ -96,8 +97,7 @@ export const PageContent = () => {
                                                                                         <MakeABookingPage /> //default
             }
             {
-                //userContext?.user?.isAdministrator
-                true
+                userContext?.user?.isAdministrator
                     ?
                     <BottomMenu setCurrentPage={setCurrentPage} setParams={setParams} />
                     :

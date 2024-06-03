@@ -14,12 +14,17 @@ export function UserCreateForm(props: UserCreateFormProps) {
 
     const save = () => {
         if (name && groupId > 0)
-        Helpers.post<number>(`/api/users/`, {name: name, groupId: groupId})
-            .then((userId: number) => {
-                if (userId > 0) {
-                    props.onCreated();
-                }
-            })
+            Helpers.post<number>(`/api/users/`,
+                {
+                    name: name,
+                    groupId: groupId,
+                    isAdministrator: isAdministrator
+                })
+                .then((userId: number) => {
+                    if (userId > 0) {
+                        props.onCreated();
+                    }
+                })
     }
 
     return (
@@ -42,7 +47,7 @@ export function UserCreateForm(props: UserCreateFormProps) {
                 <Checkbox onChange={(e) => setIsAdministrator(e.target.checked)}
                     checked={isAdministrator} />
             } label="Administrator" />
-            
+
             <Button onClick={save} >Save</Button>
         </FormGroup>
     )
