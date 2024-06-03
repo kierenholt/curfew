@@ -50,7 +50,6 @@ export function QuotaEditForm(props: QuotaEditFormProps) {
                 <TextField
                     id="refreshAmount"
                     label=""
-                    defaultValue=""
                     helperText="total minutes per day"
                     variant="standard"
                     value={refreshAmount}
@@ -66,7 +65,6 @@ export function QuotaEditForm(props: QuotaEditFormProps) {
                 <TextField
                     id="maxDuration"
                     label=""
-                    defaultValue=""
                     helperText="maximum length of one session"
                     variant="standard"
                     value={maxDuration}
@@ -78,7 +76,6 @@ export function QuotaEditForm(props: QuotaEditFormProps) {
                 <TextField
                     id="coolDown"
                     label=""
-                    defaultValue=""
                     helperText="minimum enforced break length between sessions"
                     variant="standard"
                     value={cooldown}

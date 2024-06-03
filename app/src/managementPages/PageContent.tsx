@@ -22,6 +22,8 @@ import { CreateFilterPage } from './CreateFilterPage';
 import { EditFilterPage } from './EditFilterPage';
 import { UserContext } from './DetectUser';
 import { Header } from './Header';
+import { ManageSettingsPage } from './ManageSettingsPage';
+import { EditSettingPage } from './EditSettingPage';
 
 export enum CurrentPage {
     manageDevices, editDevice, createDevice,
@@ -32,7 +34,8 @@ export enum CurrentPage {
     manageBans,
     userMakesBooking,
     manageRequests,
-    manageFilters, editFilter, createFilter
+    manageFilters, editFilter, createFilter,
+    manageSettings, editSetting
 }
 
 interface SetPageAction {
@@ -89,12 +92,16 @@ export const PageContent = () => {
                                                                             <CreateFilterPage params={params} />
                                                                             : currentPage === CurrentPage.editFilter ?
                                                                                 <EditFilterPage params={params} />
-                                                                                : currentPage === CurrentPage.manageRequests ?
-                                                                                    <ManageRequestsPage params={params} />
-                                                                                    : currentPage === CurrentPage.userMakesBooking ?
-                                                                                        <MakeABookingPage />
-                                                                                        :
-                                                                                        <MakeABookingPage /> //default
+                                                                                : currentPage === CurrentPage.manageSettings ?
+                                                                                    <ManageSettingsPage />
+                                                                                    : currentPage === CurrentPage.editSetting ?
+                                                                                        <EditSettingPage params={params} />
+                                                                                        : currentPage === CurrentPage.manageRequests ?
+                                                                                            <ManageRequestsPage params={params} />
+                                                                                            : currentPage === CurrentPage.userMakesBooking ?
+                                                                                                <MakeABookingPage />
+                                                                                                :
+                                                                                                <MakeABookingPage /> //default
             }
             {
                 userContext?.user?.isAdministrator

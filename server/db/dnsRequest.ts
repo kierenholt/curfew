@@ -89,12 +89,13 @@ export class DnsRequest {
         .then((result: RunResult) => result.changes);
     }
 
-    static getByDeviceId(deviceId: string): Promise<DnsRequest[]> {
+    static getByDeviceId(deviceId: string, limit: number, offset: number): Promise<DnsRequest[]> {
         return Db.all(`
             select * from request
             where deviceId = '${deviceId}'
             order by requestedOn desc
-            limit 20
+            limit ${limit}
+            offset ${offset}
         `)
         .then((result:any) => result.map((r:any) => new DnsRequest(
             r.id, 

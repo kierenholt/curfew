@@ -7,8 +7,8 @@ import { Quota } from '../db/quota';
 import { Booking } from '../db/booking';
 import { MakeABooking } from './makeABooking';
 import { DnsRequest } from '../db/dnsRequest';
-import { RequestHistory } from './requestHistory';
 import { DetectUser } from './detectUser';
+import { Setting, SettingKey } from '../db/setting';
 var cors = require('cors')
 
 export class API {
@@ -83,7 +83,7 @@ export class API {
             let id = Number(req.params.id);
             if (id > 0) {
                 let devices = await Device.getByOwnerId(id);
-                if (devices.length  == 0) {
+                if (devices.length == 0) {
                     let ret = await User.delete(id);
                     res.status(200).json(ret);
                 }
@@ -190,7 +190,7 @@ export class API {
             let groupId = Number(req.params.groupId);
             let day = Number(req.params.day);
             if (req.body) {
-                let ret = await Quota.update(groupId, day, 
+                let ret = await Quota.update(groupId, day,
                     req.body.refreshAmount, req.body.rollsOver,
                     req.body.maxDuration, req.body.cooldown);
                 res.status(200).json(ret);
@@ -200,7 +200,7 @@ export class API {
             }
         });
 
-        
+
         //create bookings
         app.post('/api/bookings', async (req: Request, res: Response) => {
             if (req.body) {
@@ -235,6 +235,17 @@ export class API {
             res.status(200).json(ret);
         });
 
+        //set value
+        app.put('/api/settings/:key', async (req: Request, res: Response) => {
+            let key = Number(req.params.key);
+            if (key > 0 && req.body.value) {
+                let ret = await Setting.save(key, req.body.value);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
 
         //get all devices includes lastRequestedOn
         app.get('/api/devices', async (req: Request, res: Response) => {
@@ -415,11 +426,32 @@ export class API {
             let ret = await DnsRequest.getAll();
             res.status(200).json(ret);
         });
-        //of device
+        //of device with offset 
         app.get('/api/requests/device/:deviceId', async (req: Request, res: Response) => {
             let deviceId = req.params.deviceId;
             if (deviceId) {
-                let ret = await DnsRequest.getByDeviceId(req.params.deviceId);
+                let ret = await DnsRequest.getByDeviceId(
+                    req.params.deviceId,
+                    await Setting.getNumber(SettingKey.apiGetRequestLimit),
+                    Number(req.query.offset));
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+
+
+
+        //get all requests
+        app.get('/api/settings', async (req: Request, res: Response) => {
+            let ret = await Setting.getAll();
+            res.status(200).json(ret);
+        });
+        app.get('/api/settings/:key', async (req: Request, res: Response) => {
+            let key = Number(req.params.key);
+            if (key > 0) {
+                let ret = await Setting.getByKey(key);
                 res.status(200).json(ret);
             }
             else {
@@ -428,11 +460,10 @@ export class API {
         });
 
         MakeABooking.init(app);
-        RequestHistory.init(app);
         DetectUser.init(app);
 
         //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
-        app.get("*", (req,res) => {
+        app.get("*", (req, res) => {
             res.sendFile(process.env.APP_PATH as string & "/index.html");
         })
 

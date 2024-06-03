@@ -27,7 +27,6 @@ export function DeviceCreateForm(props: DeviceCreateFormProps) {
             <TextField
                 id="device-name"
                 label="device name"
-                defaultValue=""
                 helperText="e.g. Grey Ipad"
                 variant="standard"
                 value={name}

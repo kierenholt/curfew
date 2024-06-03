@@ -44,7 +44,6 @@ export function UserEditForm(props: UserEditFormProps) {
             <TextField
                 id="User-name"
                 label="Name"
-                defaultValue=""
                 helperText="e.g. Arthur"
                 variant="standard"
                 value={name}

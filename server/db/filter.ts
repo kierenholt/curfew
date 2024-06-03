@@ -12,7 +12,8 @@ export class Filter {
     groupId: number;
     component: string;
     action: FilterAction;
-    static blackList: string[] = ["youtube","googlevideo","roblox","classroom6x","tiktok","unity","snapchat","goguardian","unity3d","tiktokcdn","facebook","brawlstars","tiktokcdn-eu","tiktokv","apple","aaplimg","brawlstargame","brawlstars","vungle","gameduo","liftoff","applovin","inner-activ","inmobicdn","inmobi","applvn","tiktokcdn-us","stats","ocsp","supercell","rbxcdn","crazygames","epicgames","epicgames","yohoho","poki","1001games","friv","numuki","coolmathgames","raft-wars","ytimg","fbcdn","brawlstars","snapchat"];
+    static needsBook: string[] = ["brawlstarsgame","youtube","googlevideo","roblox","classroom6x","unity","snapchat","unity3d","brawlstars","brawlstargame","brawlstars","vungle","gameduo","liftoff","applovin","inner-activ","inmobicdn","inmobi","applvn","supercell","rbxcdn","crazygames","epicgames","epicgames","yohoho","poki","1001games","friv","numuki","coolmathgames","raft-wars","ytimg","fbcdn","brawlstars","snapchat"];
+    static blocked: string[] = ["tiktok","goguardian","tiktokcdn","facebook","tiktokcdn-eu","tiktokv","apple","aaplimg","tiktokcdn-us","dns","mask","apple-dns","alidns","blahdns","opendns","cleanbrowsing","dnsbycomodo","dnscrypt","nextdns","one"];
 
     constructor(id: number, component: string, groupId: number, action: number) {
         this.id = id;
@@ -22,7 +23,14 @@ export class Filter {
     }
 
     static seed() {
-        for (let word of Filter.blackList) {
+        for (let word of Filter.blocked) {
+            Filter.create(
+                word, 
+                UserGroup.FIRST_GROUP_ID, 
+                FilterAction.alwaysDeny
+            );
+        }
+        for (let word of Filter.needsBook) {
             Filter.create(
                 word, 
                 UserGroup.FIRST_GROUP_ID, 
@@ -46,7 +54,7 @@ export class Filter {
     static create(component: string, groupId: number, action: FilterAction): Promise<number> {
         return Db.run(`
             insert into filter (component, groupId, action)
-            values ('${component}', ${groupId}, ${action.valueOf()})
+            values ('${Helpers.escapeSingleQuotes(component)}', ${groupId}, ${action.valueOf()})
         `)
         .then(result => result.lastID);
     }
@@ -54,7 +62,7 @@ export class Filter {
     static update(id: number, component: string, groupId: number, action: FilterAction): Promise<number> {
         return Db.run(`
             update filter
-            set component='${component}', 
+            set component='${Helpers.escapeSingleQuotes(component)}', 
             groupId=${groupId},
             action=${action.valueOf()}
             where id=${id}
@@ -69,7 +77,7 @@ export class Filter {
         `)
         .then((result:any) => result ? new Filter(
             result.id, 
-            result.component, 
+            Helpers.unescapeSingleQuotes(result.component), 
             result.groupId,
             result.action) : null);
     }
@@ -82,7 +90,7 @@ export class Filter {
         `)
         .then((result: any) => result.map((r:any) => new Filter(
             r.id, 
-            r.component, 
+            Helpers.unescapeSingleQuotes(r.component), 
             r.groupId,
             r.action)))
     }
@@ -94,7 +102,7 @@ export class Filter {
         `)
         .then((result: any) => result ? new Filter(
             result.id, 
-            result.component, 
+            Helpers.unescapeSingleQuotes(result.component), 
             result.groupId,
             result.action) : null);
     }
@@ -107,7 +115,7 @@ export class Filter {
         `)
         .then((result: any) => result ? new Filter(
             result.id, 
-            result.component, 
+            Helpers.unescapeSingleQuotes(result.component), 
             result.groupId,
             result.action) : null);
     }
@@ -126,7 +134,7 @@ export class Filter {
         `)
         .then((result: any) => result.map((r:any) => new Filter(
             r.id, 
-            r.component, 
+            Helpers.unescapeSingleQuotes(r.component), 
             r.groupId,
             r.action)))
     }

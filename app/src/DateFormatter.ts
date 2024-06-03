@@ -1,7 +1,7 @@
 
 
 export class DateFormatter {
-    static agoFormat(d: number): string {
+    static ago(d: number): string {
         let secondsPassed = Math.floor(((new Date()).valueOf() - d) / 1000);
         let minutesPassed = Math.floor(secondsPassed / 60);
         let hoursPassed = Math.floor(minutesPassed / 60);

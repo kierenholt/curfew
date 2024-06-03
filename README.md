@@ -26,10 +26,37 @@ when add user to reason for ban (if user is banned)
 add detail to group list, user list etc.
 booking list shows detail i.e. start to end time
 group requests that were close together
-add filtered icon to requests that were filtered / banned
 add setup alerts 
+match more than one domain component using dot
 
 
 # TODO MUCH LATER
 allow manual dhcp entries
 instant update the request list
+
+# how to run - dev
+API_PORT=5000
+DNS_PORT=53
+DHCP_ENABLED=0
+DHCP_MOCKED=1
+DNS_ENABLED=0
+TEST_SOCKET=0
+API_ENABLED=1
+
+DANGEROUSLY_DISABLE_HOST_CHECK=true
+PORT=3000
+
+
+# how to run - production
+API_PORT=80
+DNS_PORT=53
+DHCP_ENABLED=1
+DHCP_MOCKED=0
+DNS_ENABLED=1
+TEST_SOCKET=0
+API_ENABLED=1
+
+DANGEROUSLY_DISABLE_HOST_CHECK=true
+PORT=80
+sudo node --inspect=2000 server/bin/run.js
+

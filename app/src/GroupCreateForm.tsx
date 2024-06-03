@@ -26,7 +26,6 @@ export function GroupCreateForm(props: GroupCreateFormProps) {
             <TextField
                 id="Group-name"
                 label="Name"
-                defaultValue=""
                 helperText="e.g. Kids"
                 variant="standard"
                 value={name}

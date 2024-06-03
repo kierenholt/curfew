@@ -15,7 +15,7 @@ export interface RequestListProps {
 
 export function RequestList(props: RequestListProps) {
     const pageContext = useContext(PageContext);
-    
+
     const details = (r: IRequest): string => {
         switch (r.redirectReason) {
             case RedirectReason.deviceIsBanned:
@@ -57,15 +57,15 @@ export function RequestList(props: RequestListProps) {
             .then((d: IDevice) => Helpers.get<IUser>(`/api/users/${d.ownerId}`))
             .then(async (u: IUser) => {
                 let spl = r.domain.split(".");
-                let index = Math.max(spl.length - 2,0)
+                let index = Math.max(spl.length - 2, 0)
                 let component = spl[index];
                 let found = await Helpers.get<IFilter>(`/api/filters/component/${component}/group/${u.groupId}`)
                 if (found) { //edit
-                    pageContext.setParams({id: found.id})
+                    pageContext.setParams({ id: found.id })
                     pageContext.setCurrentPage(CurrentPage.editFilter);
                 }
                 else { //create
-                    pageContext.setParams({component: component, groupId: u.groupId})
+                    pageContext.setParams({ component: component, groupId: u.groupId })
                     pageContext.setCurrentPage(CurrentPage.createFilter);
                 }
             })
@@ -79,9 +79,12 @@ export function RequestList(props: RequestListProps) {
                         expandIcon={<ExpandMoreIcon />}>
 
                         <RequestIcon />
-                        {r.domain}
+
                         <AllowDenyIcon redirectDestination={r.redirectDestination} />
-                        {DateFormatter.agoFormat(r.requestedOn)}
+                        {r.domain}
+                        
+
+                        {DateFormatter.ago(r.requestedOn)}
                     </AccordionSummary>
                     <AccordionDetails>
                         {action(r)} because {details(r)}

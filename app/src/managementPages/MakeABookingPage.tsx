@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react"
 import { Helpers } from "../helpers"
 import { IBooking, IQuota, IRequest } from "../types";
-import { Stack } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import { BookingList } from "../BookingList";
 import { QuotaList } from "../QuotaList";
 import { BookingCreateForm } from "../BookingCreateForm";
@@ -37,20 +37,28 @@ export function MakeABookingPage() {
     const userContext = useContext(UserContext);
     const [response, setResponse] = useState<MakeABookingResponse>();
     const [requests, setRequests] = useState<IRequest[]>([]);
+    const [offset, setOffset] = useState<number>(0);
 
     useEffect(() => {
-        if (userContext != null) {
-            Helpers.get<IRequest[]>(`/api/device/${userContext.user.id}/requestHistory`)
-                .then((requests: IRequest[]) => {
-                    setRequests(requests);
-                });
+        getMoreRequests();
 
+        if (userContext != null) {
             Helpers.get<MakeABookingResponse>(`/api/user/${userContext.user.id}/makeABooking`)
                 .then((result: MakeABookingResponse) => {
                     setResponse(result);
                 })
         }
     }, [userContext])
+
+    const getMoreRequests = () => {
+        if (userContext != null) {
+            Helpers.get<IRequest[]>(`/api/requests/device/${userContext.device.id}?offset=${offset}`)
+            .then((newRequests: IRequest[]) => {
+                setRequests(requests.concat(newRequests));
+                setOffset(offset + newRequests.length);
+            });
+        }
+    }
 
     return (
         response === undefined
@@ -64,6 +72,9 @@ export function MakeABookingPage() {
                 <>
                     <h2>Your requests</h2>
                     <RequestList requests={requests} />
+                    <Button onClick={getMoreRequests} >
+                        Show More
+                    </Button>
 
                     {response.status === BookingStatus.bookingInProgress ?
                         <>

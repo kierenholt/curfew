@@ -32,7 +32,6 @@ export function UserCreateForm(props: UserCreateFormProps) {
             <TextField
                 id="User-name"
                 label="Name"
-                defaultValue=""
                 helperText="e.g. Arthur"
                 variant="standard"
                 value={name}

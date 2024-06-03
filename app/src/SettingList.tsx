@@ -1,43 +1,36 @@
 import { useContext, } from "react"
 import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, IconButton } from "@mui/joy";
-import { IQuota } from "./types";
+import { ISetting } from "./types";
 import { Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
-import { Day } from "./Day";
-import { QuotaIcon } from "./Icon";
+import { SettingIcon } from "./Icon";
 
-export interface QuotaListProps {
-    quotas: IQuota[];
-    allowEdit: boolean;
+export interface SettingListProps {
+    Settings: ISetting[];
 } 
 
-export function QuotaList(props: QuotaListProps) {
+export function SettingList(props: SettingListProps) {
     const pageContext = useContext(PageContext);
 
     return (<List>
-        {props.quotas.map((g: IQuota) =>
-            <ListItem color="neutral" key={`${g.groupId}-${g.day}`}
+        {props.Settings.map((g: ISetting) =>
+            <ListItem color="neutral" key={g.key}
 
-                endAction={props.allowEdit
-                    ? 
-                    <>
+                endAction={
                     <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                         onClick={() => {
-                            pageContext.setParams({groupId: g.groupId, day: g.day})
-                            pageContext.setCurrentPage(CurrentPage.editQuota)
+                            pageContext.setParams({key: g.key})
+                            pageContext.setCurrentPage(CurrentPage.editSetting)
                         }}>
                         <Edit />
                     </IconButton>
-                    </>
-                    : 
-                    <></>
                 }>
                 <ListItemButton>
                     <ListItemDecorator>
-                        <QuotaIcon />
+                        <SettingIcon />
                     </ListItemDecorator>
                     <ListItemContent>
-                        <Day day={g.day} full={true} />, {g.refreshAmount} mins 
+                        {g.label}: {g.value}
                     </ListItemContent>
                 </ListItemButton>
             </ListItem>)}

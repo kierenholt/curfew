@@ -44,7 +44,6 @@ export function FilterEditForm(props: FilterEditFormProps) {
                 <TextField
                     id="component"
                     label=""
-                    defaultValue=""
                     helperText="search text e.g. whatsapp"
                     variant="standard"
                     value={component}

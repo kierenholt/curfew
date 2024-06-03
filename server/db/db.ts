@@ -8,6 +8,7 @@ import { FixedSlot } from "./fixedSlot";
 import { UserGroup } from "./userGroup";
 import { Filter } from "./filter";
 import { DnsRequest } from "./dnsRequest";
+import { Setting } from "./setting";
 
 
 
@@ -58,6 +59,7 @@ export class Db {
         await DnsRequest.createTable();
         await User.createTable();
         await UserGroup.createTable();
+        await Setting.createTable();
     }
 
     static async seed() {
@@ -66,6 +68,7 @@ export class Db {
         await Filter.seed();
         await User.seed();
         await UserGroup.seed();
+        await Setting.seed();
     }
 
     static run(sql: string): Promise<RunResult> {

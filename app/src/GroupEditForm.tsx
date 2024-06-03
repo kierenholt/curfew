@@ -37,7 +37,6 @@ export function GroupEditForm(props: GroupEditFormProps) {
             <TextField
                 id="Group-name"
                 label="Name"
-                defaultValue=""
                 helperText="e.g. Kids"
                 variant="standard"
                 value={name}

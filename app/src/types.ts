@@ -98,3 +98,10 @@ export enum RedirectReason {
 export enum RedirectDestination {
     app = 1, blocked = 0, allow = 2
 }
+
+export interface ISetting {
+    key: number;
+    value: string;
+    label: string;
+    description: string;
+}

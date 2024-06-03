@@ -1,4 +1,4 @@
-import { AllowIcon } from "./Icon";
+import { AllowIcon, DenyIcon } from "./Icon";
 import { RedirectDestination } from "./types"
 import BlockIcon from '@mui/icons-material/Block';
 
@@ -9,7 +9,7 @@ export interface AllowDenyIconProps {
 export const AllowDenyIcon = (props: AllowDenyIconProps) => {
     return (
         props.redirectDestination === RedirectDestination.blocked ?
-            <BlockIcon />
+            <DenyIcon />
             :
             <AllowIcon />
     )

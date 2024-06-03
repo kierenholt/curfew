@@ -35,7 +35,6 @@ export function FilterCreateForm(props: FilterCreateFormProps) {
             <TextField
                 id="component"
                 label=""
-                defaultValue=""
                 helperText="search text e.g. whatsapp"
                 variant="standard"
                 value={component}

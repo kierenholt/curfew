@@ -65,7 +65,7 @@ export function DeviceList() {
                         {
                             g.lastRequestedOn
                                 ?
-                                ` last requested ${DateFormatter.agoFormat(g.lastRequestedOn)}`
+                                ` last requested ${DateFormatter.ago(g.lastRequestedOn)}`
                                 :
                                 ``
                         }

@@ -37,7 +37,6 @@ export function DeviceEditForm(props: DeviceEditFormProps) {
             <TextField
                 id="Device-name"
                 label="Name"
-                defaultValue=""
                 helperText="e.g. Arthur"
                 variant="standard"
                 value={name}
