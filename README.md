@@ -21,16 +21,14 @@ sudo systemctl start isc-dhcp-server.service
 
 
 # TODO 
-check unescape single quotes for any user input strings
-when add user to reason for ban (if user is banned)
 add detail to group list, user list etc.
 booking list shows detail i.e. start to end time
 group requests that were close together
 add setup alerts 
 match more than one domain component using dot
 
-
 # TODO MUCH LATER
+when add user to reason for ban (if user is banned)
 allow manual dhcp entries
 instant update the request list
 

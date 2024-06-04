@@ -17,7 +17,7 @@ export enum RedirectReason {
 }
 
 export enum RedirectDestination {
-    app = 1, blocked = 0, allow = 2
+    app = 1, hole = 0, shortTTL = 2, passThrough = 3
 }
 
 export class Redirector {
@@ -30,7 +30,7 @@ export class Redirector {
 
         if (hostAddress.length == 0) {
             console.error("hostAddress should not be null");
-            return RedirectDestination.blocked;
+            return RedirectDestination.hole;
         }
 
         //do not save if request is curfew - keep the last status
@@ -41,7 +41,7 @@ export class Redirector {
 
         if (!DhcpServer.hasIP(hostAddress)) {
             //console.error("device / owner / group should not be null");
-            return this.BLOCK_IF_DEVICE_NOT_DHCP ? RedirectDestination.blocked : RedirectDestination.allow;
+            return this.BLOCK_IF_DEVICE_NOT_DHCP ? RedirectDestination.hole : RedirectDestination.shortTTL;
         }
 
         let deviceId = DhcpServer.getDeviceIdFromIP(hostAddress);
@@ -61,61 +61,61 @@ export class Redirector {
             }
         }
         let group = await UserGroup.getById(owner.groupId);
-        
-        if (device.isBanned) {
-            DnsRequest.create(device.id, fullDomain, RedirectReason.deviceIsBanned, RedirectDestination.blocked);
-            return RedirectDestination.blocked;
-        }
-
-        if (owner.isBanned) {
-            DnsRequest.create(device.id, fullDomain, RedirectReason.userIsBanned, RedirectDestination.blocked);
-            return RedirectDestination.blocked;
-        }
-
-        if (group.isBanned) {
-            DnsRequest.create(device.id, fullDomain, RedirectReason.groupIsBanned, RedirectDestination.blocked);
-            return RedirectDestination.blocked;
-        }
 
         if (group.isUnrestricted) { //member of unrestricted group
             // do not save
-            return RedirectDestination.allow;
+            return RedirectDestination.passThrough;
+        }
+        
+        if (device.isBanned) {
+            DnsRequest.create(device.id, fullDomain, RedirectReason.deviceIsBanned, RedirectDestination.hole);
+            return RedirectDestination.hole;
+        }
+
+        if (owner.isBanned) {
+            DnsRequest.create(device.id, fullDomain, RedirectReason.userIsBanned, RedirectDestination.hole);
+            return RedirectDestination.hole;
+        }
+
+        if (group.isBanned) {
+            DnsRequest.create(device.id, fullDomain, RedirectReason.groupIsBanned, RedirectDestination.hole);
+            return RedirectDestination.hole;
         }
 
         let domainFilter: Filter | null = await Filter.getFromDomainNameAndGroup(fullDomain, group.id);
 
         if (domainFilter == null) { //domain not listed
             if (this.BLOCK_IF_DOMAIN_NOT_FOUND) {
-                DnsRequest.create(device.id, fullDomain, RedirectReason.filterNotFound, RedirectDestination.blocked);
-                return RedirectDestination.blocked;
+                DnsRequest.create(device.id, fullDomain, RedirectReason.filterNotFound, RedirectDestination.hole);
+                return RedirectDestination.hole;
             }
             else {
-                DnsRequest.create(device.id, fullDomain, RedirectReason.filterNotFound, RedirectDestination.allow);
-                return RedirectDestination.allow;
+                DnsRequest.create(device.id, fullDomain, RedirectReason.filterNotFound, RedirectDestination.shortTTL);
+                return RedirectDestination.shortTTL;
             }
         }
 
         //domain is always allowed
         if (domainFilter.action == FilterAction.alwaysAllow) {
-            DnsRequest.create(device.id, fullDomain, RedirectReason.domainIsAlwaysAllowed, RedirectDestination.allow);
-            return RedirectDestination.allow;
+            DnsRequest.create(device.id, fullDomain, RedirectReason.domainIsAlwaysAllowed, RedirectDestination.shortTTL);
+            return RedirectDestination.shortTTL;
         }
 
         //domain is always blocked -> page
         if (domainFilter.action == FilterAction.alwaysDeny) {
-            DnsRequest.create(device.id, fullDomain, RedirectReason.domainIsAlwaysBlocked, RedirectDestination.blocked);
-            return RedirectDestination.blocked;
+            DnsRequest.create(device.id, fullDomain, RedirectReason.domainIsAlwaysBlocked, RedirectDestination.hole);
+            return RedirectDestination.hole;
         }
 
         let isBooked = await Booking.existsNowForUser(owner.id);
 
         if (isBooked) {
-            DnsRequest.create(device.id, fullDomain, RedirectReason.hasBooked, RedirectDestination.allow);
-            return RedirectDestination.allow;
+            DnsRequest.create(device.id, fullDomain, RedirectReason.hasBooked, RedirectDestination.shortTTL);
+            return RedirectDestination.shortTTL;
         }
 
-        DnsRequest.create(device.id, fullDomain, RedirectReason.needsToBook, RedirectDestination.blocked);
-        return RedirectDestination.blocked;
+        DnsRequest.create(device.id, fullDomain, RedirectReason.needsToBook, RedirectDestination.hole);
+        return RedirectDestination.hole;
     }
 
     static async createNewDeviceAndUser(deviceId: string, deviceName: string):

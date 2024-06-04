@@ -17,8 +17,8 @@ export class DnsServer {
     static dnsForwarder: DnsForwarder;
     static dnsRedirector: Redirector;
 
-    static NULL_IP_v4: string = "240.0.0.0";
-    static NULL_IP_v6: Buffer = Buffer.from([100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]); //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
+    static HOLE_IP_v4: string = "240.0.0.0";
+    static HOLE_IP_v6: Buffer = Buffer.from([100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]); //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
     static appIP: string;
 
     // https://en.wikipedia.org/wiki/List_of_DNS_record_types
@@ -35,25 +35,43 @@ export class DnsServer {
             console.log('DNS server listening on UDP port ', port);
         });
         
-        this.socket.on('message', async (buf: Buffer, requestInfo: RemoteInfo) => {        
-            let packet = DnsPacket.fromBuffer(buf);
+        this.socket.on('message', async (buffer: Buffer, requestInfo: RemoteInfo) => {        
+            let packet = DnsPacket.fromBuffer(buffer);
             console.log("Request received for " + packet.questions[0].name);
 
             if (!packet.header.isResponse) { //query
+
+                let destination = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
+                // unfiltered groups
+                if (destination == RedirectDestination.passThrough) {
+                    console.log("waiting for pass through");
+
+                    this.dnsForwarder.passThrough(buffer)
+                    .then(responseBuffer => {
+                        console.log("sending pass through");
+                        //send
+                        this.socket.send(responseBuffer, requestInfo.port, requestInfo.address, (err: any) => {
+                            if (err) {
+                                console.error(`Error sending response: ${err.message}`);
+                                this.socket.close();
+                            }
+                        });
+                    })
+                }
+
                 // block type 65
                 if (this.BLOCK_HTTPS && packet.questions[0].qtype == 65) {
                     return;
                 }
-
-                let destination = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
-                if (destination == RedirectDestination.blocked ||
+                
+                if (destination == RedirectDestination.hole ||
                     destination == RedirectDestination.app) {
-                    
+                        
                     if (destination == RedirectDestination.app) { //app
                         packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.appIP)]);
                     }
-                    else { //blocked
-                        packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.NULL_IP_v4, this.NULL_IP_v6)]);
+                    else { //hole
+                        packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.HOLE_IP_v4, this.HOLE_IP_v6)]);
                     }
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;
@@ -66,24 +84,26 @@ export class DnsServer {
                     return;
                 }
 
-                //no redirect
-                this.dnsForwarder.forward(buf)
-                .then(answer => {
-                    //add answer
-                    packet.addAnswers(answer);
-                    packet.header.isResponse = true;
-
-                    //send
-                    this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
-                        if (err) {
-                            console.error(`Error sending response: ${err.message}`);
-                            this.socket.close();
-                        }
-                    });
-                })
+                if (destination == RedirectDestination.shortTTL) {
+                    //no redirect
+                    this.dnsForwarder.forward(buffer)
+                    .then(answer => {
+                        //add answer
+                        packet.addAnswers(answer);
+                        packet.header.isResponse = true;
+    
+                        //send
+                        this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
+                            if (err) {
+                                console.error(`Error sending response: ${err.message}`);
+                                this.socket.close();
+                            }
+                        });
+                    })
+                }
             }
             else { //process response from upstream
-                this.dnsForwarder.processResponse(packet);
+                this.dnsForwarder.processResponse(packet, buffer);
             }
         });
 

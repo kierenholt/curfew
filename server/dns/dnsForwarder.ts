@@ -11,13 +11,22 @@ export class DnsForwarder {
     TTL: number = 30;
     port: number = 53;
     promisesById: any = {};
+    passThroughPromisesById: any = {};
 
     constructor(socket: Socket) {
         this.cache = new Cache();
         this.socket = socket;
     }
 
-    processResponse(responsePacket: DnsPacket) {        
+    processResponse(responsePacket: DnsPacket, responseBuffer: Buffer) {   
+        //check for passthrough
+        let passThroughResolve = this.passThroughPromisesById[responsePacket.header.id]; 
+        if (passThroughResolve) {
+            delete(this.passThroughPromisesById[responsePacket.header.id]);
+            passThroughResolve(responseBuffer);
+            return;
+        }
+        
         //add to cache
         responsePacket.allAnswers.forEach(a => a.ttl = this.TTL);
         this.cache.upsert(responsePacket.questions[0], responsePacket.allAnswers);
@@ -46,6 +55,23 @@ export class DnsForwarder {
                 else {
                     //console.log(JSON.stringify(requestBuffer));
                     this.promisesById[requestPacket.header.id] = (ans: Answer[]) => resolve(ans);
+                }
+            });
+        });
+    }
+
+    passThrough(requestBuffer: Buffer): Promise<Buffer> {
+        let requestPacket = DnsPacket.fromBuffer(requestBuffer);
+        
+        return new Promise((resolve, reject) => {
+            this.socket.send(requestBuffer, this.port, this.UPSTREAM_SERVER_IP, (error: any) => {
+                if (error) {
+                    console.error('Error sending message:', error);
+                    this.socket.close();
+                } 
+                else {
+                    //console.log(JSON.stringify(requestBuffer));
+                    this.passThroughPromisesById[requestPacket.header.id] = (buf: Buffer) => resolve(buf);
                 }
             });
         });
