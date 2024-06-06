@@ -9,6 +9,10 @@ import { MakeABooking } from './makeABooking';
 import { DnsRequest } from '../db/dnsRequest';
 import { DetectUser } from './detectUser';
 import { Setting, SettingKey } from '../db/setting';
+import { DhcpServer } from '../dhcp/dhcpServer';
+import { spoof } from '../spoof';
+import { LiveUpdate } from './liveUpdate';
+import { group } from 'console';
 var cors = require('cors')
 
 export class API {
@@ -51,6 +55,9 @@ export class API {
             let isBanned = Number(req.params.isBanned);
             if (req.params.id.length > 0) {
                 let ret = await Device.setBan(req.params.id, isBanned);
+                if (isBanned) {
+                    spoof(0, 60000, [req.params.id]); // 1 minute
+                }
                 res.status(200).json(ret);
             }
             else {
@@ -205,6 +212,15 @@ export class API {
         app.post('/api/bookings', async (req: Request, res: Response) => {
             if (req.body) {
                 let ret = await Booking.create(new Date().valueOf(), req.body.userId, req.body.duration);
+                //set timer for arp spoof
+                let booking = await Booking.getById(ret);
+                if (booking) {
+                    let devices = await Device.getByOwnerId(req.body.userId);
+                    let delay = booking.duration * 60000;
+                    let spoofDuration = 60000; //one minute 
+                    spoof(delay, spoofDuration, devices.map(d => d.id));
+                    console.log("spoof scheduled");
+                }
                 res.status(200).json(ret);
             }
             else {
@@ -302,16 +318,22 @@ export class API {
         });
 
 
-        //get all user groups includes hasUsers
-        app.get('/api/userGroups', async (req: Request, res: Response) => {
+        //get all user groups 
+        app.get('/api/tree/userGroups', async (req: Request, res: Response) => {
             let groups = await UserGroup.getAll();
-            let promises = groups.map(g => User.getByGroupId(g.id));
-            let users = await Promise.all(promises);
-            let ret: any = [];
-            for (let i = 0; i < groups.length; i++) {
-                ret[i] = groups[i];
-                ret[i].hasUsers = users[i].length > 0;
+            let users = await User.getAll();
+            let devices = await Device.getAll();
+            for (let u of users) {
+                u.devices = devices.filter(d => d.ownerId == u.id);
             }
+            for (let g of groups) {
+                g.users = users.filter(u => u.groupId == g.id);
+            }
+            res.status(200).json(groups);
+        });
+        //get all user groups
+        app.get('/api/userGroups', async (req: Request, res: Response) => {
+            let ret = await UserGroup.getAll();
             res.status(200).json(ret);
         });
         //get 1 user groups
@@ -461,6 +483,7 @@ export class API {
 
         MakeABooking.init(app);
         DetectUser.init(app);
+        LiveUpdate.init(app);
 
         //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
         app.get("*", (req, res) => {

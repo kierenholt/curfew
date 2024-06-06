@@ -13,7 +13,7 @@ export function EditDevicePage(props: EditDevicePageProps) {
             <p>
                 Edit Device details
             </p>
-            <DeviceEditForm onEdited={() => pageContext.setCurrentPage(CurrentPage.manageDevices)} 
+            <DeviceEditForm onEdited={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} 
                 id={props.params.deviceId} />
         </>
     )

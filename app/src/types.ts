@@ -4,7 +4,7 @@ export interface IUserGroup {
     name: string;
     isUnrestricted: boolean;
     isBanned: boolean;
-    hasUsers?: boolean;
+    users?: IUser[]
 }
 
 
@@ -14,7 +14,7 @@ export interface IUser {
     name: string;
     isBanned: boolean;
     isAdministrator: boolean;
-    hasDevices?: boolean;
+    devices?: IDevice[];
 }
 
 

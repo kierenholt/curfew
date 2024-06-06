@@ -2,6 +2,7 @@ import { RunResult } from "sqlite3";
 import { Db } from "./db";
 import { UserGroup } from "./userGroup";
 import { Helpers } from "../helpers";
+import { Device } from "./device";
 
 export class User {
     id: number;
@@ -10,6 +11,7 @@ export class User {
     name: string;
     isBanned: boolean;
     isAdministrator: boolean;
+    devices?: Device[];
 
     constructor(id: number, 
         groupId: number, 

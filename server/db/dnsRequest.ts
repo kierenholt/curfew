@@ -1,6 +1,7 @@
 import { RunResult } from "sqlite3";
 import { Db } from "./db";
 import { RedirectDestination, RedirectReason } from "../redirector";
+import { LiveUpdate } from "../api/liveUpdate";
 
 export class DnsRequest {
     id: number;
@@ -34,11 +35,15 @@ export class DnsRequest {
     }
 
     static create(deviceId: string, domain: string, redirectReason: RedirectReason, redirectDestination: RedirectDestination): Promise<number> {
+        let now = new Date().valueOf();
         return Db.run(`
             insert into request (deviceId, domain, requestedOn, redirectReason, redirectDestination)
-            values ('${deviceId}', '${domain}', ${new Date().valueOf()}, ${redirectReason.valueOf()}, ${redirectDestination.valueOf()})
+            values ('${deviceId}', '${domain}', ${now}, ${redirectReason.valueOf()}, ${redirectDestination.valueOf()})
         `)
-        .then(result => result.lastID);
+        .then(result => {
+            LiveUpdate.update(deviceId, new DnsRequest(result.lastID, deviceId, domain, now, redirectReason, redirectDestination));
+            return result.lastID
+        });
     }
 
     static update(id: number, deviceId: string, domain: string, requestedOn: Date, redirectReason: RedirectReason, redirectDestination: RedirectDestination): Promise<number> {

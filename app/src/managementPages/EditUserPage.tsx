@@ -14,7 +14,7 @@ export function EditUserPage(props: EditUserPageProps) {
             <p>
                 Edit user details
             </p>
-            <UserEditForm onEdited={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} 
+            <UserEditForm onEdited={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} 
                 userId={props.params.userId} />
         </>
     )

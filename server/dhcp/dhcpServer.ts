@@ -208,6 +208,14 @@ export class DhcpServer {
         return "";
     }
 
+    static getIPFromDeviceID(deviceId: string): string {
+        let found = this.leases.filter(l => l.deviceId == deviceId);
+        if (found.length) {
+            return found[0].IP;
+        }
+        return "";
+    }
+
     static getHostNameFromIP(ip: string): string {
         let found = this.leases.filter(l => l.IP == ip);
         if (found.length) {

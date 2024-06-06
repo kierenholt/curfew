@@ -3,7 +3,7 @@ import { Db } from "./db";
 import { RunResult } from "sqlite3";
 
 export enum SettingKey {
-    apiGetRequestLimit = 1
+    apiGetRequestLimit = 1,
 }
 
 export class Setting {

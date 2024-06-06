@@ -10,8 +10,8 @@ export class DnsForwarder {
     UPSTREAM_SERVER_IP: string = '1.1.1.1';
     TTL: number = 30;
     port: number = 53;
-    promisesById: any = {};
-    passThroughPromisesById: any = {};
+    resolvesById: any = {};
+    passThroughResolvesById: any = {};
 
     constructor(socket: Socket) {
         this.cache = new Cache();
@@ -20,9 +20,9 @@ export class DnsForwarder {
 
     processResponse(responsePacket: DnsPacket, responseBuffer: Buffer) {   
         //check for passthrough
-        let passThroughResolve = this.passThroughPromisesById[responsePacket.header.id]; 
+        let passThroughResolve = this.passThroughResolvesById[responsePacket.header.id]; 
         if (passThroughResolve) {
-            delete(this.passThroughPromisesById[responsePacket.header.id]);
+            delete(this.passThroughResolvesById[responsePacket.header.id]);
             passThroughResolve(responseBuffer);
             return;
         }
@@ -32,9 +32,9 @@ export class DnsForwarder {
         this.cache.upsert(responsePacket.questions[0], responsePacket.allAnswers);
 
         //resolve promise
-        let foundPromiseResolve = this.promisesById[responsePacket.header.id];
+        let foundPromiseResolve = this.resolvesById[responsePacket.header.id];
         if (foundPromiseResolve) {
-            delete(this.promisesById[responsePacket.header.id]);
+            delete(this.resolvesById[responsePacket.header.id]);
             foundPromiseResolve(responsePacket.allAnswers);
         }
     }
@@ -54,7 +54,7 @@ export class DnsForwarder {
                 } 
                 else {
                     //console.log(JSON.stringify(requestBuffer));
-                    this.promisesById[requestPacket.header.id] = (ans: Answer[]) => resolve(ans);
+                    this.resolvesById[requestPacket.header.id] = (ans: Answer[]) => resolve(ans);
                 }
             });
         });
@@ -71,7 +71,7 @@ export class DnsForwarder {
                 } 
                 else {
                     //console.log(JSON.stringify(requestBuffer));
-                    this.passThroughPromisesById[requestPacket.header.id] = (buf: Buffer) => resolve(buf);
+                    this.passThroughResolvesById[requestPacket.header.id] = (buf: Buffer) => resolve(buf);
                 }
             });
         });

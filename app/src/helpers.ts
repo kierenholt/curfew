@@ -54,7 +54,7 @@ export class Helpers {
     }
 
     static chooseRandom(arr: string[]) {
-        if (arr.length == 0) throw("zero length array");
+        if (arr.length === 0) throw new Error("zero length array");
         let index = Math.floor(Math.random() * arr.length);
         return arr[index];
     }
@@ -66,7 +66,7 @@ export class Helpers {
     static difference(arr: any, notArr: any) {
         let ret = [];
         for (let a of arr) {
-            if (notArr.indexOf(a) == -1) ret.push(a);
+            if (notArr.indexOf(a) === -1) ret.push(a);
         }
         return ret;
     }
@@ -76,8 +76,8 @@ export class Helpers {
     }
 
     static replace(within: string, char: string, neww: string, i: number): string {
-        if (i == within.length) return "";
-        if (within[i] == char) {
+        if (i === within.length) return "";
+        if (within[i] === char) {
             return neww + this.replace(within, char, neww, i+1);
         }
         else {
@@ -120,7 +120,7 @@ export class Helpers {
         let ret = "";
         for (let i = 0; i < id.length; i++) {
             ret += id[i];
-            if (i % 2 == 1 && i != id.length-1) ret += ":"
+            if (i % 2 === 1 && i !== id.length-1) ret += ":"
         }
         return ret;
     }

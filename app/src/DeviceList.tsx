@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useState } from "react"
 import { List, ListItem, ListItemButton, ListItemDecorator, ListItemContent, IconButton } from "@mui/joy";
 import { IDevice } from "./types";
 import { Helpers } from "./helpers";
@@ -7,17 +7,13 @@ import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import { DeviceIcon, RequestIcon } from "./Icon";
 import { DateFormatter } from "./DateFormatter";
 
+export interface DeviceListProps {
+    initialDevices: IDevice[];
+}
 
-export function DeviceList() {
+export function DeviceList(props: DeviceListProps) {
     const pageContext = useContext(PageContext);
-    let [devices, setDevices] = useState<IDevice[]>([]);
-
-    useEffect(() => {
-        Helpers.get<IDevice[]>("/api/devices/")
-            .then((Devices: IDevice[]) => {
-                setDevices(Devices)
-            })
-    }, []);
+    const [devices, setDevices] = useState<IDevice[]>(props.initialDevices)
 
 
     const deleteDevice = (id: string) => {

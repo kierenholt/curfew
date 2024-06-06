@@ -1,4 +1,4 @@
-import { FormControlLabel, FormGroup, Switch } from "@mui/material";
+import { FormGroup } from "@mui/material";
 import { useEffect, useState } from "react";
 import { IDevice, IUser, IUserGroup } from "../types";
 import { Helpers } from "../helpers";

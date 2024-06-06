@@ -1,6 +1,5 @@
 import { AllowIcon, DenyIcon } from "./Icon";
 import { RedirectDestination } from "./types"
-import BlockIcon from '@mui/icons-material/Block';
 
 export interface AllowDenyIconProps {
     redirectDestination: RedirectDestination

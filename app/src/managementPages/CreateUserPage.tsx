@@ -1,4 +1,3 @@
-import { Button } from "@mui/material";
 import { useContext } from "react";
 import { CurrentPage, PageContext } from "./PageContent";
 import { UserCreateForm } from "../UserCreateForm";
@@ -15,7 +14,7 @@ export function CreateUserPage() {
             <p>
                 New User
             </p>
-            <UserCreateForm onCreated={() => pageContext.setCurrentPage(CurrentPage.manageUsers)} />
+            <UserCreateForm onCreated={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} />
         </>
     )
 }

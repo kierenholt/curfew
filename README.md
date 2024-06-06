@@ -26,6 +26,7 @@ booking list shows detail i.e. start to end time
 group requests that were close together
 add setup alerts 
 match more than one domain component using dot
+refresh button on the requests page / autorefresh
 
 # TODO MUCH LATER
 when add user to reason for ban (if user is banned)

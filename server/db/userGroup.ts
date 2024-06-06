@@ -10,6 +10,7 @@ export class UserGroup {
     name: string;
     isUnrestricted: boolean;
     isBanned: boolean;
+    users?: User[];
 
     static FIRST_GROUP_ID: number = 1;
 
