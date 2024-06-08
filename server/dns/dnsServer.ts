@@ -37,18 +37,18 @@ export class DnsServer {
         
         this.socket.on('message', async (buffer: Buffer, requestInfo: RemoteInfo) => {        
             let packet = DnsPacket.fromBuffer(buffer);
-            console.log("Request received for " + packet.questions[0].name);
+            //console.log("Request received for " + packet.questions[0].name);
 
             if (!packet.header.isResponse) { //query
 
                 let destination = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
                 // unfiltered groups
                 if (destination == RedirectDestination.passThrough) {
-                    console.log("waiting for pass through");
+                    //console.log("waiting for pass through");
 
                     this.dnsForwarder.passThrough(buffer)
                     .then(responseBuffer => {
-                        console.log("sending pass through");
+                        //console.log("sending pass through");
                         //send
                         this.socket.send(responseBuffer, requestInfo.port, requestInfo.address, (err: any) => {
                             if (err) {

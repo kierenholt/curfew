@@ -1,4 +1,5 @@
 import { Helpers } from "../helpers";
+import { Spoof } from "../spoof";
 
 export enum LeaseState { offered = 0, active = 1, expired = 2 }
 

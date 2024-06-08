@@ -1,5 +1,15 @@
 
 export class Helpers {
+    static distinct<T>(arr: T[]) {
+        let ret = [];
+        for (let item of arr) {
+            if (ret.indexOf(item) === -1) {
+                ret.push(item)
+            }
+        }
+        return ret;
+    }
+
     static sum(arr: number[]) {
         return arr.reduce((partialSum: any, a: any) => partialSum + a, 0);
     }

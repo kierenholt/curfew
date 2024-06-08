@@ -2,7 +2,8 @@ import { Button } from "@mui/material"
 import { RequestList } from "./RequestList"
 import { useEffect, useState } from "react"
 import { Helpers } from "./helpers"
-import { IRequest } from "./types"
+import { IRequest, ISetting } from "./types"
+import { GroupedRequestList } from "./GroupedRequestList"
 
 
 export interface RequestListWrapperProps {
@@ -13,10 +14,16 @@ export const RequestListWrapper = (props: RequestListWrapperProps) => {
 
     const [requests, setRequests] = useState<IRequest[]>([]);
     const [offset, setOffset] = useState<number>(0);
+    const [groupingEnabled, setGroupingEnabled] = useState<boolean>(false);
 
     useEffect(() => {
-        getMoreRequests(requests)
-            .then(r => waitForMoreRequests(r))
+        getMoreRequests([])
+            .then(r => waitForMoreRequests(r));
+
+        Helpers.get<ISetting>(`/api/settings/2`)
+            .then((result: ISetting) => {
+                setGroupingEnabled(result.value === "true");
+            });
     }, [props.deviceId])
 
     const waitForMoreRequests = (current: IRequest[]) => {
@@ -41,7 +48,13 @@ export const RequestListWrapper = (props: RequestListWrapperProps) => {
 
     return <>
         <h2>Requests</h2>
-        <RequestList requests={requests} />
+        {
+            groupingEnabled
+                ?
+                <GroupedRequestList requests={requests} />
+                :
+                <RequestList requests={requests} />
+        }
         <Button onClick={() => getMoreRequests(requests)} >
             Show More
         </Button>

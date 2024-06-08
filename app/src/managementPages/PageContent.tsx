@@ -10,7 +10,6 @@ import { EditDevicePage } from './EditDevicePage';
 import { ManageQuotasPage } from './ManageQuotasPage';
 import { EditQuotaPage } from './EditQuotaPage';
 import { ManageBookingsPage } from './ManageBookingsPage';
-import { ManageBansPage } from './ManageBansPage';
 import { BottomMenu } from './BottomMenu';
 import { MakeABookingPage } from './MakeABookingPage';
 import { ManageRequestsPage } from './ManageRequestsPage';
@@ -21,6 +20,7 @@ import { UserContext } from './DetectUser';
 import { Header } from './Header';
 import { ManageSettingsPage } from './ManageSettingsPage';
 import { EditSettingPage } from './EditSettingPage';
+import { BookingConfirmed } from './BookingConfirmed';
 
 export enum CurrentPage {
     editDevice,
@@ -28,11 +28,11 @@ export enum CurrentPage {
     manageGroups, editGroup, createGroup,
     manageQuotas, editQuota,
     manageBookings,
-    manageBans,
     userMakesBooking,
     manageRequests,
     manageFilters, editFilter, createFilter,
-    manageSettings, editSetting
+    manageSettings, editSetting,
+    bookingConfirmed
 }
 
 interface SetPageAction {
@@ -59,40 +59,40 @@ export const PageContent = () => {
             {
                 currentPage === CurrentPage.editDevice ?
                     <EditDevicePage params={params} />
-                        : currentPage === CurrentPage.editUser ?
-                            <EditUserPage params={params} />
-                            : currentPage === CurrentPage.createUser ?
-                                <CreateUserPage />
+                    : currentPage === CurrentPage.editUser ?
+                        <EditUserPage params={params} />
+                        : currentPage === CurrentPage.createUser ?
+                            <CreateUserPage />
+                            : currentPage === CurrentPage.bookingConfirmed ?
+                                <BookingConfirmed />
                                 : currentPage === CurrentPage.manageGroups ?
                                     <ManageGroupsPage />
-                                    : currentPage === CurrentPage.editGroup ?
-                                        <EditGroupPage params={params} />
-                                        : currentPage === CurrentPage.createGroup ?
-                                            <CreateGroupPage />
-                                            : currentPage === CurrentPage.manageQuotas ?
-                                                <ManageQuotasPage params={params} />
-                                                : currentPage === CurrentPage.editQuota ?
-                                                    <EditQuotaPage params={params} />
-                                                    : currentPage === CurrentPage.manageBookings ?
-                                                        <ManageBookingsPage params={params} />
-                                                        : currentPage === CurrentPage.manageBans ?
-                                                            <ManageBansPage />
-                                                            : currentPage === CurrentPage.manageFilters ?
-                                                                <ManageFiltersPage params={params} />
-                                                                : currentPage === CurrentPage.createFilter ?
-                                                                    <CreateFilterPage params={params} />
-                                                                    : currentPage === CurrentPage.editFilter ?
-                                                                        <EditFilterPage params={params} />
-                                                                        : currentPage === CurrentPage.manageSettings ?
-                                                                            <ManageSettingsPage />
-                                                                            : currentPage === CurrentPage.editSetting ?
-                                                                                <EditSettingPage params={params} />
-                                                                                : currentPage === CurrentPage.manageRequests ?
-                                                                                    <ManageRequestsPage params={params} />
-                                                                                    : currentPage === CurrentPage.userMakesBooking ?
-                                                                                        <MakeABookingPage />
-                                                                                        :
-                                                                                        <MakeABookingPage /> //default
+                                : currentPage === CurrentPage.editGroup ?
+                                    <EditGroupPage params={params} />
+                                    : currentPage === CurrentPage.createGroup ?
+                                        <CreateGroupPage />
+                                        : currentPage === CurrentPage.manageQuotas ?
+                                            <ManageQuotasPage params={params} />
+                                            : currentPage === CurrentPage.editQuota ?
+                                                <EditQuotaPage params={params} />
+                                                : currentPage === CurrentPage.manageBookings ?
+                                                    <ManageBookingsPage params={params} />
+                                                    : currentPage === CurrentPage.manageFilters ?
+                                                        <ManageFiltersPage params={params} />
+                                                        : currentPage === CurrentPage.createFilter ?
+                                                            <CreateFilterPage params={params} />
+                                                            : currentPage === CurrentPage.editFilter ?
+                                                                <EditFilterPage params={params} />
+                                                                : currentPage === CurrentPage.manageSettings ?
+                                                                    <ManageSettingsPage />
+                                                                    : currentPage === CurrentPage.editSetting ?
+                                                                        <EditSettingPage params={params} />
+                                                                        : currentPage === CurrentPage.manageRequests ?
+                                                                            <ManageRequestsPage params={params} />
+                                                                            : currentPage === CurrentPage.userMakesBooking ?
+                                                                                <MakeABookingPage />
+                                                                                :
+                                                                                <MakeABookingPage /> //default
             }
             {
                 userContext?.user?.isAdministrator

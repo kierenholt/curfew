@@ -13,7 +13,7 @@ import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 export const BookingIcon = HourglassTopIcon;
-export const UserIcon = PersonIcon;
+export const UserIconIcon = PersonIcon;
 export const BanIcon = BlockIcon;
 export const RequestIcon = CloudIcon;
 export const FilterIcon = FilterListIcon;

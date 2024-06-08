@@ -19,7 +19,6 @@ export function QuotaEditForm(props: QuotaEditFormProps) {
     useEffect(() => {
         Helpers.get<IQuota>(`/api/quotas/${props.groupId}&${props.day}`)
             .then((quota: IQuota) => {
-                console.log(quota);
                 setRefreshAmount(quota.refreshAmount);
                 setRollsOver(quota.rollsOver);
                 setMaxDuration(quota.maxDuration);

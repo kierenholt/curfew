@@ -9,10 +9,8 @@ import { MakeABooking } from './makeABooking';
 import { DnsRequest } from '../db/dnsRequest';
 import { DetectUser } from './detectUser';
 import { Setting, SettingKey } from '../db/setting';
-import { DhcpServer } from '../dhcp/dhcpServer';
-import { spoof } from '../spoof';
 import { LiveUpdate } from './liveUpdate';
-import { group } from 'console';
+import { Spoof } from '../spoof';
 var cors = require('cors')
 
 export class API {
@@ -56,7 +54,10 @@ export class API {
             if (req.params.id.length > 0) {
                 let ret = await Device.setBan(req.params.id, isBanned);
                 if (isBanned) {
-                    spoof(0, 60000, [req.params.id]); // 1 minute
+                    Spoof.begin(0, [req.params.id]); // 1 minute
+                }
+                if (!isBanned) {
+                    Spoof.cancel([req.params.id]);
                 }
                 res.status(200).json(ret);
             }
@@ -217,9 +218,7 @@ export class API {
                 if (booking) {
                     let devices = await Device.getByOwnerId(req.body.userId);
                     let delay = booking.duration * 60000;
-                    let spoofDuration = 60000; //one minute 
-                    spoof(delay, spoofDuration, devices.map(d => d.id));
-                    console.log("spoof scheduled");
+                    Spoof.begin(delay, devices.map(d => d.id));
                 }
                 res.status(200).json(ret);
             }
@@ -254,7 +253,7 @@ export class API {
         //set value
         app.put('/api/settings/:key', async (req: Request, res: Response) => {
             let key = Number(req.params.key);
-            if (key > 0 && req.body.value) {
+            if (key > 0 && req.body.value.length > 0) {
                 let ret = await Setting.save(key, req.body.value);
                 res.status(200).json(ret);
             }

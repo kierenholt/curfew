@@ -16,7 +16,6 @@ export function BookingList(props: BookingListProps) {
     const deleteBooking = (id: number) => {
         Helpers.delete(`/api/bookings/${id}`)
             .then((deleted: number) => {
-                console.log("deleted: " + deleted);
                 if (deleted > 0) {
                     props.setBookings(props.bookings.filter(g => g.id !== id));
                 }

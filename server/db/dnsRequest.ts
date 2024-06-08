@@ -126,4 +126,13 @@ export class DnsRequest {
             result.redirectReason,
             result.redirectDestination) : null);
     }
+
+    static deleteOlderThanDays(days: number): Promise<number> {
+        let olderThan = new Date().valueOf() - days * 24 * 3600 * 1000;
+        return Db.run(`
+            delete from request
+            where requestedOn < ${olderThan}
+        `)
+        .then((result: RunResult) => result.changes);
+    }
 }

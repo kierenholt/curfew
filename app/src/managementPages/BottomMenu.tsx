@@ -3,7 +3,7 @@ import { CurrentPage } from "./PageContent";
 import { useState } from "react";
 
 import GroupIcon from '@mui/icons-material/Group';
-import { BanIcon, BookingIcon, FilterIcon, QuotaIcon, RequestIcon, SettingIcon } from "../Icon";
+import { BookingIcon, FilterIcon, QuotaIcon, RequestIcon, SettingIcon } from "../Icon";
 
 export interface BottomMenuProps {
     setCurrentPage: (p: CurrentPage) => void,
@@ -73,15 +73,6 @@ export const BottomMenu = (props: BottomMenuProps) => {
                                 sx={iconButtonStyle}>
                                 <FilterIcon fontSize="large" />
                                 <p>Filters</p>
-                            </Stack>
-                            <Stack direction="column" alignItems="center"
-                                onClick={() => {
-                                    props.setParams({});
-                                    props.setCurrentPage(CurrentPage.manageBans);
-                                }}
-                                sx={iconButtonStyle}>
-                                <BanIcon fontSize="large" />
-                                <p>Bans</p>
                             </Stack>
                         </Stack>
                         :

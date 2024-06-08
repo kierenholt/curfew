@@ -8,6 +8,7 @@ import { RequestIcon } from "./Icon";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import { useContext } from "react";
 import { Helpers } from "./helpers";
+import { RedirectReasonIcon } from "./RedirectReasonIcon";
 
 export interface RequestListProps {
     requests: IRequest[];
@@ -79,7 +80,7 @@ export function RequestList(props: RequestListProps) {
                         expandIcon={<ExpandMoreIcon />}>
 
                         <RequestIcon />
-
+                        <RedirectReasonIcon reason={r.redirectReason} />
                         <AllowDenyIcon redirectDestination={r.redirectDestination} />
                         {r.domain}
                         

@@ -19,7 +19,6 @@ export function FilterList(props: FilterListProps) {
     const deleteFilter = (id: number) => {
         Helpers.delete(`/api/filters/${id}`)
             .then((deleted: number) => {
-                console.log("deleted: " + deleted);
                 if (deleted > 0) {
                     props.setFilters(props.filters.filter(g => g.id !== id));
                 }

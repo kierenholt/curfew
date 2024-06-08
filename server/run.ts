@@ -5,6 +5,10 @@ import { Db } from "./db/db";
 import { API as API } from "./api/api";
 import { DetectNetwork } from "./localnetwork";
 import * as dotenv from "dotenv";
+import { Setting, SettingKey } from "./db/setting";
+import { DnsRequest } from "./db/dnsRequest";
+import { Jobs } from "./jobs";
+
 dotenv.config();
 
 
@@ -12,10 +16,9 @@ async function run() {
     DetectNetwork.init();
     await Db.init();
     //let c = await BookedSlot.bookedSlotExistsNow(5);
-    //console.log(c);
-    //let q = await Quota.getByGroupIdDay(1, 0);
-    //console.log(q);
-    
+    //let deleted = await DnsRequest.deleteOlderThanDays(4);
+    //console.log(deleted);
+
     //DHCP SERVER
     if (Number(process.env.DHCP_ENABLED)) {
         DhcpServer.init();
@@ -23,16 +26,18 @@ async function run() {
     if (Number(process.env.DHCP_MOCKED)) {
         DhcpServer.addDebugLeases();
     }
-
+    
     //DNS SERVER
     if (Number(process.env.DNS_ENABLED)) {
         DnsServer.init();
     }
-
+    
     //API
     if (Number(process.env.API_ENABLED)) {
         API.init();
     }
+    
+    Jobs.init();
 
     if (Number(process.env.TEST_SOCKET)) {
         let s = new TestSocket();

@@ -6,8 +6,10 @@ import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import { FilterIcon, QuotaIcon } from "./Icon";
-import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Stack, Tooltip } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Tooltip, Typography } from "@mui/material";
 import { UserList } from "./UserList";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { GroupBanToggleButton } from "./GroupBanToggleButton";
 
 export function UserGroupList() {
     const pageContext = useContext(PageContext);
@@ -24,7 +26,6 @@ export function UserGroupList() {
     const deleteGroup = (id: number) => {
         Helpers.delete(`/api/userGroups/${id}`)
             .then((deleted: number) => {
-                console.log("deleted: " + deleted);
                 if (deleted > 0) {
                     setGroups(groups.filter(g => g.id !== id));
                 }
@@ -38,45 +39,58 @@ export function UserGroupList() {
     return (<Stack direction="column">
         {groups.map((g: IUserGroup) =>
             <Accordion color="neutral" >
-                <AccordionSummary>
-                    <GroupIcon />
-                    {g.name}
-                </AccordionSummary>
+
+                <Box sx={{ display: "flex" }}>
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1a-content"
+                        id="panel2a-header"
+                        sx={{ flexGrow: 1 }}
+                    >
+
+                        <GroupIcon />
+                        <Typography>
+                            {g.name}
+                        </Typography>
+                    </AccordionSummary>
+                    <Box>
+                        <GroupBanToggleButton group={g} />
+                        <IconButton aria-label="Quotas" size="sm" variant="plain" color="neutral"
+                            onClick={() => {
+                                pageContext.setParams({ groupId: g.id });
+                                pageContext.setCurrentPage(CurrentPage.manageQuotas);
+                            }}>
+                            <QuotaIcon />
+                        </IconButton>
+                        <IconButton aria-label="Filters" size="sm" variant="plain" color="neutral"
+                            onClick={() => {
+                                pageContext.setParams({ groupId: g.id });
+                                pageContext.setCurrentPage(CurrentPage.manageFilters);
+                            }} >
+                            <FilterIcon />
+                        </IconButton >
+                        <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
+                            onClick={() => {
+                                pageContext.setParams({ groupId: g.id });
+                                pageContext.setCurrentPage(CurrentPage.editGroup);
+                            }}>
+                            <Edit />
+                        </IconButton>
+                        <Tooltip title={hasUsers(g) ? "if you wish to delete this groups, delete the users first." : "click to delete this group"}>
+                            <span>
+                                <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
+                                    onClick={() => deleteGroup(g.id)}
+                                    disabled={hasUsers(g)}>
+                                    <Delete />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+
+                    </Box>
+                </Box>
                 <AccordionDetails>
                     {g.users && <UserList initialUsers={g.users} />}
                 </AccordionDetails>
-                <AccordionActions>
-                    <IconButton aria-label="Quotas" size="sm" variant="plain" color="neutral"
-                        onClick={() => {
-                            pageContext.setParams({ groupId: g.id });
-                            pageContext.setCurrentPage(CurrentPage.manageQuotas);
-                        }}>
-                        <QuotaIcon />
-                    </IconButton>
-                    <IconButton aria-label="Filters" size="sm" variant="plain" color="neutral"
-                        onClick={() => {
-                            pageContext.setParams({ groupId: g.id });
-                            pageContext.setCurrentPage(CurrentPage.manageFilters);
-                        }} >
-                        <FilterIcon />
-                    </IconButton >
-                    <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
-                        onClick={() => {
-                            pageContext.setParams({ groupId: g.id });
-                            pageContext.setCurrentPage(CurrentPage.editGroup);
-                        }}>
-                        <Edit />
-                    </IconButton>
-                    <Tooltip title={hasUsers(g) ? "if you wish to delete this groups, delete the users first." : "click to delete this group"}>
-                        <span>
-                            <IconButton aria-label="Delete" size="sm" variant="plain" color="neutral"
-                                onClick={() => deleteGroup(g.id)}
-                                disabled={hasUsers(g)}>
-                                <Delete />
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-                </AccordionActions>
             </Accordion>)}
     </Stack>
     )

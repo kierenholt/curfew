@@ -4,6 +4,9 @@ import { RunResult } from "sqlite3";
 
 export enum SettingKey {
     apiGetRequestLimit = 1,
+    groupRequests = 2,
+    requestExpiryDays = 3
+    //remember to add true/false to editsettings page
 }
 
 export class Setting {
@@ -32,13 +35,15 @@ export class Setting {
     }
 
     static async seed() {
-        await this.create(SettingKey.apiGetRequestLimit, 20, "request fetch amount", "number of requests retrieved when you click 'show more'");
+        await this.create(SettingKey.apiGetRequestLimit, "20", "request fetch amount (any number)", "number of requests retrieved when you click 'show more'");
+        await this.create(SettingKey.groupRequests, "true", "group requests", "if enabled, requests are listed in groups");
+        await this.create(SettingKey.requestExpiryDays, "5", "request expiry (days)", "how long a request is stored in the database before scheduled deletion");
     }
 
-    static async create(key: SettingKey, value: Number | string, label: string, description: string): Promise<number> {
+    static async create(key: SettingKey, value: string, label: string, description: string): Promise<number> {
         return Db.run(`
             insert into setting (key, value, label, description)
-            values (${key.valueOf()}, '${value}', '${Helpers.escapeSingleQuotes(label)}', '${Helpers.escapeSingleQuotes(description)}')
+            values (${key.valueOf()}, '${Helpers.escapeSingleQuotes(value)}', '${Helpers.escapeSingleQuotes(label)}', '${Helpers.escapeSingleQuotes(description)}')
         `)
         .then(result => result.changes);
     }
@@ -68,6 +73,14 @@ export class Setting {
             where key=${key}
         `)
         .then(result => Helpers.unescapeSingleQuotes(result.value));
+    }
+
+    static getBool(key: SettingKey): Promise<boolean> {
+        return Db.get(`
+            select value from setting
+            where key=${key}
+        `)
+        .then(result => result.value === "true");
     }
     
     static getByKey(key: SettingKey): Promise<Setting | null> {

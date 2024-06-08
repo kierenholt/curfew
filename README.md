@@ -23,12 +23,25 @@ sudo systemctl start isc-dhcp-server.service
 # TODO 
 add detail to group list, user list etc.
 booking list shows detail i.e. start to end time
-group requests that were close together
-add setup alerts 
+add setup guide pages
+
 match more than one domain component using dot
-refresh button on the requests page / autorefresh
+
+when banning, do not arp if no request in last hour
+
+maintenance to cleanup cached promises etc.
+check that expiry request in days actually works 
+
+id requests to devices apple / android / chromebook 
+https://support.apple.com/en-us/101555
+ntp.ubuntu.com
+
+option to hide common domains
+
+get new domains from past 24 hours
 
 # TODO MUCH LATER
+use bonjour to detect devices
 when add user to reason for ban (if user is banned)
 allow manual dhcp entries
 instant update the request list

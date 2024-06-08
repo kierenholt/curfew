@@ -7,6 +7,7 @@ import { QuotaList } from "../QuotaList";
 import { BookingCreateForm } from "../BookingCreateForm";
 import { UserContext } from "./DetectUser";
 import { RequestListWrapper } from "../RequestListWrapper";
+import { CurrentPage, PageContext } from "./PageContent";
 
 export enum BookingStatus {
     quotaExceeded,
@@ -35,6 +36,7 @@ export interface MakeABookingResponse {
 
 export function MakeABookingPage() {
     const userContext = useContext(UserContext);
+    const pageContext = useContext(PageContext);
     const [response, setResponse] = useState<MakeABookingResponse>();
 
     useEffect(() => {
@@ -89,7 +91,12 @@ export function MakeABookingPage() {
                                         You can book up to {response.maxDurationOfNextBook} mins.
                                     </p>
                                     <BookingCreateForm
-                                        onCreated={() => window.location.reload()}
+                                        onCreated={() => {
+                                            if (pageContext) {
+                                                pageContext.setParams({});
+                                                pageContext.setCurrentPage(CurrentPage.bookingConfirmed)
+                                            }
+                                        }}
                                         userId={userContext == null ? 0 : userContext.user.id}
                                         quota={response.todaysQuota}
                                         maxDurationOfNextBook={response.maxDurationOfNextBook} />

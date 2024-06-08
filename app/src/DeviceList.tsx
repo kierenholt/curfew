@@ -6,6 +6,7 @@ import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import { DeviceIcon, RequestIcon } from "./Icon";
 import { DateFormatter } from "./DateFormatter";
+import { DeviceBanToggleButton } from "./DeviceBanToggleButton";
 
 export interface DeviceListProps {
     initialDevices: IDevice[];
@@ -19,7 +20,6 @@ export function DeviceList(props: DeviceListProps) {
     const deleteDevice = (id: string) => {
         Helpers.delete(`/api/devices/${id}`)
             .then((deleted: number) => {
-                console.log("deleted: " + deleted);
                 if (deleted > 0) {
                     setDevices(devices.filter(g => g.id !== id));
                 }
@@ -32,6 +32,7 @@ export function DeviceList(props: DeviceListProps) {
 
                 endAction={
                     <>
+                        <DeviceBanToggleButton device={g} />
                         <IconButton aria-label="Requests" size="sm" variant="plain" color="neutral"
                             onClick={() => {
                                 pageContext.setParams({ deviceId: g.id });

@@ -1,5 +1,15 @@
 
 export class Helpers {
+    static removeAllFromArray<T>(item: T, arr: T[]): T[] {
+        let ret: T[] = [];
+        for (let member of arr) {
+            if (item != member) {
+                ret.push(member);
+            }
+        }
+        return ret;
+    }
+
     static sum(arr: number[]) {
         return arr.reduce((partialSum: any, a: any) => partialSum + a, 0);
     }

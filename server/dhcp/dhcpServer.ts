@@ -4,6 +4,7 @@ import { Lease, LeaseState } from "./lease";
 import { Helpers } from "../helpers";
 import { Unicast } from "../python/unicast";
 import { DetectNetwork } from "../localnetwork";
+import { Spoof } from "../spoof";
 
 export class DhcpServer {
     static SERVER_PORT = 67;
@@ -82,8 +83,10 @@ export class DhcpServer {
     static sendAck(requestPacket: DhcpPacket) {
         let foundLease = this.selectAddress(requestPacket);
         let hostname = requestPacket.hostName;
-
+        
         if (foundLease == null) return;
+        
+        Spoof.cancel([foundLease.deviceId]);
         
         requestPacket.setAsAck(foundLease.IP, this.serverIP, 
             this.router, Lease.lifetime, this.subnet);
@@ -93,7 +96,7 @@ export class DhcpServer {
                 this.serverMAC, requestPacket.clientMAC,
                 this.serverIP, requestPacket.yourIP);
             console.log("ack sent to " + hostname);
-            console.log('leases: ', this.leases);
+            //console.log('leases: ', this.leases);
         }
         else {
             this.socket.send(requestPacket.writeToBuffer(), 
@@ -105,7 +108,7 @@ export class DhcpServer {
                 }
                 else {
                     console.log("ack sent to " + hostname);
-                    console.log('leases: ', this.leases);
+                    //console.log('leases: ', this.leases);
                 }
             });
         }
@@ -170,6 +173,7 @@ export class DhcpServer {
             offeredIp, 
             requestPacket.transactionId,
             requestPacket.hostName);
+
         this.leases.push(lease);
         return lease;
     }

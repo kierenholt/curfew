@@ -1,5 +1,5 @@
 import { Stack } from "@mui/material"
-import { UserIcon, DeviceIcon, AdministratorIcon } from "../Icon"
+import { UserIconIcon, DeviceIcon, AdministratorIcon } from "../Icon"
 import { useContext } from "react";
 import { UserContext } from "./DetectUser";
 
@@ -20,7 +20,7 @@ export const Header = () => {
                         ?
                         <AdministratorIcon />
                         :
-                        <UserIcon />
+                        <UserIconIcon />
                     }
                     {userContext.user.name}
                 </p>}
