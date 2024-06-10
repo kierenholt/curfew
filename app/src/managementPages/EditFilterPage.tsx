@@ -15,7 +15,7 @@ export function EditFilterPage(props: EditFilterPageProps) {
                 Edit Filter
             </p>
             <FilterEditForm 
-                onEdited={() => pageContext.setCurrentPage(CurrentPage.manageFilters)} 
+                onEdited={() => pageContext.goBack()} 
                 id={props.params.id}/>
         </>
     )

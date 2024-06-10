@@ -11,7 +11,8 @@ export function CreateGroupPage() {
             <p>
                 New User Group
             </p>
-            <GroupCreateForm onCreated={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} />
+            <GroupCreateForm 
+                onCreated={() => pageContext.goTo(CurrentPage.manageGroups)} />
         </>
     )
 }

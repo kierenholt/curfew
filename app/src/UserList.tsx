@@ -53,14 +53,14 @@ export function UserList(props: UserListProps) {
                         <IconButton aria-label="Bookings" size="sm" variant="plain" color="neutral"
                             onClick={() => {
                                 pageContext.setParams({ userId: g.id });
-                                pageContext.setCurrentPage(CurrentPage.manageBookings);
+                                pageContext.goTo(CurrentPage.manageBookings);
                             }}>
                             <BookingIcon />
                         </IconButton>
                         <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                             onClick={() => {
                                 pageContext.setParams({ userId: g.id, showAdminBox: true })
-                                pageContext.setCurrentPage(CurrentPage.editUser)
+                                pageContext.goTo(CurrentPage.editUser)
                             }}>
                             <Edit />
                         </IconButton>

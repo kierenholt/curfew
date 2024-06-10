@@ -47,7 +47,7 @@ export function ManageFiltersPage(props: ManageFiltersProps) {
                     <FilterList filters={filters}
                         allowEdit={true} setFilters={(f: IFilter[]) => setFilters(f)} />
             }
-            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.createFilter)} >
+            <Button onClick={() => pageContext.goTo(CurrentPage.createFilter)} >
                 create a new filter
             </Button>
         </>

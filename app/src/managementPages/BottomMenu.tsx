@@ -1,15 +1,12 @@
 import { ToggleButtonGroup, ToggleButton, Stack } from "@mui/material";
-import { CurrentPage } from "./PageContent";
-import { useState } from "react";
+import { CurrentPage, PageContext } from "./PageContent";
+import { useContext, useState } from "react";
 
 import { BookingIcon, FilterIcon, QuotaIcon, RequestIcon, SettingIcon, UserGroupIcon } from "../Icon";
 
-export interface BottomMenuProps {
-    setCurrentPage: (p: CurrentPage) => void,
-    setParams: (p: any) => void
-}
 
-export const BottomMenu = (props: BottomMenuProps) => {
+export const BottomMenu = () => {
+    const pageContext = useContext(PageContext);
     const [menu, setMenu] = useState<number>(0);
 
     const iconButtonStyle = {
@@ -43,8 +40,8 @@ export const BottomMenu = (props: BottomMenuProps) => {
                         height="100px">
                         <Stack direction="column" alignItems="center"
                             onClick={() => {
-                                props.setParams({});
-                                props.setCurrentPage(CurrentPage.manageGroups)
+                                pageContext.setParams({});
+                                pageContext.goTo(CurrentPage.manageGroups)
                             }}
                             sx={iconButtonStyle}>
                             <UserGroupIcon fontSize="large" />
@@ -57,8 +54,8 @@ export const BottomMenu = (props: BottomMenuProps) => {
                             height="100px">
                             <Stack direction="column" alignItems="center"
                                 onClick={() => {
-                                    props.setParams({ groupId: 1 });
-                                    props.setCurrentPage(CurrentPage.manageQuotas);
+                                    pageContext.setParams({ groupId: 1 });
+                                    pageContext.goTo(CurrentPage.manageQuotas);
                                 }}
                                 sx={iconButtonStyle}>
                                 <QuotaIcon fontSize="large" />
@@ -66,8 +63,8 @@ export const BottomMenu = (props: BottomMenuProps) => {
                             </Stack>
                             <Stack direction="column" alignItems="center"
                                 onClick={() => {
-                                    props.setParams({});
-                                    props.setCurrentPage(CurrentPage.manageFilters);
+                                    pageContext.setParams({});
+                                    pageContext.goTo(CurrentPage.manageFilters);
                                 }}
                                 sx={iconButtonStyle}>
                                 <FilterIcon fontSize="large" />
@@ -79,8 +76,8 @@ export const BottomMenu = (props: BottomMenuProps) => {
 
                             <Stack direction="column" alignItems="center"
                                 onClick={() => {
-                                    props.setParams({ userId: 1 });
-                                    props.setCurrentPage(CurrentPage.manageBookings);
+                                    pageContext.setParams({ userId: 1 });
+                                    pageContext.goTo(CurrentPage.manageBookings);
                                 }}
                                 sx={iconButtonStyle}>
                                 <BookingIcon fontSize="large" />
@@ -88,8 +85,8 @@ export const BottomMenu = (props: BottomMenuProps) => {
                             </Stack>
                             <Stack direction="column" alignItems="center"
                                 onClick={() => {
-                                    props.setParams({});
-                                    props.setCurrentPage(CurrentPage.manageRequests);
+                                    pageContext.setParams({});
+                                    pageContext.goTo(CurrentPage.manageRequests);
                                 }}
                                 sx={iconButtonStyle}>
                                 <RequestIcon fontSize="large" />
@@ -97,8 +94,8 @@ export const BottomMenu = (props: BottomMenuProps) => {
                             </Stack>
                             <Stack direction="column" alignItems="center"
                                 onClick={() => {
-                                    props.setParams({});
-                                    props.setCurrentPage(CurrentPage.manageSettings);
+                                    pageContext.setParams({});
+                                    pageContext.goTo(CurrentPage.manageSettings);
                                 }}
                                 sx={iconButtonStyle}>
                                 <SettingIcon fontSize="large" />

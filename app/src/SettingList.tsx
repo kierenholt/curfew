@@ -20,7 +20,7 @@ export function SettingList(props: SettingListProps) {
                     <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                         onClick={() => {
                             pageContext.setParams({key: g.key})
-                            pageContext.setCurrentPage(CurrentPage.editSetting)
+                            pageContext.goTo(CurrentPage.editSetting)
                         }}>
                         <Edit />
                     </IconButton>

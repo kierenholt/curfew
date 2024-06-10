@@ -57,21 +57,21 @@ export function UserGroupList() {
                         <IconButton aria-label="Quotas" size="sm" variant="plain" color="neutral"
                             onClick={() => {
                                 pageContext.setParams({ groupId: g.id });
-                                pageContext.setCurrentPage(CurrentPage.manageQuotas);
+                                pageContext.goTo(CurrentPage.manageQuotas);
                             }}>
                             <QuotaIcon />
                         </IconButton>
                         <IconButton aria-label="Filters" size="sm" variant="plain" color="neutral"
                             onClick={() => {
                                 pageContext.setParams({ groupId: g.id });
-                                pageContext.setCurrentPage(CurrentPage.manageFilters);
+                                pageContext.goTo(CurrentPage.manageFilters);
                             }} >
                             <FilterIcon />
                         </IconButton >
                         <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                             onClick={() => {
                                 pageContext.setParams({ groupId: g.id });
-                                pageContext.setCurrentPage(CurrentPage.editGroup);
+                                pageContext.goTo(CurrentPage.editGroup);
                             }}>
                             <Edit />
                         </IconButton>

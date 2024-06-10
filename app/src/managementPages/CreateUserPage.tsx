@@ -14,7 +14,7 @@ export function CreateUserPage() {
             <p>
                 New User
             </p>
-            <UserCreateForm onCreated={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} />
+            <UserCreateForm onCreated={() => pageContext.goTo(CurrentPage.manageGroups)} />
         </>
     )
 }

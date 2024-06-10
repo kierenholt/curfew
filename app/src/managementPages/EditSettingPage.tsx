@@ -25,11 +25,11 @@ export function EditSettingPage(props: EditSettingPageProps) {
                 settingIsStoredAsNumber[props.params.key]
                 ?
                 <SettingEditFormAsNumber 
-                    onEdited={() => pageContext.setCurrentPage(CurrentPage.manageSettings)} 
+                    onEdited={() => pageContext.goBack()} 
                     settingKey={props.params.key}/>
                 :
                 <SettingEditFormAsBoolean
-                    onEdited={() => pageContext.setCurrentPage(CurrentPage.manageSettings)} 
+                    onEdited={() => pageContext.goBack()} 
                     settingKey={props.params.key}/>
             }
         </>

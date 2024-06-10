@@ -33,7 +33,7 @@ export const Header = () => {
                             onClick={() => {
                                 if (showEditLink) {
                                     pageContext.setParams({ userId: userContext.user.id, showAdminBox: false });
-                                    pageContext.setCurrentPage(CurrentPage.editUser)
+                                    pageContext.goTo(CurrentPage.editUser)
                                 }
                             }} >
                             {userContext.user.isAdministrator
@@ -55,7 +55,7 @@ export const Header = () => {
                         onClick={() => {
                             if (showEditLink) {
                                 pageContext.setParams({ deviceId: userContext.device.id });
-                                pageContext.setCurrentPage(CurrentPage.editDevice)
+                                pageContext.goTo(CurrentPage.editDevice)
                             }
                         }} >
                         <DeviceIcon />

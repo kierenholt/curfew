@@ -63,11 +63,11 @@ export function RequestList(props: RequestListProps) {
                 let found = await Helpers.get<IFilter>(`/api/filters/component/${component}/group/${u.groupId}`)
                 if (found) { //edit
                     pageContext.setParams({ id: found.id })
-                    pageContext.setCurrentPage(CurrentPage.editFilter);
+                    pageContext.goTo(CurrentPage.editFilter);
                 }
                 else { //create
                     pageContext.setParams({ component: component, groupId: u.groupId })
-                    pageContext.setCurrentPage(CurrentPage.createFilter);
+                    pageContext.goTo(CurrentPage.createFilter);
                 }
             })
     }

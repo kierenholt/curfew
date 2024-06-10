@@ -36,14 +36,14 @@ export function DeviceList(props: DeviceListProps) {
                         <IconButton aria-label="Requests" size="sm" variant="plain" color="neutral"
                             onClick={() => {
                                 pageContext.setParams({ deviceId: g.id });
-                                pageContext.setCurrentPage(CurrentPage.manageRequests);
+                                pageContext.goTo(CurrentPage.manageRequests);
                             }} >
                             <RequestIcon />
                         </IconButton>
                         <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                             onClick={() => {
                                 pageContext.setParams({ deviceId: g.id })
-                                pageContext.setCurrentPage(CurrentPage.editDevice)
+                                pageContext.goTo(CurrentPage.editDevice)
                             }}>
                             <Edit />
                         </IconButton>

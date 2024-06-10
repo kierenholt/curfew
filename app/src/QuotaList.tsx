@@ -24,7 +24,7 @@ export function QuotaList(props: QuotaListProps) {
                     <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                         onClick={() => {
                             pageContext.setParams({groupId: g.groupId, day: g.day})
-                            pageContext.setCurrentPage(CurrentPage.editQuota)
+                            pageContext.goTo(CurrentPage.editQuota)
                         }}>
                         <Edit />
                     </IconButton>

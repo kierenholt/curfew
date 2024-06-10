@@ -46,7 +46,7 @@ export function FilterList(props: FilterListProps) {
                 <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                     onClick={() => {
                         pageContext.setParams({id: g.id});
-                        pageContext.setCurrentPage(CurrentPage.editFilter);
+                        pageContext.goTo(CurrentPage.editFilter);
                     }}>
                     <Edit />
                 </IconButton>

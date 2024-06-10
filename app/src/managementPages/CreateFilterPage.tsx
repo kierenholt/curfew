@@ -17,7 +17,7 @@ export function CreateFilterPage(props: CreateFilterPageProps) {
             <FilterCreateForm 
                 component={props?.params?.component} 
                 groupId={props?.params?.groupId}
-                onCreated={() => pageContext.setCurrentPage(CurrentPage.manageFilters)} />
+                onCreated={() => pageContext.goTo(CurrentPage.manageFilters)} />
         </>
     )
 }

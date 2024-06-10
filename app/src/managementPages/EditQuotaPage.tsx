@@ -14,7 +14,7 @@ export function EditQuotaPage(props: EditQuotaPageProps) {
             <p>
                 Edit quota
             </p>
-            <QuotaEditForm onEdited={() => pageContext.setCurrentPage(CurrentPage.manageQuotas)} 
+            <QuotaEditForm onEdited={() => pageContext.goBack()} 
                 groupId={props.params.groupId} day={props.params.day} />
         </>
     )

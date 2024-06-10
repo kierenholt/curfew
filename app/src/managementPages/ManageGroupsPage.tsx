@@ -16,7 +16,7 @@ export function ManageGroupsPage() {
                 list of groups
             </p>
             <UserGroupList />
-            <Button onClick={() => pageContext.setCurrentPage(CurrentPage.createGroup)} >
+            <Button onClick={() => pageContext.goTo(CurrentPage.createGroup)} >
                 create a new group
             </Button>
         </>

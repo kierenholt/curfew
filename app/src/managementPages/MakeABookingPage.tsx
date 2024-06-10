@@ -94,7 +94,7 @@ export function MakeABookingPage() {
                                         onCreated={() => {
                                             if (pageContext) {
                                                 pageContext.setParams({});
-                                                pageContext.setCurrentPage(CurrentPage.bookingConfirmed)
+                                                pageContext.goTo(CurrentPage.bookingConfirmed)
                                             }
                                         }}
                                         userId={userContext == null ? 0 : userContext.user.id}
