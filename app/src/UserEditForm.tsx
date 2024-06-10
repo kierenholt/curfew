@@ -65,6 +65,8 @@ export function UserEditForm(props: UserEditFormProps) {
             }
 
             <Button onClick={save} >Save</Button>
+            <Button onClick={() => props.onEdited()} >Cancel</Button>
+
         </FormGroup>
     )
 }

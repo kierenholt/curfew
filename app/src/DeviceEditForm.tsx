@@ -47,6 +47,7 @@ export function DeviceEditForm(props: DeviceEditFormProps) {
 
             <UserSelect selectedUserId={ownerId} setSelectedUserId={setOwnerId} />
             <Button onClick={save} >Save</Button>
+            <Button onClick={() => props.onEdited()} >Cancel</Button>
         </FormGroup>
     )
 }

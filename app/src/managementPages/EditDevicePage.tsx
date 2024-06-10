@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { DeviceEditForm } from "../DeviceEditForm";
-import { CurrentPage, PageContext } from "./PageContent";
+import { PageContext } from "./PageContent";
 
 export interface EditDevicePageProps {
     params: any  //deviceId

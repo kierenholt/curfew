@@ -25,15 +25,12 @@ add detail to group list, user list etc.
 booking list shows detail i.e. start to end time
 add setup guide pages
 
-add shortcut to change name that used once and changes their name
-
 get curfew to show up for dns in firefox etc.
 
 device needs to show most recent request
 
 match more than one domain component using dot
 
-maintenance to cleanup cached promises etc.
 
 option to view deleted users / groups / devices in lists
 
@@ -42,10 +39,11 @@ https://support.apple.com/en-us/101555
 ntp.ubuntu.com
 
 option to hide common domains
-
 get new domains from past 24 hours
 
+
 # TODO MUCH LATER
+maintenance to cleanup cached promises etc.
 use bonjour to detect devices
 when add user to reason for ban (if user is banned)
 allow manual dhcp entries

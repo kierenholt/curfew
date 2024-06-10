@@ -7,7 +7,7 @@ import { BookingIcon, FilterIcon, QuotaIcon, RequestIcon, SettingIcon, UserGroup
 
 export const BottomMenu = () => {
     const pageContext = useContext(PageContext);
-    const [menu, setMenu] = useState<number>(0);
+    const [menu, setMenu] = useState<number>(1);
 
     const iconButtonStyle = {
         padding: "2px 20px",
@@ -27,7 +27,6 @@ export const BottomMenu = () => {
                 }}
                 aria-label="show users"
             >
-                <ToggleButton sx={{ width: "33%" }} value={0}>Users</ToggleButton>
                 <ToggleButton sx={{ width: "33%" }} value={1}>Manage</ToggleButton>
                 <ToggleButton sx={{ width: "33%" }} value={2}>Monitor</ToggleButton>
             </ToggleButtonGroup>
@@ -35,23 +34,20 @@ export const BottomMenu = () => {
             {
                 menu === 0
                     ?
-                    <Stack
-                        direction="row" justifyContent="space-around" alignItems="stretch"
-                        height="100px">
-                        <Stack direction="column" alignItems="center"
-                            onClick={() => {
-                                pageContext.setParams({});
-                                pageContext.goTo(CurrentPage.manageGroups)
-                            }}
-                            sx={iconButtonStyle}>
-                            <UserGroupIcon fontSize="large" />
-                            <p>Groups</p>
-                        </Stack>
-                    </Stack>
+                    <></>
                     : menu === 1
                         ?
                         <Stack direction="row" justifyContent="space-around" alignItems="stretch"
                             height="100px">
+                            <Stack direction="column" alignItems="center"
+                                onClick={() => {
+                                    pageContext.setParams({});
+                                    pageContext.goTo(CurrentPage.manageGroups)
+                                }}
+                                sx={iconButtonStyle}>
+                                <UserGroupIcon fontSize="large" />
+                                <p>Groups</p>
+                            </Stack>
                             <Stack direction="column" alignItems="center"
                                 onClick={() => {
                                     pageContext.setParams({ groupId: 1 });

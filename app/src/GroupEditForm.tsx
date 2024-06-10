@@ -5,7 +5,7 @@ import { Typography } from "@mui/joy";
 import { IUserGroup } from "./types";
 
 interface GroupEditFormProps {
-    onCreated: () => void;
+    onEdited: () => void;
     groupId: number;
 }
 
@@ -27,7 +27,7 @@ export function GroupEditForm(props: GroupEditFormProps) {
             { name: name, isUnrestricted: isUnrestricted })
                 .then((updated: number) => {
                     if (updated > 0) {
-                        props.onCreated();
+                        props.onEdited();
                     }
                 })
     }
@@ -56,6 +56,8 @@ export function GroupEditForm(props: GroupEditFormProps) {
             </Typography>
 
             <Button onClick={save} >Save</Button>
+            <Button onClick={() => props.onEdited()} >Cancel</Button>
+
         </FormGroup>
     )
 }

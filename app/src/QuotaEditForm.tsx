@@ -84,6 +84,8 @@ export function QuotaEditForm(props: QuotaEditFormProps) {
                 />
 
                 <Button onClick={save} >Save</Button>
+                <Button onClick={() => props.onEdited()} >Cancel</Button>
+
             </FormGroup>
         </>
     )

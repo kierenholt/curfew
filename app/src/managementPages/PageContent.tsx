@@ -32,8 +32,7 @@ export enum CurrentPage {
     manageRequests,
     manageFilters, editFilter, createFilter,
     manageSettings, editSetting,
-    bookingConfirmed,
-    back
+    bookingConfirmed
 }
 
 interface SetPageAction {

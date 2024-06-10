@@ -69,6 +69,8 @@ export function FilterEditForm(props: FilterEditFormProps) {
                 </ToggleButtonGroup>
 
                 <Button onClick={save} >Save</Button>
+                <Button onClick={() => props.onEdited()} >Cancel</Button>
+
             </FormGroup>
         </>
     )
