@@ -12,7 +12,7 @@ export class Filter {
     groupId: number;
     component: string;
     action: FilterAction;
-    static needsBook: string[] = ["brawlstarsgame","youtube","googlevideo","roblox","classroom6x","unity","snapchat","unity3d","brawlstars","brawlstargame","brawlstars","vungle","gameduo","liftoff","applovin","inner-activ","inmobicdn","inmobi","applvn","supercell","rbxcdn","crazygames","epicgames","epicgames","yohoho","poki","1001games","friv","numuki","coolmathgames","raft-wars","ytimg","fbcdn","brawlstars","snapchat"];
+    static needsBook: string[] = ["brawlstarsgame","youtube","googlevideo","roblox","classroom6x","unity","snapchat","unity3d","brawlstars","brawlstargame","brawlstars","vungle","gameduo","liftoff","applovin","inner-activ","inmobicdn","inmobi","applvn","supercell","rbxcdn","crazygames","epicgames","epicgames","yohoho","poki","1001games","friv","numuki","coolmathgames","raft-wars","ytimg","fbcdn","brawlstars","snapchat","tybsi","isreally","innogames","adultswim","mathgames66"];
     static blocked: string[] = ["tiktok","goguardian","tiktokcdn","facebook","tiktokcdn-eu","tiktokv","apple","aaplimg","tiktokcdn-us","dns","mask","apple-dns","alidns","blahdns","opendns","cleanbrowsing","dnsbycomodo","dnscrypt","nextdns","one"];
 
     constructor(id: number, component: string, groupId: number, action: number) {

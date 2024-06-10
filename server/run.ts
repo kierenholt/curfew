@@ -18,6 +18,8 @@ async function run() {
     //let c = await BookedSlot.bookedSlotExistsNow(5);
     //let deleted = await DnsRequest.deleteOlderThanDays(4);
     //console.log(deleted);
+    //await Setting.create(SettingKey.showNonAdminsNameChangeLink, "1", "allow name change on home page", "when you click the name or device on the homepage, an edit page will show. Best to disable this once everything is set up.");
+
 
     //DHCP SERVER
     if (Number(process.env.DHCP_ENABLED)) {

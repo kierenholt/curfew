@@ -7,6 +7,7 @@ import { GroupSelect } from "./GroupSelect";
 interface UserEditFormProps {
     onEdited: () => void;
     userId: number;
+    showAdminBox: boolean;
 }
 
 export function UserEditForm(props: UserEditFormProps) {
@@ -52,12 +53,16 @@ export function UserEditForm(props: UserEditFormProps) {
                 }}
             />
 
-            <GroupSelect setSelectedGroupId={setGroupId} selectedGroupId={groupId} />
-
-            <FormControlLabel control={
-                <Checkbox onChange={(e) => setIsAdministrator(e.target.checked)}
-                    checked={isAdministrator} />
-            } label="Administrator" />
+            {
+                props.showAdminBox &&
+                <>
+                    <GroupSelect setSelectedGroupId={setGroupId} selectedGroupId={groupId} />
+                    <FormControlLabel control={
+                        <Checkbox onChange={(e) => setIsAdministrator(e.target.checked)}
+                            checked={isAdministrator} />
+                    } label="Administrator" />
+                </>
+            }
 
             <Button onClick={save} >Save</Button>
         </FormGroup>

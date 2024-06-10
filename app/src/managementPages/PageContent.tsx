@@ -32,7 +32,8 @@ export enum CurrentPage {
     manageRequests,
     manageFilters, editFilter, createFilter,
     manageSettings, editSetting,
-    bookingConfirmed
+    bookingConfirmed,
+    back
 }
 
 interface SetPageAction {
@@ -49,7 +50,7 @@ export const PageContent = () => {
     const userContext = useContext(UserContext);
     const [currentPage, setCurrentPage] = useState<CurrentPage>(CurrentPage.userMakesBooking);
     const [params, setParams] = useState<any>({});
-
+    
     return (
         <PageContext.Provider value={{
             setCurrentPage: setCurrentPage,

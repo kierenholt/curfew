@@ -3,7 +3,7 @@ import { DeviceEditForm } from "../DeviceEditForm";
 import { CurrentPage, PageContext } from "./PageContent";
 
 export interface EditDevicePageProps {
-    params: any
+    params: any  //deviceId
 }
 
 export function EditDevicePage(props: EditDevicePageProps) {

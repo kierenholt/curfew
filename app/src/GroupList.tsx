@@ -1,11 +1,10 @@
 import { useContext, useEffect, useState } from "react"
 import { IconButton } from "@mui/joy";
-import GroupIcon from '@mui/icons-material/Group';
 import { IUserGroup } from "./types";
 import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
-import { FilterIcon, QuotaIcon } from "./Icon";
+import { FilterIcon, QuotaIcon, UserGroupIcon } from "./Icon";
 import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Tooltip, Typography } from "@mui/material";
 import { UserList } from "./UserList";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -48,7 +47,7 @@ export function UserGroupList() {
                         sx={{ flexGrow: 1 }}
                     >
 
-                        <GroupIcon />
+                        <UserGroupIcon />
                         <Typography>
                             {g.name}
                         </Typography>

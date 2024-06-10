@@ -3,7 +3,7 @@ import { CurrentPage, PageContext } from "./PageContent";
 import { UserEditForm } from "../UserEditForm";
 
 export interface EditUserPageProps {
-    params: any //userId
+    params: any //userId, //showAdminBox
 }
 
 export function EditUserPage(props: EditUserPageProps) {
@@ -15,7 +15,8 @@ export function EditUserPage(props: EditUserPageProps) {
                 Edit user details
             </p>
             <UserEditForm onEdited={() => pageContext.setCurrentPage(CurrentPage.manageGroups)} 
-                userId={props.params.userId} />
+                userId={props.params.userId} 
+                showAdminBox={props.params.showAdminBox === true}/>
         </>
     )
 }

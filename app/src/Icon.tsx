@@ -11,6 +11,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import SettingsIcon from '@mui/icons-material/Settings';
+import GroupIcon from '@mui/icons-material/Group';
 
 export const BookingIcon = HourglassTopIcon;
 export const UserIconIcon = PersonIcon;
@@ -24,3 +25,4 @@ export const DenyIcon = CloseIcon;
 export const DeviceIcon = DevicesIcon;
 export const AdministratorIcon = AccountCircleIcon;
 export const SettingIcon = SettingsIcon;
+export const UserGroupIcon = GroupIcon;

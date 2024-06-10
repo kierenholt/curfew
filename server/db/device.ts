@@ -9,12 +9,14 @@ export class Device {
     name: string;
     private _owner: Promise<User | null> | undefined;
     isBanned: boolean;
+    isDeleted: boolean;
 
-    constructor(id: string, ownerId: number, name: string, isBanned: number) {
+    constructor(id: string, ownerId: number, name: string, isBanned: number, isDeleted: number) {
         this.id = id;
         this.ownerId = ownerId;
         this.name = name;
         this.isBanned = (isBanned == 1);
+        this.isDeleted = (isDeleted == 1);
     }
 
     static createTable(): Promise<RunResult> {
@@ -24,6 +26,7 @@ export class Device {
                 ownerId integer not null,
                 name text not null,
                 isBanned integer default 0 not null,
+                isDeleted integer default 0 not null,
                 FOREIGN KEY(ownerId) REFERENCES user(id)
             );
         `)
@@ -62,20 +65,23 @@ export class Device {
             result.id, 
             result.ownerId, 
             Helpers.unescapeSingleQuotes(result.name),
-            result.isBanned
+            result.isBanned,
+            result.isDeleted
             ) : null);
     }
 
-    static getByOwnerId(ownerId: number): Promise<Device[]> {
+    static getByOwnerId(ownerId: number, includeDeleted = false): Promise<Device[]> {
         return Db.all(`
             select * from device
             where ownerId='${ownerId}'
+            ${includeDeleted ? "" : "and isDeleted=0"}
         `)
         .then((result: any) => result.map((r:any) => new Device(
             r.id, 
             r.ownerId, 
             Helpers.unescapeSingleQuotes(r.name),
-            r.isBanned
+            r.isBanned,
+            r.isDeleted
         )))
     }
 
@@ -90,7 +96,8 @@ export class Device {
 
     static delete(id: string): Promise<number> {
         return Db.run(`
-            delete from device
+            update device
+            set isDeleted=1
             where id = '${id}'
         `)
         .then((result: RunResult) => result.changes);
@@ -103,15 +110,17 @@ export class Device {
         return this._owner;
     }
 
-    static getAll(): Promise<Device[]> {
+    static getAll(includeDeleted = false): Promise<Device[]> {
         return Db.all(`
             select * from device
+            ${includeDeleted ? "" : " where isDeleted=0 "}
         `)
         .then((result: any) => result.map((r:any) => new Device(
             r.id, 
             r.ownerId, 
             Helpers.unescapeSingleQuotes(r.name),
-            r.isBanned
+            r.isBanned,
+            r.isDeleted
             )))
     }
 

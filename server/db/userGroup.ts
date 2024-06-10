@@ -10,15 +10,17 @@ export class UserGroup {
     name: string;
     isUnrestricted: boolean;
     isBanned: boolean;
+    isDeleted: boolean;
     users?: User[];
 
     static FIRST_GROUP_ID: number = 1;
 
-    constructor(id: number, name: string, isUnrestricted: number, isBanned: number) {
+    constructor(id: number, name: string, isUnrestricted: number, isBanned: number, isDeleted: number) {
         this.id = id;
         this.name = name;
         this.isUnrestricted = (isUnrestricted == 1);
         this.isBanned = (isBanned == 1);
+        this.isDeleted = (isDeleted == 1);
     }
 
     static async seed() {
@@ -33,7 +35,8 @@ export class UserGroup {
                 id integer primary key not null,
                 name text not null,
                 isUnrestricted integer not null,
-                isBanned integer default 0 not null
+                isBanned integer default 0 not null,
+                isDeleted integer default 0 not null
             );
         `)
     }
@@ -61,16 +64,19 @@ export class UserGroup {
         .then(result => result.changes);
     }
 
-    static getById(id: number): Promise<UserGroup> {
+    static getById(id: number, includedDeleted = false): Promise<UserGroup> {
         return Db.get(`
             select * from userGroup
             where id = ${id}
+            ${includedDeleted ? "" : " and isDeleted=0 "}
         `)
         .then((result:any) => new UserGroup(
             result.id, 
             Helpers.unescapeSingleQuotes(result.name), 
             result.isUnrestricted,
-            result.isBanned));
+            result.isBanned,
+            result.isDeleted
+            ));
     }
 
     static updateName(id: number, name: string): Promise<RunResult> {
@@ -87,24 +93,27 @@ export class UserGroup {
             return Promise.resolve(0); //must not delete unknown group
         }
         return Db.run(`
-            delete from userGroup
+            update userGroup
+            set isDeleted=1
             where id = ${id}
         `)
         .then(async (result: RunResult) => {
-            await Quota.deleteAllDays(id);
             return result.changes
         });
     }
 
-    static getAll(): Promise<UserGroup[]> {
+    static getAll(includedDeleted = false): Promise<UserGroup[]> {
         return Db.all(`
             select * from userGroup
+            ${includedDeleted ? "" : " where isDeleted=0 "}
         `)
         .then((result: any) => result.map((r:any) => new UserGroup(
             r.id, 
             Helpers.unescapeSingleQuotes(r.name), 
             r.isUnrestricted,
-            r.isBanned)))
+            r.isBanned,
+            r.isDeleted
+            )))
     }
 
     static setBan(groupId: number, isBanned: number): Promise<number> {

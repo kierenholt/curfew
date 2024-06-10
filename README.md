@@ -25,12 +25,17 @@ add detail to group list, user list etc.
 booking list shows detail i.e. start to end time
 add setup guide pages
 
+add shortcut to change name that used once and changes their name
+
+get curfew to show up for dns in firefox etc.
+
+device needs to show most recent request
+
 match more than one domain component using dot
 
-when banning, do not arp if no request in last hour
-
 maintenance to cleanup cached promises etc.
-check that expiry request in days actually works 
+
+option to view deleted users / groups / devices in lists
 
 id requests to devices apple / android / chromebook 
 https://support.apple.com/en-us/101555

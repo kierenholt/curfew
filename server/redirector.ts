@@ -123,10 +123,12 @@ export class Redirector {
 
         let username = "owner of " + deviceName;
         // set as administrator if none exist
-        let userId = await User.create(UserGroup.FIRST_GROUP_ID, username, false);
+        let userId = await User.create(UserGroup.FIRST_GROUP_ID, username);
 
         await Device.create(deviceId, userId, deviceName);
-        return [ new Device(deviceId, userId, deviceName, 0),
-             new User(userId, UserGroup.FIRST_GROUP_ID, username, 0, 0) ]
+        return [ 
+            new Device(deviceId, userId, deviceName, 0, 0),
+            new User(userId, UserGroup.FIRST_GROUP_ID, username, 0, 0, 0) 
+            ]
     }
 }

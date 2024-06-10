@@ -13,6 +13,7 @@ export function EditSettingPage(props: EditSettingPageProps) {
         1: true,
         2: false,
         3: true,
+        4: false //showNonAdminsNameChangeLink
     };
 
     return (

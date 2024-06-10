@@ -5,7 +5,7 @@ import { Helpers } from "./helpers";
 import { Delete, Edit } from "@mui/icons-material";
 import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import { BookingIcon } from "./Icon";
-import { Accordion, AccordionActions, AccordionDetails, AccordionSummary, Box, Stack, Tooltip, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Tooltip, Typography } from "@mui/material";
 import { DeviceList } from "./DeviceList";
 import { UserIcon } from "./UserIcon";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -59,7 +59,7 @@ export function UserList(props: UserListProps) {
                         </IconButton>
                         <IconButton aria-label="Edit" size="sm" variant="plain" color="neutral"
                             onClick={() => {
-                                pageContext.setParams({ userId: g.id })
+                                pageContext.setParams({ userId: g.id, showAdminBox: true })
                                 pageContext.setCurrentPage(CurrentPage.editUser)
                             }}>
                             <Edit />

@@ -11,18 +11,21 @@ export class User {
     name: string;
     isBanned: boolean;
     isAdministrator: boolean;
+    isDeleted: boolean;
     devices?: Device[];
 
     constructor(id: number, 
         groupId: number, 
         name: string, 
         isBanned: number,
-        isAdministrator: number) {
+        isAdministrator: number,
+        isDeleted: number) {
         this.id = id;
         this.groupId = groupId;
         this.name = name;
         this.isBanned = isBanned == 1;
         this.isAdministrator = isAdministrator == 1;
+        this.isDeleted = isDeleted == 1
     }
 
     static createTable(): Promise<void> {
@@ -32,7 +35,8 @@ export class User {
                 groupId integer not null,
                 name text not null,
                 isBanned integer default 0 not null,
-                isAdministrator integer not null,
+                isAdministrator integer default 0 not null,
+                isDeleted integer default 0 not null,
                 FOREIGN KEY(groupId) REFERENCES userGroup(id)
             );
         `)
@@ -44,11 +48,11 @@ export class User {
         //await this.create(1, "Eddie");
     }
 
-    static create(groupId: number, name: string, isAdministrator: boolean): Promise<number> {
+    static create(groupId: number, name: string): Promise<number> {
         name = Helpers.escapeSingleQuotes(name);
         return Db.run(`
-            insert into user (groupId, name, isAdministrator)
-            values (${groupId}, '${name}', ${isAdministrator ? 1 : 0})
+            insert into user (groupId, name)
+            values (${groupId}, '${name}')
         `)
         .then(result => result.lastID);
     }
@@ -75,7 +79,8 @@ export class User {
             result.groupId, 
             Helpers.unescapeSingleQuotes(result.name),
             result.isBanned,
-            result.isAdministrator
+            result.isAdministrator,
+            result.isDeleted
             ));
     }
 
@@ -91,7 +96,8 @@ export class User {
 
     static delete(id: number): Promise<number> {
         return Db.run(`
-            delete from user
+            update user
+            set isDeleted=1
             where id = ${id}
         `)
         .then((result: RunResult) => result.changes);
@@ -104,44 +110,50 @@ export class User {
         return this._group;
     }
 
-    static getByGroupId(groupId: number): Promise<User[]> {
+    static getByGroupId(groupId: number, includeDeleted = false): Promise<User[]> {
         return Db.all(`
             select * from user
             where groupId=${groupId}
+            ${includeDeleted ? "" : " and isDeleted=0 "}
         `)
         .then((result: any) => result.map((r:any) => new User(
             r.id, 
             r.groupId, 
             Helpers.unescapeSingleQuotes(r.name),
             r.isBanned,
-            r.isAdministrator
+            r.isAdministrator,
+            r.isDeleted
             )))
     }
 
-    static getAll(): Promise<User[]> {
+    static getAll(includeDeleted = false): Promise<User[]> {
         return Db.all(`
             select * from user
+            ${includeDeleted ? "" : " where isDeleted=0 "}
         `)
         .then((result: any) => result.map((r:any) => new User(
             r.id, 
             r.groupId, 
             Helpers.unescapeSingleQuotes(r.name),
             r.isBanned,
-            r.isAdministrator
+            r.isAdministrator,
+            r.isDeleted
             )))
     }
 
-    static getAllAdministrators(): Promise<User[]> {
+    static getAllAdministrators(includeDeleted = false): Promise<User[]> {
         return Db.all(`
             select * from user
             where isAdministrator = 1
+            ${includeDeleted ? "" : " and isDeleted=0 "}
         `)
         .then((result: any) => result.map((r:any) => new User(
             r.id, 
             r.groupId, 
             Helpers.unescapeSingleQuotes(r.name),
             r.isBanned,
-            r.isAdministrator
+            r.isAdministrator,
+            r.isDeleted
             )))
     }
 

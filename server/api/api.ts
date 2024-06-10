@@ -12,11 +12,14 @@ import { Setting, SettingKey } from '../db/setting';
 import { LiveUpdate } from './liveUpdate';
 import { Spoof } from '../spoof';
 var cors = require('cors')
+const nocache = require("nocache");
+
 
 export class API {
     static init() {
         const app: Express = express();
-
+        
+        app.use(nocache());
         app.use(express.json());       // to support JSON-encoded bodies
         //app.use(cors); //breaks everything do not use
         //app.use(express.urlencoded()); // to support URL-encoded bodies
@@ -67,16 +70,6 @@ export class API {
         })
 
 
-        //create user
-        app.post('/api/users', async (req: Request, res: Response) => {
-            if (req.body.name && req.body.groupId) {
-                let ret = await User.create(req.body.groupId, req.body.name, req.body.isAdministrator);
-                res.status(200).json(ret);
-            }
-            else {
-                res.status(400).send("parameter error");
-            }
-        });
         app.put('/api/users/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             if (id > 0 && req.body.name && req.body.groupId) {
@@ -415,7 +408,22 @@ export class API {
 
         //get all booked slots
         app.get('/api/bookings', async (req: Request, res: Response) => {
-            let ret = await Booking.getAll();
+            let bookings = await Booking.getAll();
+            let users = await User.getAll();
+            let ret = [];
+            for (let booking of bookings) {
+                ret.push({
+                    id: booking.id,
+                    startsOn: booking.startsOn,
+                    userId: booking.userId,
+                    groupId: booking.groupId,
+                    day: booking.day,
+                    endsOn: booking.endsOn,
+                    cooldown: booking.cooldown,
+                    duration: booking.duration,
+                    user: users.find(u => u.id == booking.userId)
+                })
+            }
             res.status(200).json(ret);
         });
         //get booked slots from user

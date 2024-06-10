@@ -150,6 +150,7 @@ export class Booking {
     static getAll(): Promise<Booking[]> {
         return Db.all(`
             select * from bookedSlot
+            order by startsOn desc
         `)
         .then((result: any) => result.map((r:any) => 
             new Booking(r.id, r.startsOn, r.userId, r.groupId, r.day, r.endsOn, r.cooldown)

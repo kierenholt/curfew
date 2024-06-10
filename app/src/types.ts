@@ -69,6 +69,7 @@ export interface IBooking {
     id: number;
     startsOn: number;
     userId: number;
+    user: IUser;
     groupId: number;
     day: number;
     endsOn: number;

@@ -12,7 +12,6 @@ export interface BookingListProps {
 
 export function BookingList(props: BookingListProps) {
 
-
     const deleteBooking = (id: number) => {
         Helpers.delete(`/api/bookings/${id}`)
             .then((deleted: number) => {
@@ -39,6 +38,7 @@ export function BookingList(props: BookingListProps) {
                         <BookingIcon />
                     </ListItemDecorator>
                     <ListItemContent>
+                        {g.user.name},
                         {new Date(g.startsOn).toLocaleString()},
                         {g.duration} mins
                     </ListItemContent>

@@ -58,7 +58,7 @@ export function MakeABookingPage() {
                 <p>{response.error}</p>
                 :
                 <>
-                    {userContext?.device && <RequestListWrapper deviceId={userContext?.device.id} />}
+                    {userContext?.device && userContext?.group.isUnrestricted && <RequestListWrapper deviceId={userContext?.device.id} />}
 
                     {response.status === BookingStatus.bookingInProgress ?
                         <>

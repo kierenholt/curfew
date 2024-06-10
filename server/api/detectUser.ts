@@ -4,10 +4,12 @@ import { Device } from '../db/device';
 import { User } from '../db/user';
 import { Redirector } from '../redirector';
 import { hostname } from 'os';
+import { UserGroup } from '../db/userGroup';
 
 interface DetectUserResponse {
     user: User | null;
     device: Device | null;
+    group: UserGroup | null;
 }
 
 
@@ -24,7 +26,7 @@ export class DetectUser {
 
             let deviceExists = await DhcpServer.hasIP(req.socket.remoteAddress);
             if (!deviceExists) {
-                res.status(400).json({ error: "device not DHCP enabled" });
+                res.status(200).json({ user: null, device: null, group: null });
                 return;
             }
 
@@ -41,8 +43,17 @@ export class DetectUser {
             else {
                 user = await User.getById(device.ownerId);
                 if (user == null) {
-                    throw ("user get error");
+                    console.error("detectuser: user get error");
+                    res.status(200).json({ user: null, device: null, group: null });
+                    return;
                 }
+            }
+
+            let group = await UserGroup.getById(user.groupId);
+            if (group == null) {
+                console.error("detectuser: group get error");
+                res.status(200).json({ user: null, device: null, group: null });
+                return;
             }
 
             //if no administrators then set as admin
@@ -53,7 +64,8 @@ export class DetectUser {
 
             let ret: DetectUserResponse = {
                 user: user,
-                device: device
+                device: device,
+                group: group
             }
 
             res.status(200).json(ret);

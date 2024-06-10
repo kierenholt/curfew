@@ -2,7 +2,6 @@ import { Express, Request, Response } from 'express';
 import { DnsRequest } from '../db/dnsRequest';
 
 export class LiveUpdate {
-
     static resolvesByDeviceId: any = {};
 
     static init(app: Express) {

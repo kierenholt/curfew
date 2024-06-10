@@ -5,7 +5,8 @@ import { RunResult } from "sqlite3";
 export enum SettingKey {
     apiGetRequestLimit = 1,
     groupRequests = 2,
-    requestExpiryDays = 3
+    requestExpiryDays = 3,
+    showNonAdminsNameChangeLink = 4
     //remember to add true/false to editsettings page
 }
 
@@ -38,6 +39,7 @@ export class Setting {
         await this.create(SettingKey.apiGetRequestLimit, "20", "request fetch amount (any number)", "number of requests retrieved when you click 'show more'");
         await this.create(SettingKey.groupRequests, "true", "group requests", "if enabled, requests are listed in groups");
         await this.create(SettingKey.requestExpiryDays, "5", "request expiry (days)", "how long a request is stored in the database before scheduled deletion");
+        await this.create(SettingKey.showNonAdminsNameChangeLink, "1", "allow name change on home page", "when you click the name or device on the homepage, an edit page will show. Best to disable this once everything is set up.");
     }
 
     static async create(key: SettingKey, value: string, label: string, description: string): Promise<number> {

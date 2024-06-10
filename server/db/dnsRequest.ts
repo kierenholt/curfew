@@ -2,6 +2,7 @@ import { RunResult } from "sqlite3";
 import { Db } from "./db";
 import { RedirectDestination, RedirectReason } from "../redirector";
 import { LiveUpdate } from "../api/liveUpdate";
+import { Helpers } from "../helpers";
 
 export class DnsRequest {
     id: number;
@@ -38,7 +39,7 @@ export class DnsRequest {
         let now = new Date().valueOf();
         return Db.run(`
             insert into request (deviceId, domain, requestedOn, redirectReason, redirectDestination)
-            values ('${deviceId}', '${domain}', ${now}, ${redirectReason.valueOf()}, ${redirectDestination.valueOf()})
+            values ('${deviceId}', '${Helpers.escapeSingleQuotes(domain)}', ${now}, ${redirectReason.valueOf()}, ${redirectDestination.valueOf()})
         `)
         .then(result => {
             LiveUpdate.update(deviceId, new DnsRequest(result.lastID, deviceId, domain, now, redirectReason, redirectDestination));
@@ -50,7 +51,7 @@ export class DnsRequest {
         return Db.run(`
             update request 
             set deviceId='${deviceId}', 
-            domain='${domain}', 
+            domain='${Helpers.escapeSingleQuotes(domain)}', 
             requestedOn=${requestedOn},
             redirectReason=${redirectReason.valueOf()},
             redirectDestination=${redirectDestination.valueOf()}
@@ -67,7 +68,7 @@ export class DnsRequest {
         .then((result:any) => result ? new DnsRequest(
             result.id, 
             result.deviceId, 
-            result.domain, 
+            Helpers.unescapeSingleQuotes(result.domain), 
             result.requestedOn, 
             result.redirectReason,
             result.redirectDestination) : null);
@@ -80,7 +81,7 @@ export class DnsRequest {
         .then((result:any) => result.map((r: any) => new DnsRequest(
             r.id, 
             r.deviceId, 
-            r.domain, 
+            Helpers.unescapeSingleQuotes(r.domain), 
             r.requestedOn, 
             r.redirectReason,
             r.redirectDestination)));
@@ -105,7 +106,7 @@ export class DnsRequest {
         .then((result:any) => result.map((r:any) => new DnsRequest(
             r.id, 
             r.deviceId, 
-            r.domain, 
+            Helpers.unescapeSingleQuotes(r.domain), 
             r.requestedOn, 
             r.redirectReason,
             r.redirectDestination)));
@@ -121,7 +122,7 @@ export class DnsRequest {
         .then((result:any) => result ? new DnsRequest(
             result.id, 
             result.deviceId, 
-            result.domain, 
+            Helpers.unescapeSingleQuotes(result.domain), 
             result.requestedOn, 
             result.redirectReason,
             result.redirectDestination) : null);

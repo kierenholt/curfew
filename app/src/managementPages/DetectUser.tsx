@@ -1,30 +1,38 @@
 import { useState, useEffect, createContext } from "react";
 import { Helpers } from "../helpers"
-import { IUser, IDevice } from "../types";
+import { IUser, IDevice, IUserGroup } from "../types";
 import { PageContent } from "./PageContent";
 
 interface DetectUserResponse {
     user: IUser;
     device: IDevice;
+    group: IUserGroup;
 }
 
-export const UserContext = createContext<DetectUserResponse| null>(null);
+export const UserContext = createContext<DetectUserResponse | null>(null);
 
 export const DetectUser = () => {
-    
-    const [detectUserResponse, setDetectUserResponse] = useState<DetectUserResponse | null>(null);
+
+    const [response, setResponse] = useState<DetectUserResponse | null>(null);
 
     useEffect(() => {
         Helpers.get<DetectUserResponse>(`/api/detectUser`)
-        .then((response: DetectUserResponse) => {
-            
-            setDetectUserResponse(response);
-        })
+            .then((response: DetectUserResponse) => {
+                setResponse(response);
+            })
     }, [])
-    
+
     return (
-        <UserContext.Provider value={detectUserResponse}>
-            <PageContent />
-        </UserContext.Provider>
+        response === null
+            ?
+            <p>error connecting. please ensure curfew server is running.</p>
+            :
+            response.user === null || response.device === null
+                ?
+                <p>user not found. please disconnect then reconnect your wifi.</p>
+                :
+                <UserContext.Provider value={response}>
+                    <PageContent />
+                </UserContext.Provider>
     )
 }
