@@ -15,7 +15,7 @@ export function UserGroupList() {
     let [groups, setGroups] = useState<IUserGroup[]>([]);
 
     useEffect(() => {
-        Helpers.get<IUserGroup[]>("/api/tree/userGroups")
+        Helpers.get<IUserGroup[]>(`/api/tree/userGroups`)
             .then((groups: IUserGroup[]) => {
                 setGroups(groups)
             })

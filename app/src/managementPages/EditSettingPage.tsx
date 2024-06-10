@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { CurrentPage, PageContext } from "./PageContent";
+import { PageContext } from "./PageContent";
 import { SettingEditFormAsNumber } from "../SettingEditFormAsNumber";
 import { SettingEditFormAsBoolean } from "../SettingEditFormAsBoolean";
 
@@ -13,7 +13,8 @@ export function EditSettingPage(props: EditSettingPageProps) {
         1: true,
         2: false,
         3: true,
-        4: false //showNonAdminsNameChangeLink
+        4: false, //showNonAdminsNameChangeLink
+        5: false, //viewDeleted
     };
 
     return (

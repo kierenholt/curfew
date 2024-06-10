@@ -31,7 +31,6 @@ device needs to show most recent request
 
 match more than one domain component using dot
 
-
 option to view deleted users / groups / devices in lists
 
 id requests to devices apple / android / chromebook 

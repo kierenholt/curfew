@@ -310,11 +310,12 @@ export class API {
         });
 
 
-        //get all user groups 
+        //get all user groups and users and devices
         app.get('/api/tree/userGroups', async (req: Request, res: Response) => {
-            let groups = await UserGroup.getAll();
-            let users = await User.getAll();
-            let devices = await Device.getAll();
+            let includeDeleted = await Setting.getBool(SettingKey.viewDeleted);
+            let groups = await UserGroup.getAll(includeDeleted);
+            let users = await User.getAll(includeDeleted);
+            let devices = await Device.getAll(includeDeleted);
             for (let u of users) {
                 u.devices = devices.filter(d => d.ownerId == u.id);
             }
