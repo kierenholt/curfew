@@ -38,7 +38,7 @@ export function BookingList(props: BookingListProps) {
                         <BookingIcon />
                     </ListItemDecorator>
                     <ListItemContent>
-                        {g.user.name},
+                        {g.user?.name ?? "unknown user"},
                         {new Date(g.startsOn).toLocaleString()},
                         {g.duration} mins
                     </ListItemContent>
