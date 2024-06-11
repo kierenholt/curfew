@@ -12,6 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import SettingsIcon from '@mui/icons-material/Settings';
 import GroupIcon from '@mui/icons-material/Group';
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 
 export const BookingIcon = HourglassTopIcon;
 export const UserIconIcon = PersonIcon;
@@ -26,3 +27,4 @@ export const DeviceIcon = DevicesIcon;
 export const AdministratorIcon = AccountCircleIcon;
 export const SettingIcon = SettingsIcon;
 export const UserGroupIcon = GroupIcon;
+export const UndeleteIcon = RestoreFromTrashIcon;

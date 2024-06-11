@@ -94,10 +94,10 @@ export class Device {
         .then((result: RunResult) => result.changes);
     }
 
-    static delete(id: string): Promise<number> {
+    static setDeleted(id: string, value: number): Promise<number> {
         return Db.run(`
             update device
-            set isDeleted=1
+            set isDeleted=${value}
             where id = '${id}'
         `)
         .then((result: RunResult) => result.changes);

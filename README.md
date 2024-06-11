@@ -31,7 +31,7 @@ device needs to show most recent request
 
 match more than one domain component using dot
 
-option to view deleted users / groups / devices in lists
+delete NEEDS TESTING
 
 id requests to devices apple / android / chromebook 
 https://support.apple.com/en-us/101555
@@ -39,6 +39,9 @@ ntp.ubuntu.com
 
 option to hide common domains
 get new domains from past 24 hours
+
+
+groups expanded to begin with
 
 
 # TODO MUCH LATER

@@ -94,11 +94,11 @@ export class User {
         .then((result: RunResult) => result.changes);
     }
 
-    static delete(id: number): Promise<number> {
+    static setDeleted(id: number, value: number): Promise<number> {
         return Db.run(`
             update user
-            set isDeleted=1
-            where id = ${id}
+            set isDeleted=${value}
+            where id = '${id}'
         `)
         .then((result: RunResult) => result.changes);
     }

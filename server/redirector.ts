@@ -67,17 +67,17 @@ export class Redirector {
             return RedirectDestination.passThrough;
         }
         
-        if (device.isBanned) {
+        if (device.isBanned || device.isDeleted) {
             DnsRequest.create(device.id, fullDomain, RedirectReason.deviceIsBanned, RedirectDestination.hole);
             return RedirectDestination.hole;
         }
 
-        if (owner.isBanned) {
+        if (owner.isBanned|| owner.isDeleted) {
             DnsRequest.create(device.id, fullDomain, RedirectReason.userIsBanned, RedirectDestination.hole);
             return RedirectDestination.hole;
         }
 
-        if (group.isBanned) {
+        if (group.isBanned || group.isDeleted) {
             DnsRequest.create(device.id, fullDomain, RedirectReason.groupIsBanned, RedirectDestination.hole);
             return RedirectDestination.hole;
         }

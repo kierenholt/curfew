@@ -88,18 +88,16 @@ export class UserGroup {
         `)
     }
 
-    static delete(id: number): Promise<number> {
+    static setDeleted(id: number, value: number): Promise<number> {
         if (id == this.FIRST_GROUP_ID) {
             return Promise.resolve(0); //must not delete unknown group
         }
         return Db.run(`
             update userGroup
-            set isDeleted=1
-            where id = ${id}
+            set isDeleted=${value}
+            where id = '${id}'
         `)
-        .then(async (result: RunResult) => {
-            return result.changes
-        });
+        .then((result: RunResult) => result.changes);
     }
 
     static getAll(includedDeleted = false): Promise<UserGroup[]> {

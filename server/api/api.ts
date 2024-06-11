@@ -48,10 +48,6 @@ export class API {
                 res.status(400).send("parameter error");
             }
         });
-        app.delete('/api/devices/:id', async (req: Request, res: Response) => {
-            let ret = await Device.delete(req.params.id);
-            res.status(200).json(ret);
-        });
         app.put('/api/devices/:id/isBanned=:isBanned', async (req: Request, res: Response) => {
             let isBanned = Number(req.params.isBanned);
             if (req.params.id.length > 0) {
@@ -62,6 +58,16 @@ export class API {
                 if (!isBanned) {
                     Spoof.cancel([req.params.id]);
                 }
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        })
+        app.put('/api/devices/:id/isDeleted=:isDeleted', async (req: Request, res: Response) => {
+            let isDeleted = Number(req.params.isDeleted);
+            if (req.params.id.length > 0) {
+                let ret = await Device.setDeleted(req.params.id, isDeleted);
                 res.status(200).json(ret);
             }
             else {
@@ -80,17 +86,12 @@ export class API {
                 res.status(400).send("parameter error");
             }
         });
-        app.delete('/api/users/:id', async (req: Request, res: Response) => {
+        app.put('/api/users/:id/isDeleted=:isDeleted', async (req: Request, res: Response) => {
+            let isDeleted = Number(req.params.isDeleted);
             let id = Number(req.params.id);
             if (id > 0) {
-                let devices = await Device.getByOwnerId(id);
-                if (devices.length == 0) {
-                    let ret = await User.delete(id);
-                    res.status(200).json(ret);
-                }
-                else {
-                    res.status(409).send("user has devices. Delete them first.");
-                }
+                let ret = await User.setDeleted(id, isDeleted);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
@@ -129,17 +130,12 @@ export class API {
                 res.status(400).send("parameter error");
             }
         });
-        app.delete('/api/userGroups/:id', async (req: Request, res: Response) => {
+        app.put('/api/userGroups/:id/isDeleted=:isDeleted', async (req: Request, res: Response) => {
+            let isDeleted = Number(req.params.isDeleted);
             let id = Number(req.params.id);
             if (id > 0) {
-                let users = await User.getByGroupId(id);
-                if (users.length == 0) {
-                    let ret = await UserGroup.delete(id);
-                    res.status(200).json(ret);
-                }
-                else {
-                    res.status(409).send("group has users. Delete them first.");
-                }
+                let ret = await UserGroup.setDeleted(id, isDeleted);
+                res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");

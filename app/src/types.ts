@@ -5,6 +5,7 @@ export interface IUserGroup {
     isUnrestricted: boolean;
     isBanned: boolean;
     users?: IUser[]
+    isDeleted: boolean;
 }
 
 
@@ -15,6 +16,7 @@ export interface IUser {
     isBanned: boolean;
     isAdministrator: boolean;
     devices?: IDevice[];
+    isDeleted: boolean;
 }
 
 
@@ -53,6 +55,7 @@ export interface IDevice {
     name: string;
     isBanned: boolean;
     lastRequestedOn?: number;
+    isDeleted: boolean;
 }
 
 export interface IQuota {
