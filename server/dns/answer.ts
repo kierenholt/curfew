@@ -51,10 +51,10 @@ export class Answer implements HasKey {
     
     writeToBuffer(buf: Buffer, i: number, cache: any): number {
         i = this.domainName.writeToBuffer(buf, i, cache);
-        i = buf.writeInt16BE(this.type, i);
-        i = buf.writeInt16BE(this.aclass, i);
-        i = buf.writeInt32BE(this.ttl, i);
-        i = buf.writeInt16BE(this.rdlength, i);
+        i = buf.writeUInt16BE(this.type, i);
+        i = buf.writeUInt16BE(this.aclass, i);
+        i = buf.writeUInt32BE(this.ttl, i);
+        i = buf.writeUInt16BE(this.rdlength, i);
         i += this.adata.copy(buf, i);
         return i;
     }
@@ -72,7 +72,7 @@ export class Answer implements HasKey {
         return new Answer(DomainName.fromObject(obj.domainName), obj.type, obj.aclass, obj.ttl, obj.rdlength, obj.adata);
     }
 
-    static answerFromQuestion(q: Question, ip4: string, ip6: Buffer = Buffer.alloc(0)) {
+    static answerFromQuestion(q: Question, ip4: string, ip6: Buffer = Buffer.alloc(0)): Answer {
         if (q.qtype != 28 || ip6.length == 0) {
             return new Answer(q.domainName, q.qtype, q.qclass, 30, 4, Helpers.IPAsBuffer(ip4)); 
         }

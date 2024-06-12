@@ -2,13 +2,16 @@ import { spawn } from "child_process";
 import { Helpers } from "../helpers";
 import { DhcpPacket } from "../dhcp/dhcpPacket";
 
+export interface IWriteToBuffer {
+    writeToBuffer: () => Buffer;
+}
 
 export class Unicast {
 
-
-    static send(packet: DhcpPacket, 
+    static send(packet: IWriteToBuffer, 
         sourceMAC: string, destMAC: string,
-        sourceIP: string, yourIP: string) {
+        sourceIP: string, destIP: string,
+        sourcePort: number, destPort: number) {
         //https://stackoverflow.com/questions/52412385/is-dhcp-request-message-a-broadcast-or-unicast
         let windows = 'a0:59:50:24:4c:df';
 
@@ -35,12 +38,12 @@ export class Unicast {
         IPBuf[9] = 0x11; //udp protocol
         //checksum 10 and 11
         Helpers.writeIP(sourceIP, IPBuf, 12); //source IP
-        Helpers.writeIP(yourIP, IPBuf, 16); //dest IP
+        Helpers.writeIP(destIP, IPBuf, 16); //dest IP
 
         //UDP length 8
         let UDPBuf = Buffer.alloc(8);
-        UDPBuf.writeUInt16BE(0x0043, 0); //source port 67
-        UDPBuf.writeUInt16BE(0x0044, 2); //dest port 68
+        UDPBuf.writeUInt16BE(sourcePort, 0); //source port
+        UDPBuf.writeUInt16BE(destPort, 2); //dest port
         UDPBuf.writeUInt16BE(UDPLength + DHCPLength, 4); //UDP total length
         
         let fullBuf = Buffer.concat([ethernetBuf, IPBuf, UDPBuf, dhcpBuf]);

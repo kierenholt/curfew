@@ -1,4 +1,4 @@
-import { Helpers } from "../helpers";
+import { IWriteToBuffer } from "../python/unicast";
 import { Answer } from "./answer";
 import { Header } from "./header";
 import { Question } from "./question";
@@ -7,7 +7,7 @@ export interface HasUID {
     cacheUID: string;
 }
 
-export class DnsPacket {
+export class DnsPacket implements IWriteToBuffer {
 
     header: Header;
     questions: Question[] = [];

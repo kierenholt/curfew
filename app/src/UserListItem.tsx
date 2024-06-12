@@ -30,7 +30,7 @@ export const UserListItem = (props: UserListItemProps) => {
     }
 
     return (
-        <Accordion color="neutral">
+        <Accordion color="neutral" expanded={true}>
 
                 <Box sx={{ display: "flex" }}>
                     <AccordionSummary

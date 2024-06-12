@@ -15,10 +15,10 @@ export class DetectNetwork {
         }
     }
 
-    static get localIP() {
+    static get localIP(): string {
         return this.foundProtocols[0].address;
     }
-    static get mac() {
+    static get mac(): string {
         return this.foundProtocols[0].mac;
     }
 }

@@ -8,6 +8,7 @@ import * as dotenv from "dotenv";
 import { Setting, SettingKey } from "./db/setting";
 import { DnsRequest } from "./db/dnsRequest";
 import { Jobs } from "./jobs";
+import { MDnsServer } from "./dns/mdnsServer";
 
 dotenv.config();
 
@@ -35,6 +36,11 @@ async function run() {
         DnsServer.init();
     }
     
+    //MDNS SERVER
+    if (Number(process.env.MDNS_ENABLED)) {
+        MDnsServer.init();
+    }
+
     //API
     if (Number(process.env.API_ENABLED)) {
         API.init();

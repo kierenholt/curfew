@@ -1,4 +1,5 @@
 import { Helpers } from "../helpers";
+import { IWriteToBuffer } from "../python/unicast";
 import { Option } from "./option";
 
 export enum RequestReply { request = 1, reply = 2 }
@@ -6,7 +7,7 @@ export enum MessageType { DHCPDISCOVER = 1, DHCPOFFER = 2, DHCPREQUEST = 3,
     DHCPDECLINE = 4, DHCPACK = 5, DHCPNAK = 6, DHCPRELEASE = 7, DHCPINFORM = 8 }
 
 //https://efficientip.com/glossary/dhcp-option/ 
-export class DhcpPacket {
+export class DhcpPacket implements IWriteToBuffer {
     
     headerBuffer: Buffer;
     options: Option[] = [];

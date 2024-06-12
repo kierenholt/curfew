@@ -62,7 +62,8 @@ export class DhcpServer {
         if (!requestPacket.requestsBroadcast) {
             Unicast.send(requestPacket, 
                 this.serverMAC, requestPacket.clientMAC,
-                this.serverIP, requestPacket.yourIP);
+                this.serverIP, requestPacket.yourIP,
+                67, 68);
             console.log("offer sent to " + lease.hostname);
         }
         else {
@@ -94,7 +95,8 @@ export class DhcpServer {
         if (!requestPacket.requestsBroadcast) {
             Unicast.send(requestPacket, 
                 this.serverMAC, requestPacket.clientMAC,
-                this.serverIP, requestPacket.yourIP);
+                this.serverIP, requestPacket.yourIP,
+                67, 68);
             console.log("ack sent to " + hostname);
             //console.log('leases: ', this.leases);
         }

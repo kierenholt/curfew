@@ -20,7 +20,7 @@ export function ManageSettingsPage() {
             <p>
                 list of Settings
             </p>
-            <SettingList Settings={settings} />
+            <SettingList settings={settings} />
         </>
     )
 }

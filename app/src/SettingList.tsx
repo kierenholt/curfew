@@ -6,14 +6,14 @@ import { CurrentPage, PageContext } from "./managementPages/PageContent";
 import { SettingIcon } from "./Icon";
 
 export interface SettingListProps {
-    Settings: ISetting[];
+    settings: ISetting[];
 } 
 
 export function SettingList(props: SettingListProps) {
     const pageContext = useContext(PageContext);
 
     return (<List>
-        {props.Settings.map((g: ISetting) =>
+        {props.settings.map((g: ISetting) =>
             <ListItem color="neutral" key={g.key}
 
                 endAction={

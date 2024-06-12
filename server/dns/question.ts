@@ -31,8 +31,8 @@ export class Question implements HasKey {
 
     writeToBuffer(buf: Buffer, i: number, cache: any): number {
         i = this.domainName.writeToBuffer(buf, i, cache);
-        i = buf.writeInt16BE(this.qtype, i);
-        i = buf.writeInt16BE(this.qclass, i);
+        i = buf.writeUInt16BE(this.qtype, i);
+        i = buf.writeUInt16BE(this.qclass, i);
         return i;
     }
 

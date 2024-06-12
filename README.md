@@ -25,8 +25,6 @@ add detail to group list, user list etc.
 booking list shows detail i.e. start to end time
 add setup guide pages
 
-get curfew to show up for dns in firefox etc.
-
 device needs to show most recent request
 
 match more than one domain component using dot
