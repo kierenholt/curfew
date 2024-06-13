@@ -19,7 +19,6 @@ export class DhcpServer {
     static broadcastIP: string = '192.168.0.255';
     static serverIP: string;
     static serverMAC: string;
-    static hostname: string = "curfew";
 
     static leases: Lease[] = [];
 

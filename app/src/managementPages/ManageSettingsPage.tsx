@@ -4,6 +4,7 @@ import { ISetting } from "../types";
 import { Helpers } from "../helpers";
 
 export interface ManageSettingsProps {
+    
 }
 
 export function ManageSettingsPage() {

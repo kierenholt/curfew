@@ -8,6 +8,7 @@ export enum SettingKey {
     requestExpiryDays = 3,
     showNonAdminsNameChangeLink = 4,
     viewDeleted = 5,
+    groupByFilterType = 6
     //remember to add true/false to editsettings page
 }
 
@@ -42,6 +43,7 @@ export class Setting {
         await this.create(SettingKey.requestExpiryDays, "5", "delete requests after .. days", "how long a request is stored in the database before scheduled deletion");
         await this.create(SettingKey.showNonAdminsNameChangeLink, "1", "allow name change from home page", "when you click the name or device on the homepage, an edit page will show. Best to disable this once everything is set up.");
         await this.create(SettingKey.viewDeleted, "0", "view deleted devices, users and groups", "if enabled, deleted items will show up on the groups page");
+        await this.create(SettingKey.groupByFilterType, "0", "group requests by filter type", "if enabled, requests are listed in groups by the filter type");
     }
 
     static async create(key: SettingKey, value: string, label: string, description: string): Promise<number> {

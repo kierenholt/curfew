@@ -33,7 +33,7 @@ export class MDnsServer {
             let packet = DnsPacket.fromBuffer(buffer);
             if (!packet.header.isResponse) { //query
                 let question = packet.questions[0];
-                if (question) {
+                if (question && question.domainName.name.toLowerCase() == this.dotLocalHostname) {
                     packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], sourceIP)])
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;
@@ -63,5 +63,9 @@ export class MDnsServer {
         });
 
         this.socket.on('error', (err: any) => { throw (err); })
+    }
+
+    static get dotLocalHostname(): string {
+        return (process.env.HOSTNAME as string).toLowerCase() + ".local";
     }
 }

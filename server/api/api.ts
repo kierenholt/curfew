@@ -18,7 +18,7 @@ const nocache = require("nocache");
 export class API {
     static init() {
         const app: Express = express();
-        
+
         app.use(nocache());
         app.use(express.json());       // to support JSON-encoded bodies
         //app.use(cors); //breaks everything do not use
@@ -459,7 +459,8 @@ export class API {
                 let ret = await DnsRequest.getByDeviceId(
                     req.params.deviceId,
                     await Setting.getNumber(SettingKey.apiGetRequestLimit),
-                    Number(req.query.offset));
+                    Number(req.query.offset)
+                );
                 res.status(200).json(ret);
             }
             else {

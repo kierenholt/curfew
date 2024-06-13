@@ -24,7 +24,6 @@ export class Redirector {
 
     static BLOCK_IF_DOMAIN_NOT_FOUND: boolean = false;
     static BLOCK_IF_DEVICE_NOT_DHCP: boolean = true;
-    static LOCAL_APP_DOMAIN = "curfew";
 
     static async redirectTo(hostAddress: string, fullDomain: string = ""): Promise<RedirectDestination> {
 
@@ -35,7 +34,7 @@ export class Redirector {
 
         //do not save if request is curfew - keep the last status
         //going to app
-        if (fullDomain == this.LOCAL_APP_DOMAIN) {
+        if (fullDomain.toLowerCase() == (process.env.HOSTNAME as string).toLowerCase()) {
             return RedirectDestination.app;
         }
 

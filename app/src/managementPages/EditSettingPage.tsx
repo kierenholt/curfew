@@ -10,11 +10,12 @@ export interface EditSettingPageProps {
 export function EditSettingPage(props: EditSettingPageProps) {
     const pageContext = useContext(PageContext);
     const settingIsStoredAsNumber: any = {
-        1: true,
-        2: false,
-        3: true,
+        1: true, //apiGetRequestLimit
+        2: false, //groupRequests
+        3: true, //requestExpiryDays
         4: false, //showNonAdminsNameChangeLink
         5: false, //viewDeleted
+        6: false, //groupByFilterType
     };
 
     return (
