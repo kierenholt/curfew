@@ -1,3 +1,9 @@
+export enum ReturnCode {
+    noError = 0, formatError = 1, serverFailure = 2, doesNotExist = 3,
+    functionNotImplemented = 4, refused = 5, nameShouldNotExistButDoes = 6,
+    rrSetSHouldNotExistButDoes = 7, notAuthoritative = 8, notInZone = 9 
+}
+
 
 export class Header {
         id: number;
@@ -59,11 +65,11 @@ export class Header {
             this.flags = this.flags | 0x8000;
         }
         else {
-            this.flags = this.flags &  (~0x8000);
+            this.flags = this.flags & (~0x8000);
         }
     }
 
-    set nameDoesNotExist(value: boolean) {
+    set nameDoesNotExist(value: boolean) { //also sets authority
         if (value) {
             this.flags = this.flags | 3;
             this.flags = this.flags | (1 << 10);
@@ -74,12 +80,17 @@ export class Header {
         }
     }
 
-    set isAuthority(value: boolean) {
+    set isAuthority(value: boolean) { //bit 
         if (value) {
             this.flags = this.flags | (1 << 10);
         }
         else {
             this.flags = this.flags & (~(1 << 10));
         }
+    }
+
+    //https://help.dnsfilter.com/hc/en-us/articles/4408415850003-DNS-return-codes
+    setReplyCode(value: ReturnCode) { //bits 13 to 16
+        this.flags = this.flags | (value);
     }
 }

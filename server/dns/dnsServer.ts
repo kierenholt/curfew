@@ -4,6 +4,8 @@ import { DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
 import { RedirectDestination, Redirector } from "../redirector";
 import { DetectNetwork } from "../localnetwork";
+import { ReturnCode } from "./header";
+import { RecordType } from "./question";
 
 export interface RedirectResult {
     isRedirected: boolean; 
@@ -23,6 +25,7 @@ export class DnsServer {
 
     // https://en.wikipedia.org/wiki/List_of_DNS_record_types
     static BLOCK_HTTPS = true;
+    static BLOCK_TEXT = true;
 
     static init() {
         let port: number = Number(process.env.DNS_PORT);
@@ -58,21 +61,38 @@ export class DnsServer {
                         });
                     })
                 }
+                
+                if (destination == RedirectDestination.app) {
+                    packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.appIP)]);
+                    packet.header.isResponse = true;
+                    packet.header.isAuthority = true;
+                    this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
+                        if (err) {
+                            console.error(`Error sending response: ${err.message}`);
+                            this.socket.close();
+                        }
+                    });
+                    return;
+                }
 
-                // block type 65
-                if (this.BLOCK_HTTPS && packet.questions[0].qtype == 65) {
+                // block HTTPS and TXT - code does not support it
+                if (packet.questions[0].qtype == RecordType.TXT || 
+                    (this.BLOCK_HTTPS && packet.questions[0].qtype == RecordType.HTTPS)) {
+                    packet.header.isResponse = true;
+                    packet.header.isAuthority = true;
+                    packet.header.setReplyCode(ReturnCode.refused);
+                    this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
+                        if (err) {
+                            console.error(`Error sending response: ${err.message}`);
+                            this.socket.close();
+                        }
+                    });
                     return;
                 }
                 
-                if (destination == RedirectDestination.hole ||
-                    destination == RedirectDestination.app) {
-                        
-                    if (destination == RedirectDestination.app) { //app
-                        packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.appIP)]);
-                    }
-                    else { //hole
-                        packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.HOLE_IP_v4, this.HOLE_IP_v6)]);
-                    }
+                if (destination == RedirectDestination.hole) {
+                     
+                    packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.HOLE_IP_v4, this.HOLE_IP_v6)]);
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;
                     this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {

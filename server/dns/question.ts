@@ -2,13 +2,20 @@ import { HasKey } from "./cache";
 import { DomainName } from "./domainName";
 
 
+export enum RecordType {
+    A = 1, AAAA = 28, CNAME = 5, DNAME = 39, MX = 15, NS = 2, 
+    PTR = 12, TXT = 16, HTTPS = 65,
+}
+
 export class Question implements HasKey {
     qclass: number;
-    qtype: number;
+    
+    qtype: RecordType; //https://en.wikipedia.org/wiki/List_of_DNS_record_types
+
     domainName: DomainName;
-    constructor(domainName: DomainName, qtype: number, qclass: number) {
+    constructor(domainName: DomainName, qtype: RecordType, qclass: number) {
         this.domainName = domainName;
-        this.qtype = qtype;
+        this.qtype = qtype; // A, AAAA etc.
         this.qclass = qclass;
     }
 

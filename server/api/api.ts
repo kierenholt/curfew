@@ -11,6 +11,7 @@ import { DetectUser } from './detectUser';
 import { Setting, SettingKey } from '../db/setting';
 import { LiveUpdate } from './liveUpdate';
 import { Spoof } from '../spoof';
+import { DhcpServer } from '../dhcp/dhcpServer';
 var cors = require('cors')
 const nocache = require("nocache");
 
@@ -485,6 +486,10 @@ export class API {
                 res.status(400).send("parameter error");
             }
         });
+
+        app.get('/api/leases', (req: Request, res: Response) => {
+            res.status(200).json(DhcpServer.leases);
+        })
 
         MakeABooking.init(app);
         DetectUser.init(app);

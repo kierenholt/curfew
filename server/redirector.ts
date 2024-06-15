@@ -38,6 +38,11 @@ export class Redirector {
             return RedirectDestination.app;
         }
 
+        //curfew.0.0.168.192.in-addr.arpa
+        if (fullDomain.endsWith("in-addr.arpa") && fullDomain.startsWith((process.env.HOSTNAME as string).toLowerCase())) {
+            return RedirectDestination.app;
+        }
+
         if (!DhcpServer.hasIP(hostAddress)) {
             //console.error("device / owner / group should not be null");
             return this.BLOCK_IF_DEVICE_NOT_DHCP ? RedirectDestination.hole : RedirectDestination.shortTTL;
