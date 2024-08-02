@@ -138,4 +138,9 @@ export class DhcpPacket implements IWriteToBuffer {
         };
         return Buffer.concat([this.headerBuffer, optionsBuffer.subarray(0, w)]);
     }
+
+    get parameterRequestList(): Uint8Array {
+        let found = this.options.find(o => o.code == 55)?.rdata;
+        return found?.map(b => b) ?? new Uint8Array();
+    }
 }

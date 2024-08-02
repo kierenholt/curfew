@@ -43,6 +43,10 @@ export class Redirector {
             return RedirectDestination.app;
         }
 
+        if (process.env.BYPASS_ALL) {
+            return RedirectDestination.passThrough;
+        }
+
         if (!DhcpServer.hasIP(hostAddress)) {
             //console.error("device / owner / group should not be null");
             return this.BLOCK_IF_DEVICE_NOT_DHCP ? RedirectDestination.hole : RedirectDestination.shortTTL;

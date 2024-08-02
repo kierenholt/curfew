@@ -16,7 +16,7 @@ export const Header = () => {
     useEffect(() => {
         Helpers.get<ISetting>(`/api/settings/4`)
             .then((result: ISetting) => {
-                setShowEditLink(result.value === "1");
+                setShowEditLink(result.value === "true");
             });
     })
 

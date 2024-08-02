@@ -12,8 +12,13 @@ export class Lease {
     static lifetime: number = 86400;
     mostRecentTransactionId: number;
     hostname: string;
+    fingerprint: Uint8Array;
 
-    constructor(MAC: string, IP: string, mostRecentTransactionId: number, hostname: string) {
+    constructor(MAC: string, 
+        IP: string, 
+        mostRecentTransactionId: number, 
+        hostname: string,
+        fingerprint: Uint8Array) {
         this.MAC = MAC;
         this.IP = IP;
         this.state = LeaseState.active;
@@ -21,5 +26,6 @@ export class Lease {
         this.mostRecentTransactionId = mostRecentTransactionId;
         this.deviceId = Helpers.MACtoDeviceId(MAC);
         this.hostname = hostname;
+        this.fingerprint = fingerprint;
     }
 }

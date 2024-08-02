@@ -141,7 +141,8 @@ export class DhcpServer {
                     requestPacket.clientMAC, 
                     requestPacket.clientIP, 
                     requestPacket.transactionId,
-                    requestPacket.hostName);
+                    requestPacket.hostName,
+                    requestPacket.parameterRequestList);
                 this.leases.push(lease);
                 return lease;
             }
@@ -163,7 +164,8 @@ export class DhcpServer {
                 requestPacket.clientMAC, 
                 requestedIP, 
                 requestPacket.transactionId,
-                requestPacket.hostName);
+                requestPacket.hostName,
+                requestPacket.parameterRequestList);
             this.leases.push(lease);
             return lease;
         }
@@ -173,7 +175,8 @@ export class DhcpServer {
             requestPacket.clientMAC, 
             offeredIp, 
             requestPacket.transactionId,
-            requestPacket.hostName);
+            requestPacket.hostName,
+            requestPacket.parameterRequestList);
 
         this.leases.push(lease);
         return lease;
@@ -246,7 +249,8 @@ export class DhcpServer {
             "18:35:d1:f3:3d:69",
             "127.0.0.1",
             77,
-            "ubuntuMock"
+            "ubuntuMock",
+            new Uint8Array()
         ))
     }
 }

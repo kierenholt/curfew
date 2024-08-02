@@ -72,18 +72,22 @@ export class Db {
     }
 
     static run(sql: string): Promise<RunResult> {
+        console.log(sql);
         return this.connection.run(sql);
     }
 
     static get(sql: string): Promise<any> {
+        console.log(sql);
         return this.connection.get(sql);
     }
 
     static all(sql: string): Promise<any[]> {
+        console.log(sql);
         return this.connection.all(sql);
     }
 
     static exec(sql: string): Promise<void> {
+        console.log(sql);
         return this.connection.exec(sql);
     }
 
