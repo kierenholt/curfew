@@ -43,7 +43,7 @@ export class Redirector {
             return RedirectDestination.app;
         }
 
-        if (process.env.BYPASS_ALL) {
+        if (Number(process.env.BYPASS_ALL)) {
             return RedirectDestination.passThrough;
         }
 

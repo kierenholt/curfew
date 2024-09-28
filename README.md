@@ -25,6 +25,15 @@ add detail to group list, user list etc.
 booking list shows detail i.e. start to end time
 add setup guide pages
 
+setting for logging requests of unrestricted users
+
+combo box change on requests page needs to refresh the list
+
+a common menu for users. everywhere the user appears.
+
+add setting so that cooldown is a complete block for that period of time, 
+they can't even sign back in. i.e. its a ban
+
 device needs to show most recent request
 
 match more than one domain component using dot
