@@ -49,7 +49,7 @@ export class Setting {
     static async create(key: SettingKey, value: string, label: string, description: string): Promise<number> {
         return Db.run(`
             insert into setting (key, value, label, description)
-            values (${key.valueOf()}, '${Helpers.escapeSingleQuotes(value)}', '${Helpers.escapeSingleQuotes(label)}', '${Helpers.escapeSingleQuotes(description)}')
+            values (${key.valueOf()}, '${Helpers.Sanitise(value)}', '${Helpers.Sanitise(label)}', '${Helpers.Sanitise(description)}')
         `)
         .then(result => result.changes);
     }
@@ -57,7 +57,7 @@ export class Setting {
     static async save(key: SettingKey, value: string): Promise<number> {
         return Db.run(`
             update setting 
-            set value = '${Helpers.escapeSingleQuotes(value)}'
+            set value = '${Helpers.Sanitise(value)}'
             where key=${key}
         `)
         .then(result => result.changes);
@@ -78,7 +78,7 @@ export class Setting {
             select value from setting
             where key=${key}
         `)
-        .then(result => Helpers.unescapeSingleQuotes(result.value));
+        .then(result => Helpers.Unsanitise(result.value));
     }
 
     static getBool(key: SettingKey): Promise<boolean> {
@@ -96,9 +96,9 @@ export class Setting {
         `)
         .then(result => result ? new Setting(
             result.key, 
-            Helpers.unescapeSingleQuotes(result.value),
-            Helpers.unescapeSingleQuotes(result.label),
-            Helpers.unescapeSingleQuotes(result.description)) : null);
+            Helpers.Unsanitise(result.value),
+            Helpers.Unsanitise(result.label),
+            Helpers.Unsanitise(result.description)) : null);
     }
 
 
@@ -109,8 +109,8 @@ export class Setting {
         `)
         .then((result: any) => result.map((r:any) => new Setting(
             r.key,
-            Helpers.unescapeSingleQuotes(r.value),
-            Helpers.unescapeSingleQuotes(r.label),
-            Helpers.unescapeSingleQuotes(r.description))))
+            Helpers.Unsanitise(r.value),
+            Helpers.Unsanitise(r.label),
+            Helpers.Unsanitise(r.description))))
     }
 }

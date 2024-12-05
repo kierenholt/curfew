@@ -1,0 +1,57 @@
+
+function login2() {
+    name = "admin";
+    password = "Grapefru1t";
+    var up = Base64.encode( encodeURIComponent(name) + ":" + encodeURIComponent(password));
+    attrs["Credential"] = "";
+    eraseCookie("credential");
+    fetch("login?arg=" + encrypt(up) + "&" + nonceAndEpoch())
+    .then(response => response.text())
+    .then(result => createCookie("credential", result))
+    .then(() => location.href = "/");
+}
+
+// login2()
+// logout()
+    
+datatype = 2 for byte
+datatype = 4 for string or ipaddress
+datatype = 66 for int?
+
+
+
+function setBulk(oidsValuesDatatypes) {
+
+    let queries = oidsValuesDatatypes.map(ovd => "oid=" + ovd.oid + "=" + ovd.value + ";" + ovd.datatype + ";");
+    let query = queries.join("&") + "&" + nonceAndEpoch();
+    console.log(query);
+    fetch("snmpSet?" + query)
+    .then(response => response.text())
+    .then(console.log)
+    ;
+}
+
+
+function set(oid, value, datatype) {
+    let query = "oid=" + oid + "=" + value + ";" + datatype + ";&" + nonceAndEpoch();
+    console.log(query);
+    fetch("snmpSet?" + query)
+    .then(response => response.text())
+    .then(console.log)
+    ;
+}
+
+function get(oid) {
+    let query = "oids=" + oid + ";&" + nonceAndEpoch();
+    console.log(query);
+    fetch("snmpGet?" + query)
+    .then(response => response.text())
+    .then(console.log)
+}
+
+
+function nonceAndEpoch() {
+    return getNonce() + "&_=" + new Date().valueOf().toString();
+}
+
+

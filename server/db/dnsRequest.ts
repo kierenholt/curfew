@@ -39,7 +39,7 @@ export class DnsRequest {
         let now = new Date().valueOf();
         return Db.run(`
             insert into request (deviceId, domain, requestedOn, redirectReason, redirectDestination)
-            values ('${deviceId}', '${Helpers.escapeSingleQuotes(domain)}', ${now}, ${redirectReason.valueOf()}, ${redirectDestination.valueOf()})
+            values ('${deviceId}', '${Helpers.Sanitise(domain)}', ${now}, ${redirectReason.valueOf()}, ${redirectDestination.valueOf()})
         `)
         .then(result => {
             LiveUpdate.update(deviceId, new DnsRequest(result.lastID, deviceId, domain, now, redirectReason, redirectDestination));
@@ -51,7 +51,7 @@ export class DnsRequest {
         return Db.run(`
             update request 
             set deviceId='${deviceId}', 
-            domain='${Helpers.escapeSingleQuotes(domain)}', 
+            domain='${Helpers.Sanitise(domain)}', 
             requestedOn=${requestedOn},
             redirectReason=${redirectReason.valueOf()},
             redirectDestination=${redirectDestination.valueOf()}
@@ -68,7 +68,7 @@ export class DnsRequest {
         .then((result:any) => result ? new DnsRequest(
             result.id, 
             result.deviceId, 
-            Helpers.unescapeSingleQuotes(result.domain), 
+            Helpers.Unsanitise(result.domain), 
             result.requestedOn, 
             result.redirectReason,
             result.redirectDestination) : null);
@@ -81,7 +81,7 @@ export class DnsRequest {
         .then((result:any) => result.map((r: any) => new DnsRequest(
             r.id, 
             r.deviceId, 
-            Helpers.unescapeSingleQuotes(r.domain), 
+            Helpers.Unsanitise(r.domain), 
             r.requestedOn, 
             r.redirectReason,
             r.redirectDestination)));
@@ -106,7 +106,7 @@ export class DnsRequest {
         .then((result:any) => result.map((r:any) => new DnsRequest(
             r.id, 
             r.deviceId, 
-            Helpers.unescapeSingleQuotes(r.domain), 
+            Helpers.Unsanitise(r.domain), 
             r.requestedOn, 
             r.redirectReason,
             r.redirectDestination)));
@@ -122,7 +122,7 @@ export class DnsRequest {
         .then((result:any) => result ? new DnsRequest(
             result.id, 
             result.deviceId, 
-            Helpers.unescapeSingleQuotes(result.domain), 
+            Helpers.Unsanitise(result.domain), 
             result.requestedOn, 
             result.redirectReason,
             result.redirectDestination) : null);

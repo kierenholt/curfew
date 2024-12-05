@@ -54,7 +54,7 @@ export class Filter {
     static create(component: string, groupId: number, action: FilterAction): Promise<number> {
         return Db.run(`
             insert into filter (component, groupId, action)
-            values ('${Helpers.escapeSingleQuotes(component)}', ${groupId}, ${action.valueOf()})
+            values ('${Helpers.Sanitise(component)}', ${groupId}, ${action.valueOf()})
         `)
         .then(result => result.lastID);
     }
@@ -62,7 +62,7 @@ export class Filter {
     static update(id: number, component: string, groupId: number, action: FilterAction): Promise<number> {
         return Db.run(`
             update filter
-            set component='${Helpers.escapeSingleQuotes(component)}', 
+            set component='${Helpers.Sanitise(component)}', 
             groupId=${groupId},
             action=${action.valueOf()}
             where id=${id}
@@ -77,7 +77,7 @@ export class Filter {
         `)
         .then((result:any) => result ? new Filter(
             result.id, 
-            Helpers.unescapeSingleQuotes(result.component), 
+            Helpers.Unsanitise(result.component), 
             result.groupId,
             result.action) : null);
     }
@@ -90,7 +90,7 @@ export class Filter {
         `)
         .then((result: any) => result.map((r:any) => new Filter(
             r.id, 
-            Helpers.unescapeSingleQuotes(r.component), 
+            Helpers.Unsanitise(r.component), 
             r.groupId,
             r.action)))
     }
@@ -98,16 +98,17 @@ export class Filter {
     static getFromComponentAndGroup(component: string, groupId: number): Promise<Filter | null> {
         return Db.get(`
             select * from filter
-            where groupId = ${groupId} and component = '${component}' 
+            where groupId = ${groupId} and component = '${Helpers.Sanitise(component)}' 
         `)
         .then((result: any) => result ? new Filter(
             result.id, 
-            Helpers.unescapeSingleQuotes(result.component), 
+            Helpers.Unsanitise(result.component), 
             result.groupId,
             result.action) : null);
     }
 
     static getFromDomainNameAndGroup(domainName: string, groupId: number): Promise<Filter | null> {
+        domainName = Helpers.Sanitise(domainName)
         let spl = Helpers.replaceAll(domainName,".", "','");
         return Db.get(`
             select * from filter
@@ -115,7 +116,7 @@ export class Filter {
         `)
         .then((result: any) => result ? new Filter(
             result.id, 
-            Helpers.unescapeSingleQuotes(result.component), 
+            Helpers.Unsanitise(result.component), 
             result.groupId,
             result.action) : null);
     }
@@ -134,7 +135,7 @@ export class Filter {
         `)
         .then((result: any) => result.map((r:any) => new Filter(
             r.id, 
-            Helpers.unescapeSingleQuotes(r.component), 
+            Helpers.Unsanitise(r.component), 
             r.groupId,
             r.action)))
     }

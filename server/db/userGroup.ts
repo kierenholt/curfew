@@ -42,7 +42,7 @@ export class UserGroup {
     }
 
     static create(name: string, isUnrestricted: boolean): Promise<number> {
-        name = Helpers.escapeSingleQuotes(name);
+        name = Helpers.Sanitise(name);
         return Db.run(`
             insert into userGroup (name, isUnrestricted)
             values ('${name}', ${isUnrestricted ? 1: 0})
@@ -54,7 +54,7 @@ export class UserGroup {
     }
 
     static update(id: number, name: string, isUnrestricted: boolean): Promise<number> {
-        name = Helpers.escapeSingleQuotes(name);
+        name = Helpers.Sanitise(name);
         return Db.run(`
             update userGroup
             set name='${name}', 
@@ -72,7 +72,7 @@ export class UserGroup {
         `)
         .then((result:any) => new UserGroup(
             result.id, 
-            Helpers.unescapeSingleQuotes(result.name), 
+            Helpers.Unsanitise(result.name), 
             result.isUnrestricted,
             result.isBanned,
             result.isDeleted
@@ -80,7 +80,7 @@ export class UserGroup {
     }
 
     static updateName(id: number, name: string): Promise<RunResult> {
-        name = Helpers.escapeSingleQuotes(name);
+        name = Helpers.Sanitise(name);
         return Db.run(`
             update userGroup
             set name = '${name}'
@@ -107,7 +107,7 @@ export class UserGroup {
         `)
         .then((result: any) => result.map((r:any) => new UserGroup(
             r.id, 
-            Helpers.unescapeSingleQuotes(r.name), 
+            Helpers.Unsanitise(r.name), 
             r.isUnrestricted,
             r.isBanned,
             r.isDeleted

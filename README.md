@@ -75,5 +75,7 @@ API_ENABLED=1
 
 DANGEROUSLY_DISABLE_HOST_CHECK=true
 PORT=80
+
+# command line
 sudo node --inspect=2000 server/bin/run.js
 

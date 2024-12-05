@@ -49,7 +49,7 @@ export class User {
     }
 
     static create(groupId: number, name: string): Promise<number> {
-        name = Helpers.escapeSingleQuotes(name);
+        name = Helpers.Sanitise(name);
         return Db.run(`
             insert into user (groupId, name)
             values (${groupId}, '${name}')
@@ -58,7 +58,7 @@ export class User {
     }
 
     static update(id: number, groupId: number, name: string, isAdministrator: boolean): Promise<number> {
-        name = Helpers.escapeSingleQuotes(name);
+        name = Helpers.Sanitise(name);
         return Db.run(`
             update user 
             set groupId=${groupId}, 
@@ -77,7 +77,7 @@ export class User {
         .then((result:any) => result == null ? null : new User(
             result.id, 
             result.groupId, 
-            Helpers.unescapeSingleQuotes(result.name),
+            Helpers.Unsanitise(result.name),
             result.isBanned,
             result.isAdministrator,
             result.isDeleted
@@ -85,7 +85,7 @@ export class User {
     }
 
     static updateName(id: number, name: string): Promise<number> {
-        name = Helpers.escapeSingleQuotes(name);
+        name = Helpers.Sanitise(name);
         return Db.run(`
             update user
             set name = '${name}'
@@ -119,7 +119,7 @@ export class User {
         .then((result: any) => result.map((r:any) => new User(
             r.id, 
             r.groupId, 
-            Helpers.unescapeSingleQuotes(r.name),
+            Helpers.Unsanitise(r.name),
             r.isBanned,
             r.isAdministrator,
             r.isDeleted
@@ -134,7 +134,7 @@ export class User {
         .then((result: any) => result.map((r:any) => new User(
             r.id, 
             r.groupId, 
-            Helpers.unescapeSingleQuotes(r.name),
+            Helpers.Unsanitise(r.name),
             r.isBanned,
             r.isAdministrator,
             r.isDeleted
@@ -150,7 +150,7 @@ export class User {
         .then((result: any) => result.map((r:any) => new User(
             r.id, 
             r.groupId, 
-            Helpers.unescapeSingleQuotes(r.name),
+            Helpers.Unsanitise(r.name),
             r.isBanned,
             r.isAdministrator,
             r.isDeleted

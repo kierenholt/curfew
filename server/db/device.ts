@@ -36,7 +36,7 @@ export class Device {
     }
 
     static create(id: string, ownerId: number, name: string): Promise<number> {
-        name = Helpers.escapeSingleQuotes(name);
+        name = Helpers.Sanitise(name);
         return Db.run(`
             insert into device (id, ownerId, name)
             values ('${id}', ${ownerId}, '${name}')
@@ -46,7 +46,7 @@ export class Device {
     }
 
     static update(id: string, ownerId: number, name: string): Promise<number> {
-        name = Helpers.escapeSingleQuotes(name);
+        name = Helpers.Sanitise(name);
         return Db.run(`
             update device 
             set ownerId=${ownerId}, 
@@ -64,7 +64,7 @@ export class Device {
         .then((result:any) => result ? new Device(
             result.id, 
             result.ownerId, 
-            Helpers.unescapeSingleQuotes(result.name),
+            Helpers.Unsanitise(result.name),
             result.isBanned,
             result.isDeleted
             ) : null);
@@ -79,7 +79,7 @@ export class Device {
         .then((result: any) => result.map((r:any) => new Device(
             r.id, 
             r.ownerId, 
-            Helpers.unescapeSingleQuotes(r.name),
+            Helpers.Unsanitise(r.name),
             r.isBanned,
             r.isDeleted
         )))
@@ -118,7 +118,7 @@ export class Device {
         .then((result: any) => result.map((r:any) => new Device(
             r.id, 
             r.ownerId, 
-            Helpers.unescapeSingleQuotes(r.name),
+            Helpers.Unsanitise(r.name),
             r.isBanned,
             r.isDeleted
             )))

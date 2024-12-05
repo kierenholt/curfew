@@ -112,11 +112,12 @@ export class Helpers {
         return ret;
     }
 
-    static escapeSingleQuotes(str: string): string {
-        return this.replaceAll(str, "'", "''");
+    static Sanitise(str: string): string {
+        str = this.replaceAll(str, "'", "''");
+        return this.replaceAll(str, "\t", " ");
     }
 
-    static unescapeSingleQuotes(str: string): string {
+    static Unsanitise(str: string): string {
         return this.replaceAll(str, "''", "'");
     }
 }
