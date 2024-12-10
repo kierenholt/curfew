@@ -21,10 +21,6 @@ export class Helpers {
         }
     }
 
-    static readIP(buf: Buffer, r: number): string {
-        return `${buf[r]}.${buf[r+1]}.${buf[r+2]}.${buf[r+3]}`
-    }
-
     static IPAsBuffer(IP: string): Buffer {
         let buf = Buffer.alloc(4);
         Helpers.writeIP(IP, buf, 0);
@@ -112,11 +108,12 @@ export class Helpers {
         return ret;
     }
 
-    static escapeSingleQuotes(str: string): string {
-        return this.replaceAll(str, "'", "''");
+    static Sanitise(str: string): string {
+        str = this.replaceAll(str, "'", "''");
+        return this.replaceAll(str, "\t", " ");
     }
 
-    static unescapeSingleQuotes(str: string): string {
+    static Unsanitise(str: string): string {
         return this.replaceAll(str, "''", "'");
     }
 }

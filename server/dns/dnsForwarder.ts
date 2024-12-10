@@ -2,6 +2,9 @@ import { Cache } from "./cache";
 import { Socket } from "dgram";
 import { DnsPacket as DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
+import { DnsResponseDb } from "./dnsResponseDb";
+import { Helpers } from "../helpers";
+import { IPAddress } from "../IPAddress";
 const dgram = require('dgram');
 
 export class DnsForwarder {
@@ -41,6 +44,10 @@ export class DnsForwarder {
 
     forward(requestBuffer: Buffer): Promise<Answer[]> {
         let requestPacket = DnsPacket.fromBuffer(requestBuffer);
+
+        let answer = requestPacket.answers[0];
+        DnsResponseDb.create(answer.domainName.name, answer.IPAddress, new Date().valueOf())
+        
         let cached: Answer[] = this.cache.getAnswers(requestPacket.questions[0]);
         if (cached) {
             return Promise.resolve(cached);

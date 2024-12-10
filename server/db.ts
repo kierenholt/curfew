@@ -1,0 +1,76 @@
+import { AsyncDatabase } from "promised-sqlite3";
+import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
+import { SettingDb } from "./settings/settingDb";
+import { DnsResponseDb } from "./dns/dnsResponseDb";
+import { SearchTermDb } from "./searchTerm/searchTermDb";
+
+export class Db {
+    static connection: AsyncDatabase;
+
+    static async createTables() {
+        await SettingDb.createTable();
+        await DnsResponseDb.createTable();
+        await SearchTermDb.createTable();
+    }
+
+    static async seed() {
+        await SettingDb.seed();
+        await SearchTermDb.seed();
+    }
+
+    static init(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            let db = new Database('curfew.db', 
+                OPEN_READWRITE, 
+                async (err: any) => {
+                    if (err && err.code == "SQLITE_CANTOPEN") {
+                        await this.createDatabase();
+                        resolve();
+                    } else if (err) {
+                        console.log("db error " + err);
+                        reject();
+                    }
+                    else {
+                        resolve();
+                    }
+                });
+            this.connection = new AsyncDatabase(db);
+        })
+    }
+
+    static createDatabase(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            let db = new Database('curfew.db', async (err: any) => {
+                if (err) {
+                    console.log("Getting error " + err);
+                    reject()
+                }
+                await this.createTables();
+                await this.seed();
+                resolve();
+            });
+            this.connection = new AsyncDatabase(db);
+        })
+    }
+
+    static run(sql: string): Promise<RunResult> {
+        console.log(sql);
+        return this.connection.run(sql);
+    }
+
+    static get(sql: string): Promise<any> {
+        console.log(sql);
+        return this.connection.get(sql);
+    }
+
+    static all(sql: string): Promise<any[]> {
+        console.log(sql);
+        return this.connection.all(sql);
+    }
+
+    static exec(sql: string): Promise<void> {
+        console.log(sql);
+        return this.connection.exec(sql);
+    }
+
+}

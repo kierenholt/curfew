@@ -1,8 +1,7 @@
 import { RemoteInfo, Socket, createSocket } from "dgram";
 import { DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
-import { DetectNetwork } from "../localnetwork";
-import { Unicast } from "../python/unicast";
+import { RouterModel } from "../router/router";
 
 export interface RedirectResult {
     isRedirected: boolean;
@@ -10,6 +9,7 @@ export interface RedirectResult {
     ip6?: Buffer | undefined;
 }
 
+//REQUIRED UNICAST? WHICH REQUIRES PYTHON
 export class MDnsServer {
     static socket: Socket;
 
@@ -18,7 +18,7 @@ export class MDnsServer {
     static MCAST_DEST_MAC = "01:00:5e:00:00:fb";
     static MCAST_DEST_IP = "224.0.0.251";
 
-    static init() {
+    static init(localIP: string) {
         this.socket = createSocket({ type: 'udp4', reuseAddr: true });
 
         this.socket.bind(this.port, this.INADDR_ANY, () => {
@@ -27,8 +27,7 @@ export class MDnsServer {
         });
 
         this.socket.on('message', async (buffer: Buffer, requestInfo: RemoteInfo) => {
-            let sourceMAC: string = DetectNetwork.mac;
-            let sourceIP: string = DetectNetwork.localIP;
+            let sourceIP: string = localIP;
 
             let packet = DnsPacket.fromBuffer(buffer);
             if (!packet.header.isResponse) { //query
@@ -38,10 +37,10 @@ export class MDnsServer {
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;
 
-                    Unicast.send(packet,
-                        sourceMAC, this.MCAST_DEST_MAC,
-                        sourceIP, this.MCAST_DEST_IP,
-                        5353, 5353);
+                    // Unicast.send(packet,
+                    //     sourceMAC, this.MCAST_DEST_MAC,
+                    //     sourceIP, this.MCAST_DEST_IP,
+                    //     5353, 5353);
                     /*
                     this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
                         if (err) {
