@@ -91,6 +91,13 @@ export class Helpers {
         }
     }
 
+    static trim(s: string, chaff: string) {
+        let chaffLength = chaff.length;
+        if (s.substring(0, chaffLength) == chaff) s = s.substring(chaffLength);
+        if (s.substring(s.length-chaffLength) == chaff) s = s.substring(0,s.length-chaffLength);
+        return s;
+    }
+
     static addMinutesToDate(d: Date, mins: number) {
         return new Date(d.valueOf() + mins*60*1000);
     }

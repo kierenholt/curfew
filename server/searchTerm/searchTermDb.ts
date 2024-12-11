@@ -1,7 +1,6 @@
 import { Db } from "../db";
 import { Helpers } from "../helpers";
 import { RunResult } from "sqlite3";
-import { blocksDomain, getNeedles } from "./searchTerm";
 
 //when activated:
 //selects matching domains from the dns response table, activates those ip filters on the router
@@ -9,6 +8,15 @@ import { blocksDomain, getNeedles } from "./searchTerm";
 
 export class SearchTermDb {
 
+    blocksDomain(domain: string) {
+        return this.needles.some(s => domain.indexOf(s) != -1);
+    }
+    
+    get needles() {
+        return this.expression.split(",");
+    }
+
+    
     static createTable(): Promise<RunResult> {
         return Db.run(`
             create table searchTerm (
@@ -24,8 +32,6 @@ export class SearchTermDb {
     name: string;
     expression: string;
     isActive: number;
-    blocksDomain = blocksDomain;
-    getNeedles = getNeedles;
 
     constructor(id: number, name: string, expression: string, isActive: number) {
         this.id = id;
@@ -35,7 +41,7 @@ export class SearchTermDb {
     }
 
     static async seed() {
-        await this.create("youtube", "youtube,googlevideo", 0);
+        await this.create("youtube", "youtube,googlevideo", 1);
         await this.create("brawlstars", "brawlstars,supercell", 0);
         await this.create("tiktok", "tiktok", 0);
     }

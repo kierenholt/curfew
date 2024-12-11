@@ -3,14 +3,11 @@ import { Socket } from "dgram";
 import { DnsPacket as DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
 import { DnsResponseDb } from "./dnsResponseDb";
-import { Helpers } from "../helpers";
-import { IPAddress } from "../IPAddress";
 const dgram = require('dgram');
 
 export class DnsForwarder {
     cache: Cache;
     socket: Socket;
-    UPSTREAM_SERVER_IP: string = '1.1.1.1';
     TTL: number = 30;
     port: number = 53;
     resolvesById: any = {};
@@ -34,6 +31,10 @@ export class DnsForwarder {
         responsePacket.allAnswers.forEach(a => a.ttl = this.TTL);
         this.cache.upsert(responsePacket.questions[0], responsePacket.allAnswers);
 
+        //write to db
+        let answer = responsePacket.allAnswers[0];
+        DnsResponseDb.create(answer.domainName.name, answer.IPAddress, new Date().valueOf())
+
         //resolve promise
         let foundPromiseResolve = this.resolvesById[responsePacket.header.id];
         if (foundPromiseResolve) {
@@ -45,16 +46,13 @@ export class DnsForwarder {
     forward(requestBuffer: Buffer): Promise<Answer[]> {
         let requestPacket = DnsPacket.fromBuffer(requestBuffer);
 
-        let answer = requestPacket.answers[0];
-        DnsResponseDb.create(answer.domainName.name, answer.IPAddress, new Date().valueOf())
-        
         let cached: Answer[] = this.cache.getAnswers(requestPacket.questions[0]);
         if (cached) {
             return Promise.resolve(cached);
         }
 
         return new Promise((resolve, reject) => {
-            this.socket.send(requestBuffer, this.port, this.UPSTREAM_SERVER_IP, (error: any) => {
+            this.socket.send(requestBuffer, this.port, process.env.DNS_UPSTREAM, (error: any) => {
                 if (error) {
                     console.error('Error sending message:', error);
                     this.socket.close();
@@ -71,7 +69,7 @@ export class DnsForwarder {
         let requestPacket = DnsPacket.fromBuffer(requestBuffer);
         
         return new Promise((resolve, reject) => {
-            this.socket.send(requestBuffer, this.port, this.UPSTREAM_SERVER_IP, (error: any) => {
+            this.socket.send(requestBuffer, this.port, process.env.DNS_UPSTREAM, (error: any) => {
                 if (error) {
                     console.error('Error sending message:', error);
                     this.socket.close();

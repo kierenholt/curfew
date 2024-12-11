@@ -27,16 +27,21 @@ export class DnsResponseDb {
         this.createdOn = createdOn;
     }
 
-    // no seeding
-    // static async seed() {
-    // }
+    static async seed() {
+        if (process.env.SEED_DB_ENABLED) {
+            this.create("www.youtube.com", "1.1.1.11", 1);
+            this.create("www.youtube.com", "1.1.1.12", 1);
+            this.create("www.youtube-parts.com", "1.1.1.13", 1);
+            this.create("www.homework.com", "1.1.1.14", 1);
+        }
+    }
 
     static async create(domain: string, ip: string, createdOn: number): Promise<number> {
         return Db.run(`
             insert into dnsResponse (domain, ip, createdOn)
             values ('${Helpers.Sanitise(domain)}', '${ip}', ${createdOn})
         `)
-        .then(result => result.changes);
+            .then(result => result.changes);
     }
 
     // no set
@@ -44,13 +49,14 @@ export class DnsResponseDb {
     // }
 
     static getDomainsContaining(needle: string): Promise<DnsResponseDb[]> {
-        return Db.get(`
-            select * from dnsResponse
+        return Db.all(`
+            select domain, ip, createdOn from dnsResponse
             where domain like '%${needle}%'
         `)
-        .then((result: any) => result.map((r:any) => new DnsResponseDb(
-            Helpers.Unsanitise(r.domain),
-            r.ip,
-            r.createdOn)))
+            .then((result: any) => result.map((r: any) => new DnsResponseDb(
+                Helpers.Unsanitise(r.domain),
+                r.ip,
+                r.createdOn)))
+
     }
 }

@@ -34,3 +34,4 @@ PORT=80
 test that dhcp is turned off when needed
 test that dns responses are saved
 test that correct filters are written to router on update 
+progress indicator when adding removing filter it takes a few mins

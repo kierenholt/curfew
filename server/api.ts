@@ -27,7 +27,7 @@ export class API {
         })
 
         app.listen(port, INADDR_ANY, () => {
-            console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+            console.log(`✓ Server is listening at http://localhost:${port}`);
         });
     }
 }

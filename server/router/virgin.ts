@@ -1,6 +1,7 @@
 import { SettingDb, SettingKey } from "../settings/settingDb";
 import { RouterFilter } from "./routerFilter";
 import { OidEnabledType, OidType, VirginOidBase, VirginWalkOid } from "./virginOids";
+import fetch from 'cross-fetch';
 
 export class VirginSession {
 
@@ -35,11 +36,11 @@ export class VirginSession {
                 else {
                     throw ("login bad response: " + response.statusText)
                 }
-            });
+            })
     }
 
-    getOidValue(type: OidType, index: string = ""): Promise<any> {
-        if (!this.cookie) throw("must be logged in");
+    async getOidValue(type: OidType, index: string = ""): Promise<any> {
+        if (!this.isLoggedIn) await this.login();
         let oid: VirginOidBase = VirginOidBase.create(type, index);
         let query = oid.getQuery() + "&" + this.nonceAndDate;
         return fetch("http://192.168.0.1/snmpGet?oids=" + query, this.cookieHeader)
@@ -56,8 +57,15 @@ export class VirginSession {
         return this.walkOid(OidType.WalkPortFiltering);
     }
 
-    walkOid(type: OidType): Promise<RouterFilter[]> {
-        if (!this.cookie) throw("must be logged in");
+    async walkOidTest(oid: string): Promise<any> {
+        if (!this.isLoggedIn) await this.login();
+        let query = oid + "&" + this.nonceAndDate;
+        return fetch("http://192.168.0.1/walk?oids=" + query, this.cookieHeader)
+            .then(response => response.json());
+    }
+
+    async walkOid(type: OidType): Promise<RouterFilter[]> {
+        if (!this.isLoggedIn) await this.login();
         let oid: VirginOidBase = VirginOidBase.create(type);
         if (!(oid instanceof VirginWalkOid)) {
             throw ("cannot run walk query on oid of wrong type");
@@ -68,8 +76,8 @@ export class VirginSession {
             .then(obj => oid.convertResponseObjectToValue(obj));
     }
 
-    setOidValue(type: OidType, value: any, index: string = ""): Promise<string> {
-        if (!this.cookie) throw("must be logged in");
+    async setOidValue(type: OidType, value: any, index: string = ""): Promise<string> {
+        if (!this.isLoggedIn) await this.login();
         let oid: VirginOidBase = VirginOidBase.create(type, index);
         let query = oid.setQuery(value) + "&" + this.nonceAndDate;
         return fetch("http://192.168.0.1/snmpSet?oids=" + query, this.cookieHeader)
@@ -87,8 +95,8 @@ export class VirginSession {
         return this.setOidValue(OidType.RowStatus, OidEnabledType.ToDelete, index);
     }
 
-    setBulkOidValue(types: OidType[], values: string[], index: string): Promise<string> {
-        if (!this.cookie) throw("must be logged in");
+    async setBulkOidValue(types: OidType[], values: string[], index: string): Promise<string> {
+        if (!this.isLoggedIn) await this.login();
         let oids: VirginOidBase[] = types.map(t => VirginOidBase.create(t, index));
         let queries = oids.map((o, i) => o.setQuery(values[i]));
         let fullQuery = queries.join("\\n") + "\\n&" + this.nonceAndDate;
@@ -96,12 +104,13 @@ export class VirginSession {
             .then(response => response.text());
     }
 
-    logout(): Promise<void> {
-        if (!this.cookie) throw("must be logged in");
+    async logout(): Promise<void> {
+        if (!this.isLoggedIn) return; 
         let query = this.nonceAndDate;
         return fetch("http://192.168.0.1/logout?" + query, this.cookieHeader)
             .then(response => {
                 if (response.status == 500) {
+                    this.cookie = "";
                     return
                 }
                 else {
@@ -120,5 +129,9 @@ export class VirginSession {
                 "Cookie": "credential=" + this.cookie,
             }
         }
+    }
+
+    get isLoggedIn() {
+        return this.cookie != "";
     }
 }

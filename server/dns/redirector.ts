@@ -1,11 +1,11 @@
-import { ActiveSearchTerms } from "../searchTerm/activeTerms";
+import { SearchTerms } from "../searchTerm/searchTerms";
 
 export enum RedirectDestination {
-    app = 1, hole = 0, shortTTL = 2, passThrough = 3
+    app = 1, hole = 0, shortTTL = 2, passThrough = 3, ignore = 4
 }
 
 export class Redirector {
-    static async redirectTo(hostAddress: string, fullDomain: string = ""): Promise<RedirectDestination> {
+    static async decide(hostAddress: string, fullDomain: string = ""): Promise<RedirectDestination> {
 
         if (hostAddress.length == 0) {
             console.error("hostAddress should not be null");
@@ -18,16 +18,24 @@ export class Redirector {
             return RedirectDestination.app;
         }
 
-        //curfew.0.0.168.192.in-addr.arpa
         if (fullDomain.endsWith("in-addr.arpa") && fullDomain.startsWith((process.env.HOSTNAME as string).toLowerCase())) {
-            return RedirectDestination.app;
+            return RedirectDestination.hole;
+        }
+        
+        if (fullDomain.endsWith("in-addr.arpa")) {
+            if (fullDomain.startsWith((process.env.HOSTNAME as string).toLowerCase())) {
+                //curfew.0.0.168.192.in-addr.arpa
+                return RedirectDestination.app;
+            }
+            //78.0.168.192.in-addr.arpa //reverse lookups - wants to know our domain name
+            return RedirectDestination.ignore;
         }
 
         if (Number(process.env.BYPASS_ALL)) {
             return RedirectDestination.passThrough;
         }
 
-        if (ActiveSearchTerms.isDomainBlocked(fullDomain)) {
+        if (await SearchTerms.isDomainBlocked(fullDomain)) {
             return RedirectDestination.hole;
         }
 

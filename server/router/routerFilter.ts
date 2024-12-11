@@ -1,3 +1,4 @@
+import { Helpers } from "../helpers";
 import { IPAddress } from "../IPAddress";
 import { OidType } from "./virginOids";
 
@@ -20,7 +21,8 @@ export class RouterFilter {
         for (let key in sortedByIndex) {
             let group = sortedByIndex[key];
             if (this.isWalkResultGroupValid(group)) {
-                ret.push(new RouterFilter(key, group[OidType.DstStartAddr]))
+                let trimmed = Helpers.trim(group[OidType.DstStartAddr],"$");
+                ret.push(new RouterFilter(key, IPAddress.fromHex(trimmed)));
             }
         }
         return ret;

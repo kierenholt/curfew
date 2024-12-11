@@ -14,7 +14,6 @@
     "express": "^4.19.2",
     "nocache": "^4.0.0",
     "node-cron": "^3.0.3",
-    "node-fetch": "^3.3.2",
     "promised-sqlite3": "^2.1.0",
     "sqlite3": "^5.1.7"
   },

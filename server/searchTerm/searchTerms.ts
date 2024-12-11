@@ -1,21 +1,17 @@
 import { DnsResponseDb } from "../dns/dnsResponseDb";
 import { SearchTermDb } from "./searchTermDb";
 
-export class ActiveSearchTerms {
-    static terms: SearchTermDb[] = [];
-
-    static async init() {
-        this.terms = await SearchTermDb.getAllActive();
-    }
-
-    static isDomainBlocked(domain: string) {
-        return this.terms.some(t => t.blocksDomain(domain))
+export class SearchTerms {
+    static async isDomainBlocked(domain: string) {
+        let terms = await SearchTermDb.getAllActive();
+        return terms.some(t => t.blocksDomain(domain))
     }
 
     static async getBlockedIPs(): Promise<string[]> {
         let ret: string[] = [];
-        for (let t of this.terms) {
-            for (let n of t.getNeedles()) {
+        let terms = await SearchTermDb.getAllActive();
+        for (let t of terms) {
+            for (let n of t.needles) {
                 let matchingDomains = await DnsResponseDb.getDomainsContaining(n);
                 ret.push(...matchingDomains.map(d => d.ip));
             }

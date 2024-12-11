@@ -15,12 +15,13 @@ export class Db {
 
     static async seed() {
         await SettingDb.seed();
+        await DnsResponseDb.seed();
         await SearchTermDb.seed();
     }
 
     static init(): Promise<void> {
         return new Promise((resolve, reject) => {
-            let db = new Database('curfew.db', 
+            let db = new Database(process.env.DATABASE_NAME as string, 
                 OPEN_READWRITE, 
                 async (err: any) => {
                     if (err && err.code == "SQLITE_CANTOPEN") {
@@ -40,7 +41,7 @@ export class Db {
 
     static createDatabase(): Promise<void> {
         return new Promise((resolve, reject) => {
-            let db = new Database('curfew.db', async (err: any) => {
+            let db = new Database(process.env.DATABASE_NAME as string, async (err: any) => {
                 if (err) {
                     console.log("Getting error " + err);
                     reject()
@@ -54,23 +55,22 @@ export class Db {
     }
 
     static run(sql: string): Promise<RunResult> {
-        console.log(sql);
+        //console.log(sql);
         return this.connection.run(sql);
     }
 
     static get(sql: string): Promise<any> {
-        console.log(sql);
+        // console.log(sql);
         return this.connection.get(sql);
     }
 
     static all(sql: string): Promise<any[]> {
-        console.log(sql);
+        // console.log(sql);
         return this.connection.all(sql);
     }
 
     static exec(sql: string): Promise<void> {
-        console.log(sql);
+        // console.log(sql);
         return this.connection.exec(sql);
     }
-
 }

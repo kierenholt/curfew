@@ -24,6 +24,7 @@ export class IPAddress {
     }
 
     static fromHex(s: string): IPAddress {
+        if (s.length < 8) throw ("incorrect length " + s);
         let bytes = [
             parseInt(s.substring(0, 2), 16),
             parseInt(s.substring(2, 4), 16),

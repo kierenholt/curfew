@@ -33,7 +33,7 @@ export class SettingDb {
     }
 
     static async seed() {
-        await this.create(SettingKey.routerAdminPassword, process.env.MY_ROUTER_PASSWORD as string, "router admin password", "password you use to login to router");
+        await this.create(SettingKey.routerAdminPassword, process.env.DEFAULT_PASSWORD as string, "router admin password", "password you use to login to router");
         await this.create(SettingKey.lanIp, "192.168.0.67", "curfew ip address", "ip address to connect to curfew");
     }
 

@@ -6,29 +6,47 @@
   "configurations": [
     
     {
-      "name": "Launch Program",
+      "name": "env=prod",
       "program": "${workspaceFolder}/server/bin/run.js",
       "request": "launch",
       "skipFiles": [
-        "<node_internals>/**"
+        "<node_internals>/**",
+        "**/node_modules/**"
       ],
       "type": "node",
-      "sudo": true
+      "sudo": true,
+      "env": {
+        "PROD": "1"
+      }
     },
     {
-      "name": "Attach",
-      "port": 2000,
-      "request": "attach",
+      "name": "env=test",
+      "program": "${workspaceFolder}/server/bin/run.js",
+      "request": "launch",
       "skipFiles": [
-        "<node_internals>/**"
+        "<node_internals>/**",
+        "**/node_modules/**"
       ],
       "type": "node",
-      "restart": true
+      "sudo": true,
+      "env": {
+        "TEST": "1"
+      }
     },
+    // {
+    //   "name": "Attach",
+    //   "port": 2000,
+    //   "request": "attach",
+    //   "skipFiles": [
+    //     "<node_internals>/**"
+    //   ],
+    //   "type": "node",
+    //   "restart": true
+    // },
     {
       "type": "node",
       "request": "launch",
-      "name": "test",
+      "name": "run tests",
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -37,7 +55,7 @@
         "--test"
       ],
       "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}/server"
+      "cwd": "${workspaceFolder}/server",
     }
   ]
 }

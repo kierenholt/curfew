@@ -27,7 +27,7 @@ export class DnsServer {
         this.dnsRedirector = new Redirector();
 
         this.socket.bind(port, () => {
-            console.log('DNS server listening on UDP port ', port);
+            console.log('✓ DNS server listening on UDP port ', port);
         });
         
         this.socket.on('message', async (buffer: Buffer, requestInfo: RemoteInfo) => {        
@@ -36,7 +36,7 @@ export class DnsServer {
 
             if (!packet.header.isResponse) { //query
 
-                let destination = await Redirector.redirectTo(requestInfo.address, packet.questions[0].name);
+                let destination = await Redirector.decide(requestInfo.address, packet.questions[0].name);
                 // unfiltered groups
                 if (destination == RedirectDestination.passThrough) {
                     //pass through - does not alter packet, does not cache
@@ -111,6 +111,10 @@ export class DnsServer {
                                 }
                             });
                         })
+                }
+
+                if (destination == RedirectDestination.ignore) {
+                    //do nothing
                 }
             }
             else { //pass response from upstream back to client
