@@ -22,7 +22,7 @@ export class Helpers {
     }
 
     static readIP(buf: Buffer, r: number): string {
-        return `${buf[r]}.${buf[r+1]}.${buf[r+2]}.${buf[r+3]}`
+        return `${buf[r]}.${buf[r + 1]}.${buf[r + 2]}.${buf[r + 3]}`
     }
 
     static IPAsBuffer(IP: string): Buffer {
@@ -49,16 +49,16 @@ export class Helpers {
         let spl = buf.toString('hex');
         let ret: string[] = new Array(buf.length).fill("");
         for (let i = 0; i < spl.length; i++) {
-            ret[Math.floor(i/2)] += spl[i];
+            ret[Math.floor(i / 2)] += spl[i];
         }
         return ret.join(" ");
     }
 
     static readMAC(buf: Buffer, r: number): string {
-        let spl = buf.subarray(r, r+6).toString('hex');
-        let ret: string[] = ["","","","","",""];
+        let spl = buf.subarray(r, r + 6).toString('hex');
+        let ret: string[] = ["", "", "", "", "", ""];
         for (let i = 0; i < spl.length; i++) {
-            ret[Math.floor(i/2)] += spl[i];
+            ret[Math.floor(i / 2)] += spl[i];
         }
         return ret.join(":");
     }
@@ -70,7 +70,7 @@ export class Helpers {
     }
 
     static randomInt(limit: number) {
-        return Math.floor(Math.random() * (limit+1));
+        return Math.floor(Math.random() * (limit + 1));
     }
 
     static difference(arr: any, notArr: any) {
@@ -88,15 +88,44 @@ export class Helpers {
     static replace(within: string, char: string, neww: string, i: number): string {
         if (i === within.length) return "";
         if (within[i] === char) {
-            return neww + this.replace(within, char, neww, i+1);
+            return neww + this.replace(within, char, neww, i + 1);
         }
         else {
-            return within[i] + this.replace(within, char, neww, i+1);
+            return within[i] + this.replace(within, char, neww, i + 1);
         }
     }
 
     static addMinutesToDate(d: Date, mins: number) {
-        return new Date(d.valueOf() + mins*60*1000);
+        return new Date(d.valueOf() + mins * 60 * 1000);
+    }
+
+    static get<T>(url: string): Promise<T> {
+        return fetch(url)
+            .then((req: Response) => req.json())
+    }
+
+    static post<T>(url: string, data: any): Promise<T> {
+        return fetch(url, {
+            method: "post", body: JSON.stringify(data),
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then((req: Response) => req.json())
+    }
+
+    static put<T>(url: string, data: any): Promise<T> {
+        return fetch(url, {
+            method: "put", body: JSON.stringify(data),
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then((req: Response) => req.json())
+    }
+
+    static delete(url: string): Promise<number> {
+        return fetch(url, {
+            method: "delete",
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then((req: Response) => req.json())
     }
 
     static MACtoDeviceId(mac: string): string {
@@ -107,8 +136,23 @@ export class Helpers {
         let ret = "";
         for (let i = 0; i < id.length; i++) {
             ret += id[i];
-            if (i % 2 === 1 && i !== id.length-1) ret += ":"
+            if (i % 2 === 1 && i !== id.length - 1) ret += ":"
         }
         return ret;
     }
- }
+    
+    static range(start: number, end: number) {
+        let ret = [];
+        if (end < start) {
+            for (let i = start; i > end; i -= 1) {
+                ret.push(i);
+            }
+        }
+        else {
+            for (let i = start; i < end; i += 1) {
+                ret.push(i);
+            }
+        }
+        return ret;
+    }
+}

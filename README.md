@@ -2,6 +2,7 @@ npm init
 ## how to run
 ### server
 sudo node --inspect=2000 server/bin/run.js
+
 ### app
 app/npm run start
 
@@ -35,3 +36,4 @@ test that dhcp is turned off when needed
 test that dns responses are saved
 test that correct filters are written to router on update 
 progress indicator when adding removing filter it takes a few mins
+find out why outlook does not work

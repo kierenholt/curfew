@@ -1,4 +1,5 @@
 import { DnsResponseDb } from "../dns/dnsResponseDb";
+import { Helpers } from "../helpers";
 import { SearchTermDb } from "./searchTermDb";
 
 export class SearchTerms {
@@ -16,6 +17,6 @@ export class SearchTerms {
                 ret.push(...matchingDomains.map(d => d.ip));
             }
         }
-        return ret;
+        return Helpers.removeDuplicates(ret);
     }
 }

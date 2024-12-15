@@ -33,7 +33,7 @@ export class DnsForwarder {
 
         //write to db
         let answer = responsePacket.allAnswers[0];
-        DnsResponseDb.create(answer.domainName.name, answer.IPAddress, new Date().valueOf())
+        if (answer) DnsResponseDb.create(answer.domainName.name, answer.IPAddress, new Date().valueOf())
 
         //resolve promise
         let foundPromiseResolve = this.resolvesById[responsePacket.header.id];

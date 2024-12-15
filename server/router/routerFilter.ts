@@ -1,6 +1,6 @@
 import { Helpers } from "../helpers";
 import { IPAddress } from "../IPAddress";
-import { OidType } from "./virginOids";
+import { OidEnabledType, OidType } from "./virginOids";
 
 export class RouterFilter {
     dest: IPAddress;
@@ -69,10 +69,10 @@ export class RouterFilter {
         OidType.Action, OidType.RowStatus
         ];
         let values: string[] = ["1", "1", "3",
-            "1", "$c0a80000", "$c0a80000", "0",
+            "1", "%24c0a80000", "%24c0a80000", "0",
             "2", "%24" + this.dest.toHex(), "undefined", "0",
             "", "", "", "",
-            "1", "2"
+            "1", OidEnabledType.Enabled
         ];
         return [types, values, this.index];
     }

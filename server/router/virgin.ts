@@ -1,7 +1,7 @@
+import { Helpers } from "../helpers";
 import { SettingDb, SettingKey } from "../settings/settingDb";
 import { RouterFilter } from "./routerFilter";
 import { OidEnabledType, OidType, VirginOidBase, VirginWalkOid } from "./virginOids";
-import fetch from 'cross-fetch';
 
 export class VirginSession {
 
@@ -86,26 +86,48 @@ export class VirginSession {
             });
     }
 
-    setFilter(filter: RouterFilter): Promise<string> {
+    setFilter(filter: RouterFilter): Promise<boolean> {
         let [types, values, index] = filter.oidsAndValuesForCreate;
-        return this.setBulkOidValue(types, values, index);
+        return this.setBulkOidTypes(types, values, index);
     }
 
-    deleteFilter(index: string): Promise<string> {
-        return this.setOidValue(OidType.RowStatus, OidEnabledType.ToDelete, index);
+    deleteFilters(indexes: string[]): Promise<boolean> {
+        return this.setBulkOidIndexes(OidType.RowStatus, OidEnabledType.ToDelete, indexes);
     }
 
-    async setBulkOidValue(types: OidType[], values: string[], index: string): Promise<string> {
+    async hardReset() {
+        for (let i = 40; i >= 0; i -= 10) {
+            console.log(`. hard deleting filters ${i + 10} to ${i + 1}`);
+            let range = Helpers.range(i + 10, i);
+            await this.deleteFilters(range.map(i => i.toString()));
+        }
+        console.log("✓ success");
+    }
+
+    //used to create a filter
+    // DO NOT TRY TO READ THE RESPONSE
+    async setBulkOidTypes(types: OidType[], values: string[], index: string): Promise<boolean> {
         if (!this.isLoggedIn) await this.login();
         let oids: VirginOidBase[] = types.map(t => VirginOidBase.create(t, index));
         let queries = oids.map((o, i) => o.setQuery(values[i]));
         let fullQuery = queries.join("\\n") + "\\n&" + this.nonceAndDate;
         return fetch("http://192.168.0.1/snmpSetBulk?oids=" + fullQuery, this.cookieHeader)
-            .then(response => response.text());
+            .then(response => response.ok);
+    }
+
+    //used to delete multiple filter
+    // DO NOT TRY TO READ THE RESPONSE
+    async setBulkOidIndexes(type: OidType, value: string, indexes: string[]): Promise<boolean> {
+        if (!this.isLoggedIn) await this.login();
+        let oids: VirginOidBase[] = indexes.map(i => VirginOidBase.create(type, i));
+        let queries = oids.map((o, i) => o.setQuery(value));
+        let fullQuery = queries.join("\\n") + "\\n&" + this.nonceAndDate;
+        return fetch("http://192.168.0.1/snmpSetBulk?oids=" + fullQuery, this.cookieHeader)
+            .then(response => response.ok);
     }
 
     async logout(): Promise<void> {
-        if (!this.isLoggedIn) return; 
+        if (!this.isLoggedIn) return;
         let query = this.nonceAndDate;
         return fetch("http://192.168.0.1/logout?" + query, this.cookieHeader)
             .then(response => {

@@ -123,4 +123,29 @@ export class Helpers {
     static Unsanitise(str: string): string {
         return this.replaceAll(str, "''", "'");
     }
+
+    static removeDuplicates(arr: any[]): any[] {
+        let ret = [];
+        for (let item of arr) {
+            if (ret.indexOf(item) == -1) {
+                ret.push(item);
+            }
+        }
+        return ret;
+    }
+
+    static range(start: number, end: number) {
+        let ret = [];
+        if (end < start) {
+            for (let i = start; i > end; i -= 1) {
+                ret.push(i);
+            }
+        }
+        else {
+            for (let i = start; i < end; i += 1) {
+                ret.push(i);
+            }
+        }
+        return ret;
+    }
 }

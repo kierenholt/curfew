@@ -1,16 +1,17 @@
-import { SettingDb, SettingKey } from "./settings/settingDb";
-
+import { DnsResponseDb } from "./dns/dnsResponseDb";
 const cron = require('node-cron');
+
 
 export class Jobs {
 
     //https://www.npmjs.com/package/node-cron
+    //https://crontab.guru/examples.html
 
-    static init() {
-        //old request cleanup
-        // cron.schedule('0 1 * * *', async () => {
-        //     let daysOld = await Setting.getNumber(SettingKey.requestExpiryDays);
-        //     await DnsRequest.deleteOlderThanDays(daysOld);
-        // });
+    static async init() {
+        await DnsResponseDb.deleteOlderThan1Day();
+
+        cron.schedule('0 * * * *', async () => { //every hour
+            DnsResponseDb.deleteOlderThan1Day();
+        });
     }
 }

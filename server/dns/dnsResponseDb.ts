@@ -57,6 +57,14 @@ export class DnsResponseDb {
                 Helpers.Unsanitise(r.domain),
                 r.ip,
                 r.createdOn)))
+    }
 
+    static deleteOlderThan1Day(): Promise<number> {
+        let olderThan = new Date().valueOf() - 24 * 3600 * 1000; //1 day
+        return Db.run(`
+            delete from dnsResponse
+            where createdOn < ${olderThan}
+        `)
+        .then((result: RunResult) => result.changes);
     }
 }

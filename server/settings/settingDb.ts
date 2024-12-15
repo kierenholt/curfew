@@ -5,6 +5,7 @@ import { RunResult } from "sqlite3";
 export enum SettingKey {
     routerAdminPassword = 1,
     lanIp = 2,
+    pin = 3,
 }
 
 export class SettingDb {
@@ -35,6 +36,7 @@ export class SettingDb {
     static async seed() {
         await this.create(SettingKey.routerAdminPassword, process.env.DEFAULT_PASSWORD as string, "router admin password", "password you use to login to router");
         await this.create(SettingKey.lanIp, "192.168.0.67", "curfew ip address", "ip address to connect to curfew");
+        await this.create(SettingKey.pin, "0000", "pin", "code to access web pages");
     }
 
     static async create(key: SettingKey, value: string, label: string, description: string): Promise<number> {
@@ -42,7 +44,7 @@ export class SettingDb {
             insert into setting (key, value, label, description)
             values (${key.valueOf()}, '${Helpers.Sanitise(value)}', '${Helpers.Sanitise(label)}', '${Helpers.Sanitise(description)}')
         `)
-        .then(result => result.changes);
+            .then(result => result.changes);
     }
 
     static async set(key: SettingKey, value: string): Promise<number> {
@@ -51,7 +53,7 @@ export class SettingDb {
             set value = '${Helpers.Sanitise(value)}'
             where key=${key}
         `)
-        .then(result => result.changes);
+            .then(result => result.changes);
     }
 
     static getNumber(key: SettingKey): Promise<number> {
@@ -59,9 +61,9 @@ export class SettingDb {
             select value from setting
             where key=${key}
         `)
-        .then(result => {
-            return Number(result.value)
-        });
+            .then(result => {
+                return Number(result.value)
+            });
     }
 
     static getString(key: SettingKey): Promise<string> {
@@ -69,7 +71,12 @@ export class SettingDb {
             select value from setting
             where key=${key}
         `)
-        .then(result => Helpers.Unsanitise(result.value));
+            .then(result => {
+                if (result == null || !("value" in result)) {
+                    throw("key not found");
+                }
+                return Helpers.Unsanitise(result.value)
+            });
     }
 
     static getBool(key: SettingKey): Promise<boolean> {
@@ -77,19 +84,19 @@ export class SettingDb {
             select value from setting
             where key=${key}
         `)
-        .then(result => result.value === "true");
+            .then(result => result.value === "true");
     }
-    
+
     static getObjectByKey(key: SettingKey): Promise<SettingDb | null> {
         return Db.get(`
             select * from setting
             where key=${key}
         `)
-        .then(result => result ? new SettingDb(
-            result.key, 
-            Helpers.Unsanitise(result.value),
-            Helpers.Unsanitise(result.label),
-            Helpers.Unsanitise(result.description)) : null);
+            .then(result => result ? new SettingDb(
+                result.key,
+                Helpers.Unsanitise(result.value),
+                Helpers.Unsanitise(result.label),
+                Helpers.Unsanitise(result.description)) : null);
     }
 
 
@@ -98,10 +105,10 @@ export class SettingDb {
             select * from setting
             order by key asc
         `)
-        .then((result: any) => result.map((r:any) => new SettingDb(
-            r.key,
-            Helpers.Unsanitise(r.value),
-            Helpers.Unsanitise(r.label),
-            Helpers.Unsanitise(r.description))))
+            .then((result: any) => result.map((r: any) => new SettingDb(
+                r.key,
+                Helpers.Unsanitise(r.value),
+                Helpers.Unsanitise(r.label),
+                Helpers.Unsanitise(r.description))))
     }
 }
