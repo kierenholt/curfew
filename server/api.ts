@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import { SettingApi } from './settings/settingApi';
 import { DnsResponseApi } from './dns/dnsResponseApi';
-import { SearchTermApi } from './searchTerm/searchTermApi';
+import { KeywordApi } from './keyword/keywordApi';
 const nocache = require("nocache");
 
 export class API {
@@ -19,7 +19,7 @@ export class API {
 
         SettingApi.init(app);
         DnsResponseApi.init(app);
-        SearchTermApi.init(app);
+        KeywordApi.init(app);
 
         //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
         app.get("*", (req, res) => {

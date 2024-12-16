@@ -42,17 +42,17 @@ export class SettingDb {
     static async create(key: SettingKey, value: string, label: string, description: string): Promise<number> {
         return Db.run(`
             insert into setting (key, value, label, description)
-            values (${key.valueOf()}, '${Helpers.Sanitise(value)}', '${Helpers.Sanitise(label)}', '${Helpers.Sanitise(description)}')
-        `)
+            values (?, ?, ?, ?)
+        `, [key.valueOf(), value, label, description])
             .then(result => result.changes);
     }
 
     static async set(key: SettingKey, value: string): Promise<number> {
         return Db.run(`
             update setting 
-            set value = '${Helpers.Sanitise(value)}'
-            where key=${key}
-        `)
+            set value = ?
+            where key = ?
+        `, [value, key.valueOf()])
             .then(result => result.changes);
     }
 
@@ -69,13 +69,13 @@ export class SettingDb {
     static getString(key: SettingKey): Promise<string> {
         return Db.get(`
             select value from setting
-            where key=${key}
-        `)
+            where key = ?
+        `, [key.valueOf()])
             .then(result => {
                 if (result == null || !("value" in result)) {
-                    throw("key not found");
+                    throw ("key not found");
                 }
-                return Helpers.Unsanitise(result.value)
+                return result.value
             });
     }
 
@@ -90,13 +90,13 @@ export class SettingDb {
     static getObjectByKey(key: SettingKey): Promise<SettingDb | null> {
         return Db.get(`
             select * from setting
-            where key=${key}
-        `)
+            where key=?
+        `, [key.valueOf()])
             .then(result => result ? new SettingDb(
                 result.key,
-                Helpers.Unsanitise(result.value),
-                Helpers.Unsanitise(result.label),
-                Helpers.Unsanitise(result.description)) : null);
+                result.value,
+                result.label,
+                result.description) : null);
     }
 
 
@@ -107,8 +107,8 @@ export class SettingDb {
         `)
             .then((result: any) => result.map((r: any) => new SettingDb(
                 r.key,
-                Helpers.Unsanitise(r.value),
-                Helpers.Unsanitise(r.label),
-                Helpers.Unsanitise(r.description))))
+                r.value,
+                r.label,
+                r.description)))
     }
 }

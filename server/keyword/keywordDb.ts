@@ -6,7 +6,7 @@ import { RunResult } from "sqlite3";
 //selects matching domains from the dns response table, activates those ip filters on the router
 //also checks all dns queries
 
-export class SearchTermDb {
+export class KeywordDb {
 
     blocksDomain(domain: string) {
         return this.needles.some(s => domain.indexOf(s) != -1);
@@ -49,56 +49,64 @@ export class SearchTermDb {
     static async create(name: string, expression: string, isActive: number): Promise<number> {
         return Db.run(`
             insert into searchTerm (name, expression, isActive)
-            values ('${Helpers.Sanitise(name)}', '${Helpers.Sanitise(expression)}', ${isActive})
-        `)
+            values (?, ?, ?)
+        `, [name, expression, isActive])
         .then(result => result.changes);
     }
 
-    static async update(id: number, name: string, expression: string, isActive: number): Promise<number> {
+    static async update(id: number, name: string, expression: string): Promise<number> {
         return Db.run(`
             update searchTerm 
-            set name = '${Helpers.Sanitise(name)}',
-                expression = '${Helpers.Sanitise(expression)}',
-                isActive = ${isActive}
+            set name = ?,
+                expression = ?
             where id=${id}
-        `)
+        `, [name, expression])
         .then(result => result.changes);
     }
 
-    static getById(id: number): Promise<SearchTermDb | null> {
+    static async setIsActive(id: number, isActive: number): Promise<number> {
+        return Db.run(`
+            update searchTerm 
+            set isActive = ?
+            where id=${id}
+        `, [isActive])
+        .then(result => result.changes);
+    }
+
+    static getById(id: number): Promise<KeywordDb | null> {
         return Db.get(`
             select * from searchTerm
             where id=${id}
         `)
-        .then(result => result ? new SearchTermDb(
+        .then(result => result ? new KeywordDb(
             result.id,
-            Helpers.Unsanitise(result.name), 
-            Helpers.Unsanitise(result.expression),
+            result.name, 
+            result.expression,
             result.isActive) : null);
     }
 
-    static getAllActive(): Promise<SearchTermDb[]> {
+    static getAllActive(): Promise<KeywordDb[]> {
         return Db.all(`
             select * from searchTerm
             where isActive=1
             order by id asc
         `)
-        .then((result: any) => result.map((r:any) => new SearchTermDb(
+        .then((result: any) => result.map((r:any) => new KeywordDb(
             r.id,
-            Helpers.Unsanitise(r.name),
-            Helpers.Unsanitise(r.expression),
+            r.name,
+            r.expression,
             r.isActive)))
     }
 
-    static getAll(): Promise<SearchTermDb[]> {
+    static getAll(): Promise<KeywordDb[]> {
         return Db.all(`
             select * from searchTerm
             order by id asc
         `)
-        .then((result: any) => result.map((r:any) => new SearchTermDb(
+        .then((result: any) => result.map((r:any) => new KeywordDb(
             r.id,
-            Helpers.Unsanitise(r.name),
-            Helpers.Unsanitise(r.expression),
+            r.name,
+            r.expression,
             r.isActive)))
     }
 }

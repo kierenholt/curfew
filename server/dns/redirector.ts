@@ -1,4 +1,4 @@
-import { SearchTerms } from "../searchTerm/searchTerms";
+import { Keywords } from "../keyword/keywords";
 
 export enum RedirectDestination {
     app = 1, hole = 0, shortTTL = 2, passThrough = 3, ignore = 4
@@ -35,7 +35,7 @@ export class Redirector {
             return RedirectDestination.passThrough;
         }
 
-        if (await SearchTerms.isDomainBlocked(fullDomain)) {
+        if (await Keywords.isDomainBlocked(fullDomain)) {
             return RedirectDestination.hole;
         }
 

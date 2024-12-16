@@ -39,8 +39,8 @@ export class DnsResponseDb {
     static async create(domain: string, ip: string, createdOn: number): Promise<number> {
         return Db.run(`
             insert into dnsResponse (domain, ip, createdOn)
-            values ('${Helpers.Sanitise(domain)}', '${ip}', ${createdOn})
-        `)
+            values (?, ?, ?)
+        `, [domain, ip, createdOn])
             .then(result => result.changes);
     }
 
@@ -51,10 +51,10 @@ export class DnsResponseDb {
     static getDomainsContaining(needle: string): Promise<DnsResponseDb[]> {
         return Db.all(`
             select domain, ip, createdOn from dnsResponse
-            where domain like '%${needle}%'
-        `)
+            where domain like ?
+        `, [`%${needle}%`])
             .then((result: any) => result.map((r: any) => new DnsResponseDb(
-                Helpers.Unsanitise(r.domain),
+                r.domain,
                 r.ip,
                 r.createdOn)))
     }

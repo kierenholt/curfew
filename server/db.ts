@@ -2,7 +2,7 @@ import { AsyncDatabase } from "promised-sqlite3";
 import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
 import { SettingDb } from "./settings/settingDb";
 import { DnsResponseDb } from "./dns/dnsResponseDb";
-import { SearchTermDb } from "./searchTerm/searchTermDb";
+import { KeywordDb } from "./keyword/keywordDb";
 
 export class Db {
     static connection: AsyncDatabase;
@@ -10,13 +10,13 @@ export class Db {
     static async createTables() {
         await SettingDb.createTable();
         await DnsResponseDb.createTable();
-        await SearchTermDb.createTable();
+        await KeywordDb.createTable();
     }
 
     static async seed() {
         await SettingDb.seed();
         await DnsResponseDb.seed();
-        await SearchTermDb.seed();
+        await KeywordDb.seed();
     }
 
     static init(): Promise<void> {
@@ -54,23 +54,18 @@ export class Db {
         })
     }
 
-    static run(sql: string): Promise<RunResult> {
+    static run(sql: string, params: any = []): Promise<RunResult> {
         //console.log(sql);
-        return this.connection.run(sql);
+        return this.connection.run(sql, params);
     }
 
-    static get(sql: string): Promise<any> {
+    static get(sql: string, params: any = []): Promise<any> {
         // console.log(sql);
-        return this.connection.get(sql);
+        return this.connection.get(sql, params);
     }
 
-    static all(sql: string): Promise<any[]> {
+    static all(sql: string, params: any = []): Promise<any[]> {
         // console.log(sql);
-        return this.connection.all(sql);
-    }
-
-    static exec(sql: string): Promise<void> {
-        // console.log(sql);
-        return this.connection.exec(sql);
+        return this.connection.all(sql, params);
     }
 }

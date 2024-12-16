@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 import { Jobs } from "./jobs";
 import { Db } from "./db";
 import { checkSudo } from "./checkSudo";
-import { SearchTermDb } from "./searchTerm/searchTermDb";
+import { KeywordDb } from "./keyword/keywordDb";
 
 dotenv.config({ path: (process.env.TEST ? '.test.env' : '.env') });
 if (process.env.TEST) console.log("test mode enabled");
@@ -15,9 +15,9 @@ async function run() {
     await Db.init();
     await Jobs.init();
 
-    SearchTermDb.update(1, "youtube", "youtube", 1)
-    SearchTermDb.update(2, "brawlstars", "brawlstarsgame", 1)
-    SearchTermDb.update(3, "tiktok", "tiktok", 1)
+    KeywordDb.setIsActive(1, 1); //youtube
+    KeywordDb.setIsActive(2, 1); //brawlstars
+    KeywordDb.setIsActive(3, 0); //tiktok
 
     //API
     if (Number(process.env.API_ENABLED)) {
@@ -25,7 +25,7 @@ async function run() {
     }
 
     //INITIALISE NETWORK
-    //await Router.setupDHCP();
+    await Router.setupDHCP();
 
     //DNS SERVER
     if (Number(process.env.DNS_ENABLED)) {

@@ -1,3 +1,5 @@
+import { NonObjectIdLikeDocument } from "mongodb";
+import { Helpers } from "./helpers";
 
 
 export class IPAddress {
@@ -44,5 +46,14 @@ export class IPAddress {
             other.buffer[1] == this.buffer[1] &&
             other.buffer[2] == this.buffer[2] &&
             other.buffer[3] == this.buffer[3];
+    }
+
+    static isValid(s: string): boolean {
+        s = Helpers.trim(s, "$");
+        return (s.length == 8) &&
+            !isNaN(parseInt(s.substring(0, 2), 16)) &&
+            !isNaN(parseInt(s.substring(2, 4), 16)) &&
+            !isNaN(parseInt(s.substring(4, 6), 16)) &&
+            !isNaN(parseInt(s.substring(6, 8), 16));
     }
 }

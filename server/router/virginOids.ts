@@ -116,7 +116,7 @@ export class VirginWalkOid extends VirginOidBase {
     }
 
     convertResponseObjectToValue(obj: any): any {
-        return RouterFilter.fromOidWalkResult(obj);
+        return obj;
     }
 
     setQuery(value: string): string {

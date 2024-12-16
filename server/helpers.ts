@@ -115,15 +115,6 @@ export class Helpers {
         return ret;
     }
 
-    static Sanitise(str: string): string {
-        str = this.replaceAll(str, "'", "''");
-        return this.replaceAll(str, "\t", " ");
-    }
-
-    static Unsanitise(str: string): string {
-        return this.replaceAll(str, "''", "'");
-    }
-
     static removeDuplicates(arr: any[]): any[] {
         let ret = [];
         for (let item of arr) {

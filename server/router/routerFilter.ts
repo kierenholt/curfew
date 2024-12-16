@@ -46,7 +46,9 @@ export class RouterFilter {
             OidType.SrcPrefixLen in group &&
             OidType.DstRange in group &&
             OidType.DstStartAddr in group &&
+            IPAddress.isValid(group[OidType.DstStartAddr]) &&
             OidType.DstEndAddr in group &&
+            IPAddress.isValid(group[OidType.DstEndAddr]) &&
             OidType.DstPrefixLen in group &&
             OidType.SrcPortStart in group &&
             OidType.SrcPortEnd in group &&
@@ -70,7 +72,7 @@ export class RouterFilter {
         ];
         let values: string[] = ["1", "1", "3",
             "1", "%24c0a80000", "%24c0a80000", "0",
-            "2", "%24" + this.dest.toHex(), "undefined", "0",
+            "2", "%24" + this.dest.toHex(), "%2400000000", "0",
             "", "", "", "",
             "1", OidEnabledType.Enabled
         ];

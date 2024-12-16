@@ -1,6 +1,6 @@
 import { Helpers } from "../helpers";
 import { IPAddress } from "../IPAddress";
-import { SearchTerms } from "../searchTerm/searchTerms";
+import { Keywords } from "../keyword/keywords";
 import { RouterFilter } from "./routerFilter";
 import { VirginSession } from "./virgin";
 import { OidEnabledType, OidType } from "./virginOids";
@@ -43,9 +43,10 @@ export class Router {
         }
         console.log("✓ success");
 
+        let f = await session.getActiveFilters();
         //await session.hardReset();
-
-        let blockedIps = await SearchTerms.getBlockedIPs();
+        
+        let blockedIps = await Keywords.getBlockedIPs();
         console.log(". updating IP filters configured on router");
         await Router.updateBlockedIPs(blockedIps, session);
         console.log("✓ success");
