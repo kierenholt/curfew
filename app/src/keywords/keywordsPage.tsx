@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { KeywordsList } from "./keywordsList";
-import { IKeyword } from "../types";
+import { IKeyword } from "./IKeyword";
 import { Helpers } from "../helpers";
 
 

@@ -6,6 +6,7 @@ import { Jobs } from "./jobs";
 import { Db } from "./db";
 import { checkSudo } from "./checkSudo";
 import { KeywordDb } from "./keyword/keywordDb";
+import { SettingDb, SettingKey } from "./settings/settingDb";
 
 dotenv.config({ path: (process.env.TEST ? '.test.env' : '.env') });
 if (process.env.TEST) console.log("test mode enabled");
@@ -15,9 +16,7 @@ async function run() {
     await Db.init();
     await Jobs.init();
 
-    KeywordDb.update(1, "youtube", "youtube,googlevideo", 0);
-    KeywordDb.update(2, "brawlstars", "brawlstarsgame", 0);
-    KeywordDb.update(3, "tiktok", "tiktokv", 0);
+    await SettingDb.set(SettingKey.lanIp, "192.168.0.78");
 
     //API
     if (Number(process.env.API_ENABLED)) {

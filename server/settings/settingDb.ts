@@ -1,7 +1,7 @@
 import { Db } from "../db";
-import { Helpers } from "../helpers";
 import { RunResult } from "sqlite3";
 
+// must be copied over to app
 export enum SettingKey {
     routerAdminPassword = 1,
     lanIp = 2,
@@ -35,7 +35,7 @@ export class SettingDb {
 
     static async seed() {
         await this.create(SettingKey.routerAdminPassword, process.env.DEFAULT_PASSWORD as string, "router admin password", "password you use to login to router");
-        await this.create(SettingKey.lanIp, "192.168.0.67", "curfew ip address", "ip address to connect to curfew");
+        await this.create(SettingKey.lanIp, "192.168.0.78", "curfew ip address", "ip address to connect to curfew");
         await this.create(SettingKey.pin, "0000", "pin", "code to access web pages");
     }
 

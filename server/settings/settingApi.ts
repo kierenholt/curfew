@@ -11,15 +11,35 @@ export class SettingApi {
             res.status(200).json(isMatch);
         });
 
-        // app.get('/api/settings/:key', async (req: Request, res: Response) => {
-        //     let key = Number(req.params.key);
-        //     if (key > 0) {
-        //         let ret = await Setting.getByKey(key);
-        //         res.status(200).json(ret);
-        //     }
-        //     else {
-        //         res.status(400).send("parameter error");
-        //     }
-        // });
+        //set value
+        app.put('/api/settings/:key', async (req: Request, res: Response) => {
+            let key = Number(req.params.key);
+            if (key > 0 && req.body.value.length > 0) {
+                let ret = await SettingDb.set(key, req.body.value);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+
+
+        //get all requests
+        app.get('/api/settings', async (req: Request, res: Response) => {
+            let ret = await SettingDb.getAll();
+            res.status(200).json(ret);
+        });
+
+        app.get('/api/settings/:key', async (req: Request, res: Response) => {
+            let key = Number(req.params.key);
+            if (key > 0) {
+                let ret = await SettingDb.getObjectByKey(key);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+
     }
 }

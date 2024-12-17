@@ -32,8 +32,9 @@ DANGEROUSLY_DISABLE_HOST_CHECK=true
 PORT=80
 
 ## to do
-test that dhcp is turned off when needed
-test that dns responses are saved
-test that correct filters are written to router on update 
-progress indicator when adding removing filter it takes a few mins
 find out why outlook does not work
+delete keyword filter
+create keyword filter
+change ip address on setting change 
+make random ip address on first time boot?
+try different router ips if router not found 

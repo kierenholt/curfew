@@ -1,8 +1,8 @@
 
 
-import { Button, Checkbox, FormControlLabel, FormGroup, TextField } from "@mui/material";
-import { ChangeEvent, useContext, useEffect, useState } from "react";
-import { IKeyword } from "../types";
+import { Button, FormGroup, TextField } from "@mui/material";
+import { ChangeEvent, useContext, useState } from "react";
+import { IKeyword } from "./IKeyword";
 import { Helpers } from "../helpers";
 import { ProgressContext } from "../progress/progressModalContainer";
 

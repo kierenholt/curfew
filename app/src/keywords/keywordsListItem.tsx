@@ -5,11 +5,10 @@ import { Accordion, Box, AccordionSummary, Typography, AccordionDetails } from "
 import { ReactNode, useContext, useEffect, useState } from "react";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Button, Stack, Switch } from "@mui/joy";
-import { IKeyword } from "../types";
+import { IKeyword } from "./IKeyword";
 import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
 import { Helpers } from "../helpers";
 import { CurrentPage, PageContext } from "../pageSelector/pageSelector";
-import { IProgressMessage } from "../progress/IProgressMessage";
 import { ProgressContext } from "../progress/progressModalContainer";
 
 export interface KeywordListItemProps {
@@ -96,7 +95,7 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                             }
                         });
                         pageContext.goTo(CurrentPage.editKeyword);
-                    }}>
+                    }} variant="soft" color="primary">
                         Edit
                     </Button>
                 </Stack>
