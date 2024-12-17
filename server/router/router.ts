@@ -44,23 +44,24 @@ export class Router {
         console.log("✓ success");
 
         let f = await session.getActiveFilters();
-        //await session.hardReset();
-        
+        await session.hardReset();
+
         let blockedIps = await Keywords.getBlockedIPs();
         console.log(". updating IP filters configured on router");
-        await Router.updateBlockedIPs(blockedIps, session);
+        await Router.updateBlockedIPs(blockedIps, () => null, session);
         console.log("✓ success");
         await session.logout();
     }
 
-    static async updateBlockedIPs(ips: string[], session: VirginSession = new VirginSession()): Promise<void> {
+    static async updateBlockedIPs(ips: string[], updateProgress: (message: string, isSuccess: boolean) => void, session: VirginSession): Promise<void> {
         let routerFilters = await session.getActiveFilters();
 
         let currentlyBlocked = routerFilters.map(f => f.dest.toString());
         let ipsToCreate = ips.filter(ip => currentlyBlocked.indexOf(ip) == -1);
         for (let i = 0; i < ipsToCreate.length; i++) {
             //create a filter
-            console.log(`. creating filter for ip address ${i + 1} of ${ipsToCreate.length}`);
+            console.log(`. creating filter ${i + 1} of ${ipsToCreate.length}`);
+            updateProgress(`. creating filter for ${i + 1} of ${ipsToCreate.length}`, false);
             let newIndex = routerFilters.length + i + 1;
             let newFilter = new RouterFilter(newIndex.toString(), IPAddress.fromString(ipsToCreate[i]));
             await session.setFilter(newFilter);
@@ -68,7 +69,9 @@ export class Router {
 
         let filtersToDelete = routerFilters.filter(f => ips.indexOf(f.dest.toString()) == -1);
         console.log(`. deleting ${filtersToDelete.length} filters`);
+        updateProgress(`. deleting ${filtersToDelete.length} filters`, false);
         await session.deleteFilters(filtersToDelete.map(f => f.index));
+        updateProgress("✓ success", true);
         await session.logout();
     }
 

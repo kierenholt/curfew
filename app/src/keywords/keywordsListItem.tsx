@@ -9,6 +9,8 @@ import { IKeyword } from "../types";
 import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
 import { Helpers } from "../helpers";
 import { CurrentPage, PageContext } from "../pageSelector/pageSelector";
+import { IProgressMessage } from "../progress/IProgressMessage";
+import { ProgressContext } from "../progress/progressModalContainer";
 
 export interface KeywordListItemProps {
     id: number;
@@ -16,6 +18,7 @@ export interface KeywordListItemProps {
 
 export const KeywordListItem = (props: KeywordListItemProps) => {
     const pageContext = useContext(PageContext);
+    const progressContext = useContext(ProgressContext);
 
     let [isActive, setIsActive] = useState<boolean>(false);
     let [expanded, setExpanded] = useState<boolean>(false);
@@ -34,14 +37,25 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
     const isActiveClick = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.stopPropagation();
         setExpanded(expanded);
-        let value = e.target.checked;
-        Helpers.put<number>(`/api/keyword/${props.id}/isActive=${value ? 1 : 0}`, {})
+        let value: boolean = e.target.checked;
+        let nonce: number = Helpers.createNonce();
+        Helpers.put<number>(`/api/keyword/${props.id}`,
+            {
+                keyword: { name: name, expression: expression, isActive: value ? 1 : 0 },
+                nonce: nonce
+            })
             .then((updated: number) => {
                 if (updated > 0) {
-                    setIsActive(value);
+                    progressContext.setNonce(nonce);
+                    progressContext.setOnSuccess(() => setIsActive(value));
+                    progressContext.setOpen(true);
                 }
-            })
+                else {
+                    throw ("error communicating with server");
+                }
+            });
     }
+
 
     return (
         <Accordion color="neutral" expanded={expanded}>
@@ -73,7 +87,8 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                             keyword: {
                                 id: props.id,
                                 name: name,
-                                expression: expression
+                                expression: expression,
+                                isActive: isActive
                             },
                             updateKeyword: (name: string, expression: string) => {
                                 setName(name);

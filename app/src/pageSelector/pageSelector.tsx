@@ -8,9 +8,9 @@ export enum CurrentPage {
 }
 
 interface SetPageAction {
-    goTo: (p: CurrentPage) => void,
-    setParams: (p: any) => void,
-    goBack: () => void
+    goTo: (p: CurrentPage) => void;
+    setParams: (p: any) => void;
+    goBack: () => void;
 }
 
 export const PageContext = createContext<SetPageAction>(
@@ -37,7 +37,9 @@ export const PageSelector = () => {
             {
                 [
                     <KeywordsPage />,
-                    <EditKeyword onEdited={() => setCurrent(prev)} initialValues={params.keyword} updateKeyword={params.updateKeyword} />,
+                    <EditKeyword onEdited={() => setCurrent(prev)}
+                        initialValues={params.keyword}
+                        updateKeyword={params.updateKeyword} />,
                 ][current]
             }
         </PageContext.Provider>

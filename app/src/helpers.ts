@@ -155,4 +155,14 @@ export class Helpers {
         }
         return ret;
     }
+
+    static delay(ms: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            setTimeout(resolve, ms);
+        });
+    }
+
+    static createNonce(): number {
+        return Math.ceil(Math.random() * 100000);
+    }
 }

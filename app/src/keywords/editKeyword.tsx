@@ -1,9 +1,10 @@
 
 
 import { Button, Checkbox, FormControlLabel, FormGroup, TextField } from "@mui/material";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { IKeyword } from "../types";
 import { Helpers } from "../helpers";
+import { ProgressContext } from "../progress/progressModalContainer";
 
 interface EditKeywordFormProps {
     onEdited: () => void;
@@ -16,13 +17,26 @@ interface EditKeywordFormProps {
 export function EditKeyword(props: EditKeywordFormProps) {
     const [name, setName] = useState<string>(props.initialValues.name);
     const [expression, setExpression] = useState<string>(props.initialValues.expression);
+    const progressContext = useContext(ProgressContext);
 
     const save = () => {
-        Helpers.put<number>(`/api/keyword/${props.initialValues.id}`, {name: name, expression: expression})
+        let nonce: number = Helpers.createNonce();
+        Helpers.put<number>(`/api/keyword/${props.initialValues.id}`,
+            {
+                keyword: { name: name, expression: expression, isActive: props.initialValues.isActive },
+                nonce: nonce
+            })
             .then((updated: number) => {
                 if (updated > 0) {
-                    props.updateKeyword(name, expression);                    
-                    props.onEdited();
+                    progressContext.setNonce(nonce);
+                    progressContext.setOnSuccess(() => {
+                        props.updateKeyword(name, expression);
+                        props.onEdited();
+                    });
+                    progressContext.setOpen(true);
+                }
+                else {
+                    throw ("error communicating with server");
                 }
             })
     }

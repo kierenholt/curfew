@@ -54,22 +54,14 @@ export class KeywordDb {
         .then(result => result.changes);
     }
 
-    static async update(id: number, name: string, expression: string): Promise<number> {
+    static async update(id: number, name: string, expression: string, isActive: number): Promise<number> {
         return Db.run(`
             update searchTerm 
             set name = ?,
-                expression = ?
+                expression = ?,
+                isActive = ?
             where id=${id}
-        `, [name, expression])
-        .then(result => result.changes);
-    }
-
-    static async setIsActive(id: number, isActive: number): Promise<number> {
-        return Db.run(`
-            update searchTerm 
-            set isActive = ?
-            where id=${id}
-        `, [isActive])
+        `, [name, expression, isActive])
         .then(result => result.changes);
     }
 

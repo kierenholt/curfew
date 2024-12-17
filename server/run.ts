@@ -15,9 +15,9 @@ async function run() {
     await Db.init();
     await Jobs.init();
 
-    KeywordDb.setIsActive(1, 1); //youtube
-    KeywordDb.setIsActive(2, 1); //brawlstars
-    KeywordDb.setIsActive(3, 0); //tiktok
+    KeywordDb.update(1, "youtube", "youtube,googlevideo", 0);
+    KeywordDb.update(2, "brawlstars", "brawlstarsgame", 0);
+    KeywordDb.update(3, "tiktok", "tiktokv", 0);
 
     //API
     if (Number(process.env.API_ENABLED)) {

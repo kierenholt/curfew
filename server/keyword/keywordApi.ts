@@ -1,7 +1,10 @@
-import express, { Express, Request, Response } from 'express';
+import { Express, Request, Response } from 'express';
 import { KeywordDb } from './keywordDb';
-import { Keywords } from './keywords';
+import { Helpers } from '../helpers';
+import { Progress } from '../progress/progress';
 import { Router } from '../router/router';
+import { Keywords } from './keywords';
+import { VirginSession } from '../router/virgin';
 
 export class KeywordApi {
     static init(app: Express) {
@@ -23,41 +26,29 @@ export class KeywordApi {
             }
         });
 
-        //set active / inactive
-        app.put('/api/keyword/:id/isActive=:isActive', async (req: Request, res: Response) => {
-            let isActive = Number(req.params.isActive);
-            let id = Number(req.params.id);
-            if (req.params.id.length > 0) {
-                let ret = await KeywordDb.setIsActive(id, isActive);
-
-                let blockedIps = await Keywords.getBlockedIPs();
-                console.log(". updating IP filters configured on router");
-                await Router.updateBlockedIPs(blockedIps);
-                console.log("✓ success");
-                
-                res.status(200).json(ret);
-            }
-            else {
-                res.status(400).send("parameter error");
-            }
-        })
-
-        //update name or expression
         app.put('/api/keyword/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
-            if (req.body.name && req.body.expression) {
-                let ret = await KeywordDb.update(id, req.body.name, req.body.expression);
+            let name = req.body.keyword.name;
+            let expression = req.body.keyword.expression;
+            let isActive = Number(req.body.keyword.isActive);
+            let nonce = Number(req.body.nonce);
+            if (id > 0) {
+                let ret = await KeywordDb.update(id, name, expression, isActive);
 
-                let blockedIps = await Keywords.getBlockedIPs();
-                console.log(". updating IP filters configured on router");
-                await Router.updateBlockedIPs(blockedIps);
-                console.log("✓ success");
+                Progress.update(nonce, false, "...");
+
+                //no await
+                Keywords.getBlockedIPs()
+                    .then(ips =>
+                        Router.updateBlockedIPs(ips,
+                            (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
+                            new VirginSession()));
 
                 res.status(200).json(ret);
             }
             else {
                 res.status(400).send("parameter error");
             }
-        })
+        });
     }
 }
