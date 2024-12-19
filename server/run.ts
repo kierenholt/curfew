@@ -16,8 +16,6 @@ async function run() {
     await Db.init();
     await Jobs.init();
 
-    await SettingDb.set(SettingKey.lanIp, "192.168.0.78");
-
     //API
     if (Number(process.env.API_ENABLED)) {
         API.init();

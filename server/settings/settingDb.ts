@@ -6,6 +6,7 @@ export enum SettingKey {
     routerAdminPassword = 1,
     lanIp = 2,
     pin = 3,
+    inactivityLockSecs = 4,
 }
 
 export class SettingDb {
@@ -37,6 +38,7 @@ export class SettingDb {
         await this.create(SettingKey.routerAdminPassword, process.env.DEFAULT_PASSWORD as string, "router admin password", "password you use to login to router");
         await this.create(SettingKey.lanIp, "192.168.0.78", "curfew ip address", "ip address to connect to curfew");
         await this.create(SettingKey.pin, "0000", "pin", "code to access web pages");
+        await this.create(SettingKey.inactivityLockSecs, "30", "inactivity lock", "number of seconds of inactivity before screen locks itself, set to zero to disable");
     }
 
     static async create(key: SettingKey, value: string, label: string, description: string): Promise<number> {

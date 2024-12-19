@@ -4,6 +4,8 @@ export enum SettingKey {
     routerAdminPassword = 1,
     lanIp = 2,
     pin = 3,
+    inactivityLockSecs = 4,
+
 }
 
 
