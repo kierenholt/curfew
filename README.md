@@ -33,7 +33,6 @@ PORT=80
 
 ## to do
 find out why outlook does not work
-delete keyword filter
 create keyword filter
 change ip address on setting change 
 make random ip address on first time boot?

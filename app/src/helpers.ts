@@ -1,5 +1,16 @@
 
 export class Helpers {
+
+    static removeAllFromArray<T>(item: T, arr: T[]): T[] {
+        let ret: T[] = [];
+        for (let member of arr) {
+            if (item != member) {
+                ret.push(member);
+            }
+        }
+        return ret;
+    }
+
     static distinct<T>(arr: T[]) {
         let ret = [];
         for (let item of arr) {
@@ -140,7 +151,7 @@ export class Helpers {
         }
         return ret;
     }
-    
+
     static range(start: number, end: number) {
         let ret = [];
         if (end < start) {

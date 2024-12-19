@@ -101,4 +101,12 @@ export class KeywordDb {
             r.expression,
             r.isActive)))
     }
+    
+    static delete(id: number): Promise<number> {
+        return Db.run(`
+            delete from searchTerm
+            where id = ?
+        `, [id])
+        .then((result: RunResult) => result.changes);
+    }
 }

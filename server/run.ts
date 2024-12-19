@@ -15,7 +15,7 @@ async function run() {
     checkSudo();
     await Db.init();
     await Jobs.init();
-
+    
     //API
     if (Number(process.env.API_ENABLED)) {
         API.init();

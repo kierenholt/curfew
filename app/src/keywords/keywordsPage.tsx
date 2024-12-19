@@ -14,10 +14,20 @@ export function KeywordsPage() {
             });
     }, []);
 
+    const deleteId = (id: number) => {
+        Helpers.delete(`/api/keyword/` + id)
+            .then((deleted: number) => {
+                if (deleted > 0) {
+                    let newIds = Helpers.removeAllFromArray(id, ids);
+                    setIds(newIds);
+                }
+            })
+    }
+
     return (
         <>
             <h2>Keywords</h2>
-            <KeywordsList ids={ids} />
+            <KeywordsList ids={ids} onDelete={deleteId}/>
         </>
     )
 }

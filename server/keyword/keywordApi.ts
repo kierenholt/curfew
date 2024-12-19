@@ -50,5 +50,16 @@ export class KeywordApi {
                 res.status(400).send("parameter error");
             }
         });
+
+        app.delete('/api/keyword/:id', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            if (id > 0) {
+                let ret = await KeywordDb.delete(id);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
     }
 }

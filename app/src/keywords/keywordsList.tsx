@@ -3,6 +3,7 @@ import { KeywordListItem } from "./keywordsListItem";
 
 export interface KeywordsListProps {
     ids: number[];
+    onDelete: (id: number) => void;
 }
 
 export function KeywordsList(props: KeywordsListProps) {
@@ -12,7 +13,7 @@ export function KeywordsList(props: KeywordsListProps) {
     return (
         <List>
             {props.ids.map((g: number) =>
-                <KeywordListItem key={g} id={g} />
+                <KeywordListItem key={g} id={g} onDelete={props.onDelete}/>
             )}
         </List>
     )

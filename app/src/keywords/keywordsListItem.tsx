@@ -13,6 +13,7 @@ import { ProgressContext } from "../progress/progressModalContainer";
 
 export interface KeywordListItemProps {
     id: number;
+    onDelete: (id: number) => void;
 }
 
 export const KeywordListItem = (props: KeywordListItemProps) => {
@@ -55,7 +56,6 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
             });
     }
 
-
     return (
         <Accordion color="neutral" expanded={expanded}>
 
@@ -81,6 +81,7 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
             <AccordionDetails>
                 <Stack>
                     Keywords: {expression}
+                    
                     <Button onClick={() => {
                         pageContext.setParams({
                             keyword: {
@@ -97,6 +98,13 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                         pageContext.goTo(CurrentPage.editKeyword);
                     }} variant="soft" color="primary">
                         Edit
+                    </Button>
+
+                    <Button onClick={() => {
+                        props.onDelete(props.id);
+                        pageContext.goBack();
+                    }} variant="soft" color="primary">
+                        Delete
                     </Button>
                 </Stack>
             </AccordionDetails>
