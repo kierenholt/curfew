@@ -4,12 +4,14 @@ import { EditKeyword } from '../keywords/editKeyword';
 import { ManageSettingsPage } from '../settings/settingsPage';
 import { EditSettingPage } from '../settings/editSettingPage';
 import { SettingsOrHomeButton } from '../navigation/settingsButton';
+import { CreateKeyword } from '../keywords/createKeyword';
 
 export enum CurrentPage {
     keywords = 0,
     editKeyword = 1,
     manageSettings = 2,
-    editSetting = 3
+    editSetting = 3,
+    createKeyword = 4
 }
 
 interface SetPageAction {
@@ -48,11 +50,13 @@ export const PageSelector = () => {
             {
                 [
                     <KeywordsPage />,
-                    <EditKeyword onEdited={() => setCurrent(prev)}
+                    <EditKeyword onEdited={() => setCurrent(CurrentPage.keywords)}
                         initialValues={params.keyword}
                         updateKeyword={params.updateKeyword} />,
                     <ManageSettingsPage />,
-                    <EditSettingPage settingKey={Number(params.key)} />
+                    <EditSettingPage settingKey={Number(params.key)} />,
+                    <CreateKeyword onCreated={() => setCurrent(CurrentPage.keywords)}
+                        createKeywordId={params.createKeywordId} />
                 ][current]
             }
         </PageContext.Provider>

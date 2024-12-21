@@ -2,7 +2,7 @@
 
 
 import { Accordion, Box, AccordionSummary, Typography, AccordionDetails } from "@mui/material";
-import { ReactNode, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Button, Stack, Switch } from "@mui/joy";
 import { IKeyword } from "./IKeyword";
@@ -81,7 +81,7 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
             <AccordionDetails>
                 <Stack>
                     Keywords: {expression}
-                    
+
                     <Button onClick={() => {
                         pageContext.setParams({
                             keyword: {
@@ -103,7 +103,8 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                     <Button onClick={() => {
                         props.onDelete(props.id);
                         pageContext.goBack();
-                    }} variant="soft" color="primary">
+                    }}
+                        variant="soft" color="primary">
                         Delete
                     </Button>
                 </Stack>
