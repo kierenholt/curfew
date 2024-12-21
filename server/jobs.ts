@@ -1,4 +1,4 @@
-import { DnsResponseDb } from "./dns/dnsResponseDb";
+import { DnsResponseDb } from "./dnsResponse/dnsResponseDb";
 const cron = require('node-cron');
 
 

@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 import { SettingApi } from './settings/settingApi';
-import { DnsResponseApi } from './dns/dnsResponseApi';
+import { DnsResponseApi } from './dnsResponse/dnsResponseApi';
 import { KeywordApi } from './keyword/keywordApi';
 import { ProgressApi } from './progress/progressApi';
 const nocache = require("nocache");

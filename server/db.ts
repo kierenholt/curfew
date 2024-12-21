@@ -1,7 +1,7 @@
 import { AsyncDatabase } from "promised-sqlite3";
 import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
 import { SettingDb } from "./settings/settingDb";
-import { DnsResponseDb } from "./dns/dnsResponseDb";
+import { DnsResponseDb } from "./dnsResponse/dnsResponseDb";
 import { KeywordDb } from "./keyword/keywordDb";
 
 export class Db {

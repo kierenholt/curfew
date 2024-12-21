@@ -7,7 +7,7 @@ prompt = no
 countryName = GB
 stateOrProvinceName = Surrey
 localityName = Kingston-Upon-Thames
-organizationName = Teachometer
+organizationName = Curfew
 commonName = curfew
 
 [req_ext]
@@ -19,3 +19,4 @@ subjectAltName = @alt_names
 [alt_names]
 IP.1 = 127.0.0.1
 DNS.1 = localhost
+DNS.1 = curfew.local

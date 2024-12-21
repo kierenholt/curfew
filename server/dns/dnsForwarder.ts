@@ -2,7 +2,7 @@ import { Cache } from "./cache";
 import { Socket } from "dgram";
 import { DnsPacket as DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
-import { DnsResponseDb } from "./dnsResponseDb";
+import { DnsResponseDb } from "../dnsResponse/dnsResponseDb";
 const dgram = require('dgram');
 
 export class DnsForwarder {

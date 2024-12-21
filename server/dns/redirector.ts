@@ -14,14 +14,15 @@ export class Redirector {
 
         //do not save if request is curfew - keep the last status
         //going to app
-        if (fullDomain.toLowerCase() == (process.env.HOSTNAME as string).toLowerCase()) {
+        if (fullDomain.toLowerCase() == (process.env.HOSTNAME as string).toLowerCase() ||
+            fullDomain.toLowerCase() == `${(process.env.HOSTNAME as string)}.local`.toLowerCase()) {
             return RedirectDestination.app;
         }
 
         if (fullDomain.endsWith("in-addr.arpa") && fullDomain.startsWith((process.env.HOSTNAME as string).toLowerCase())) {
             return RedirectDestination.hole;
         }
-        
+
         if (fullDomain.endsWith("in-addr.arpa")) {
             if (fullDomain.startsWith((process.env.HOSTNAME as string).toLowerCase())) {
                 //curfew.0.0.168.192.in-addr.arpa

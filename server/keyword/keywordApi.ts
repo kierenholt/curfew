@@ -61,5 +61,16 @@ export class KeywordApi {
                 res.status(400).send("parameter error");
             }
         });
+
+        //create
+        app.post('/api/keywords', async (req: Request, res: Response) => {
+            if (req.body.name && req.body.expression) {
+                let ret = await KeywordDb.create(req.body.name, req.body.expression, 0);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
     }
 }

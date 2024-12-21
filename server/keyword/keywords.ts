@@ -1,4 +1,4 @@
-import { DnsResponseDb } from "../dns/dnsResponseDb";
+import { DnsResponseDb } from "../dnsResponse/dnsResponseDb";
 import { Helpers } from "../helpers";
 import { KeywordDb } from "./keywordDb";
 

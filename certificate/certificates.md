@@ -28,3 +28,4 @@ CA_key.pem - Must be used when creating new [localhost] certificate.
 ## to instal at webserver
 localhost_cert.pem → SSL certificate. Must be installed at WEB server.
 localhost_key.pem → Secret key. Must be installed at WEB server.
+
