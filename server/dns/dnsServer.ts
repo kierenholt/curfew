@@ -101,12 +101,11 @@ export class DnsServer {
                     this.dnsForwarder.forward(buffer)
                         .then(answer => {
                             //write to db
-                            if (answer)
-                                DnsResponseDb.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
- 
-                                //add (cached) answer
-                                packet.addAnswers(answer);
-                                packet.header.isResponse = true;
+                            DnsResponseDb.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
+
+                            //add (cached) answer
+                            packet.addAnswers(answer);
+                            packet.header.isResponse = true;
 
                                 //send
                                 this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
