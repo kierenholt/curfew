@@ -101,7 +101,8 @@ export class DnsServer {
                     this.dnsForwarder.forward(buffer)
                         .then(answer => {
                             //write to db
-                            DnsResponseDb.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
+                            if (answer) 
+                                DnsResponseDb.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
 
                             //add (cached) answer
                             packet.addAnswers(answer);

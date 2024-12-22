@@ -1,10 +1,8 @@
-import { Helpers } from "../helpers";
 import { IPAddress } from "../IPAddress";
 import { Keywords } from "../keyword/keywords";
 import { RouterFilter } from "./routerFilter";
 import { VirginSession } from "./virgin";
 import { OidEnabledType, OidType } from "./virginOids";
-var systemctl = require('systemctl')
 
 export enum RouterModel {
     Unknown = 0,
@@ -14,7 +12,7 @@ export enum RouterModel {
 export class Router {
     static foundRouter: RouterModel = RouterModel.Unknown;
 
-    static async setupDHCP(): Promise<void> {
+    static async init(): Promise<void> {
         console.log(". searching for router");
         this.foundRouter = (await this.HTTPFileExists(VirginSession.virginMediaIcon)) ? RouterModel.Virgin : RouterModel.Unknown;
         console.log("✓ success");
@@ -22,11 +20,6 @@ export class Router {
         if (this.foundRouter == RouterModel.Unknown) {
             throw ("unable to communicate with router");
         }
-
-        console.log(". checking dhcp service");
-        let enabled = await systemctl.isEnabled('isc-dhcp-server');
-        if (!enabled) throw ("isc dhcp server must be running as a service");
-        console.log("✓ success");
 
         let session = new VirginSession();
 

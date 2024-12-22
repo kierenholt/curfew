@@ -21,3 +21,9 @@ sudo systemctl start isc-dhcp-server.service
 
 ## other systemctl commands
 https://github.com/VolantisDev/node-systemctl/blob/master/index.js
+
+## npm package
+https://github.com/adonespitogo/node-isc-dhcp-server/blob/master/src/service.js
+https://www.npmjs.com/package/isc-dhcp-server
+
+
