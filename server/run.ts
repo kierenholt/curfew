@@ -5,8 +5,6 @@ import * as dotenv from "dotenv";
 import { Jobs } from "./jobs";
 import { Db } from "./db";
 import { checkSudo } from "./checkSudo";
-import { KeywordDb } from "./keyword/keywordDb";
-import { SettingDb, SettingKey } from "./settings/settingDb";
 
 dotenv.config({ path: (process.env.TEST ? '.test.env' : '.env') });
 if (process.env.TEST) console.log("test mode enabled");

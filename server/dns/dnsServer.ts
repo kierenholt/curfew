@@ -6,6 +6,7 @@ import { RedirectDestination, Redirector } from "./redirector";
 import { ReturnCode } from "./header";
 import { RecordType } from "./question";
 import { SettingDb, SettingKey } from "../settings/settingDb";
+import { DnsResponseDb } from "../dnsResponse/dnsResponseDb";
 
 export class DnsServer {
     static socket: Socket;
@@ -99,17 +100,21 @@ export class DnsServer {
                     //returns cached response if domains match
                     this.dnsForwarder.forward(buffer)
                         .then(answer => {
-                            //add (cached) answer
-                            packet.addAnswers(answer);
-                            packet.header.isResponse = true;
+                            //write to db
+                            if (answer)
+                                DnsResponseDb.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
+ 
+                                //add (cached) answer
+                                packet.addAnswers(answer);
+                                packet.header.isResponse = true;
 
-                            //send
-                            this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
-                                if (err) {
-                                    console.error(`Error sending response: ${err.message}`);
-                                    this.socket.close();
-                                }
-                            });
+                                //send
+                                this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
+                                    if (err) {
+                                        console.error(`Error sending response: ${err.message}`);
+                                        this.socket.close();
+                                    }
+                                });
                         })
                 }
 

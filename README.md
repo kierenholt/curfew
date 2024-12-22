@@ -6,10 +6,6 @@ sudo node --inspect=2000 server/bin/run.js
 ### app
 app/npm run start
 
-## how to disable curren dhcp
-sudo systemctl stop isc-dhcp-server.service
-sudo systemctl start isc-dhcp-server.service
-
 ## to do
 keyword detail shows number of matching ip addresses
 find out why outlook does not work

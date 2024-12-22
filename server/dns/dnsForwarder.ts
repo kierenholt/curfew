@@ -31,9 +31,6 @@ export class DnsForwarder {
         responsePacket.allAnswers.forEach(a => a.ttl = this.TTL);
         this.cache.upsert(responsePacket.questions[0], responsePacket.allAnswers);
 
-        //write to db
-        let answer = responsePacket.allAnswers[0];
-        if (answer) DnsResponseDb.create(answer.domainName.name, answer.IPAddress, new Date().valueOf())
 
         //resolve promise
         let foundPromiseResolve = this.resolvesById[responsePacket.header.id];

@@ -14,3 +14,10 @@ sudo systemctl status isc-dhcp-server.service
  ## tests
  serves the correct dns server address 
  can be updated
+
+## how to disable curren dhcp
+sudo systemctl stop isc-dhcp-server.service
+sudo systemctl start isc-dhcp-server.service
+
+## other systemctl commands
+https://github.com/VolantisDev/node-systemctl/blob/master/index.js
