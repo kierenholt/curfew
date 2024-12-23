@@ -12,6 +12,7 @@ find out why outlook does not work
 update ip address when setting is updated 
 make random ip address on first time boot?
 try different router ips if router not found 
+warning that clients must reconnect if ip changes
 
 ## refactor
 disable inactivity timer when the progress modal is showing
