@@ -7,7 +7,7 @@ export class Jobs {
     //https://www.npmjs.com/package/node-cron
     //https://crontab.guru/examples.html
 
-    static async init() {
+    static async start() {
         await DnsResponseDb.deleteOlderThan1Day();
 
         cron.schedule('0 * * * *', async () => { //every hour

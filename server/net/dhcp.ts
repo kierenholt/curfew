@@ -5,7 +5,11 @@ var exec = require("child-process-promise").exec
 
 export class Dhcp {
 
-    static async init(): Promise<void> {
+    static async restartOrStart(): Promise<void> {
+        if (await this.isRunning()) {
+            await this.stop();
+        }
+
         const ip = await SettingDb.getString(SettingKey.lanIp);
         const [name, protocol] = NetInfo.getNameAndProtocol();
         if (name) {
@@ -58,11 +62,6 @@ export class Dhcp {
             .catch((err: any) => {
                 return false;
             });
-    }
-
-    static restart(): Promise<void> {
-        return this.stop()
-            .then(this.init);
     }
 
     static stop(): Promise<void> {

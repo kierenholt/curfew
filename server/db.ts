@@ -19,7 +19,7 @@ export class Db {
         await KeywordDb.seed();
     }
 
-    static init(): Promise<void> {
+    static start(): Promise<void> {
         return new Promise((resolve, reject) => {
             let db = new Database(process.env.DATABASE_NAME as string, 
                 OPEN_READWRITE, 

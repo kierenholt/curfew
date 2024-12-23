@@ -14,13 +14,13 @@ export class DnsServer {
     static dnsRedirector: Redirector;
 
     static HOLE_IP_v4: string = "240.0.0.0";
-    static HOLE_IP_v6: Buffer = Buffer.from([100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]); //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
+    static HOLE_IP_v6: Buffer = Buffer.from([100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]); //https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
 
     // https://en.wikipedia.org/wiki/List_of_DNS_record_types
     static BLOCK_HTTPS = true;
     static BLOCK_TEXT = true;
 
-    static async init() {
+    static async start() {
         let port: number = Number(process.env.DNS_PORT);
         this.socket = createSocket('udp4');
         this.dnsForwarder = new DnsForwarder(this.socket);
@@ -29,8 +29,8 @@ export class DnsServer {
         this.socket.bind(port, () => {
             console.log('✓ DNS server listening on UDP port ', port);
         });
-        
-        this.socket.on('message', async (buffer: Buffer, requestInfo: RemoteInfo) => {        
+
+        this.socket.on('message', async (buffer: Buffer, requestInfo: RemoteInfo) => {
             let packet = DnsPacket.fromBuffer(buffer);
             //console.log("Request received for " + packet.questions[0].name);
 
@@ -52,7 +52,7 @@ export class DnsServer {
                             });
                         })
                 }
-                
+
                 if (destination == RedirectDestination.app) {
                     let appIP = await SettingDb.getString(SettingKey.lanIp);
                     packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], appIP)]);
@@ -68,7 +68,7 @@ export class DnsServer {
                 }
 
                 // block HTTPS and TXT - code does not support it
-                if (packet.questions[0].qtype == RecordType.TXT || 
+                if (packet.questions[0].qtype == RecordType.TXT ||
                     (this.BLOCK_HTTPS && packet.questions[0].qtype == RecordType.HTTPS)) {
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;
@@ -81,7 +81,7 @@ export class DnsServer {
                     });
                     return;
                 }
-                
+
                 if (destination == RedirectDestination.hole) {
                     //send back garbage
                     packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], this.HOLE_IP_v4, this.HOLE_IP_v6)]);
@@ -101,20 +101,20 @@ export class DnsServer {
                     this.dnsForwarder.forward(buffer)
                         .then(answer => {
                             //write to db
-                            if (answer) 
+                            if (answer && answer[0])
                                 DnsResponseDb.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
 
                             //add (cached) answer
                             packet.addAnswers(answer);
                             packet.header.isResponse = true;
 
-                                //send
-                                this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
-                                    if (err) {
-                                        console.error(`Error sending response: ${err.message}`);
-                                        this.socket.close();
-                                    }
-                                });
+                            //send
+                            this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
+                                if (err) {
+                                    console.error(`Error sending response: ${err.message}`);
+                                    this.socket.close();
+                                }
+                            });
                         })
                 }
 
@@ -127,6 +127,6 @@ export class DnsServer {
             }
         });
 
-        this.socket.on('error', (err: any) => {throw(err);})
+        this.socket.on('error', (err: any) => { throw (err); })
     }
 }

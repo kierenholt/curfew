@@ -6,7 +6,7 @@ import { ProgressApi } from './progress/progressApi';
 const nocache = require("nocache");
 
 export class API {
-    static init() {
+    static start() {
         const http: Express = express();
 
         http.use(nocache());
