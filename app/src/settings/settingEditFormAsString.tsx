@@ -2,6 +2,7 @@ import { Button, Checkbox, FormControlLabel, FormGroup, TextField } from "@mui/m
 import { useEffect, useState } from "react";
 import { Helpers } from "../helpers";
 import { ISetting } from "./ISetting";
+import Typography from "@mui/joy/Typography";
 
 interface SettingEditFormAsStringProps {
     onEdited: () => void;
@@ -12,13 +13,15 @@ export function SettingEditFormAsString(props: SettingEditFormAsStringProps) {
     const [value, setValue] = useState<string>("");
     const [label, setLabel] = useState<string>("");
     const [description, setDescription] = useState<string>("");
+    const [warningMessage, setWarningMessage] = useState<string>("");
 
     useEffect(() => {
         Helpers.get<ISetting>(`/api/settings/${props.settingKey}`)
-            .then((Setting: ISetting) => {
-                setValue(Setting.value);
-                setLabel(Setting.label);
-                setDescription(Setting.description);
+            .then((setting: ISetting) => {
+                setValue(setting.value);
+                setLabel(setting.label);
+                setDescription(setting.description);
+                setWarningMessage(setting.warningMessage);
             })
     }, [props.settingKey])
 
@@ -46,6 +49,16 @@ export function SettingEditFormAsString(props: SettingEditFormAsStringProps) {
                     value={value}
                     onChange={(e: any) => setValue(e.target.value)}
                 />
+
+                {
+                    warningMessage == ""
+                        ?
+                        <></>
+                        :
+                        <Typography sx={{color:"red"}}>
+                            props.warningMessage
+                        </Typography>
+                }
 
                 <Button onClick={save} >Save</Button>
                 <Button onClick={() => props.onEdited()} >Cancel</Button>

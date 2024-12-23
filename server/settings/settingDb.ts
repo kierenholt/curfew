@@ -17,7 +17,8 @@ export class SettingDb {
                 key integer primary key not null,
                 value text not null,
                 label text not null,
-                description text not null
+                description text not null,
+                warningMessage text not null
                 );
         `)
     }
@@ -26,26 +27,28 @@ export class SettingDb {
     value: string;
     label: string;
     description: string;
+    warningMessage: string;
 
-    constructor(key: number, value: string, label: string, description: string) {
+    constructor(key: number, value: string, label: string, description: string, warningMessage: string) {
         this.key = key as SettingKey;
         this.value = value;
         this.label = label;
         this.description = description;
+        this.warningMessage = warningMessage;
     }
 
     static async seed() {
-        await this.create(SettingKey.routerAdminPassword, process.env.DEFAULT_PASSWORD as string, "router admin password", "password you use to login to router");
-        await this.create(SettingKey.lanIp, "192.168.0.78", "curfew ip address", "ip address to connect to curfew");
-        await this.create(SettingKey.pin, "0000", "pin", "code to access web pages");
-        await this.create(SettingKey.inactivityLockSecs, "30", "inactivity lock", "number of seconds of inactivity before screen locks itself, set to zero to disable");
+        await this.create(SettingKey.routerAdminPassword, process.env.DEFAULT_PASSWORD as string, "router admin password", "password you use to login to router", "");
+        await this.create(SettingKey.lanIp, "192.168.0.39", "curfew ip address", "ip address to connect to curfew", "if this setting is changed, all devices will need to disconnect and reconnect to the wifi.");
+        await this.create(SettingKey.pin, "0000", "pin", "code to access web pages", "make sure you remember the new code before clicking save. if you forget it, there is no way to recover a lost pin.");
+        await this.create(SettingKey.inactivityLockSecs, "30", "inactivity lock", "number of seconds of inactivity before screen locks itself, set to zero to disable", "");
     }
 
-    static async create(key: SettingKey, value: string, label: string, description: string): Promise<number> {
+    static async create(key: SettingKey, value: string, label: string, description: string, warningMessage: string): Promise<number> {
         return Db.run(`
-            insert into setting (key, value, label, description)
-            values (?, ?, ?, ?)
-        `, [key.valueOf(), value, label, description])
+            insert into setting (key, value, label, description, warningMessage)
+            values (?, ?, ?, ?, ?)
+        `, [key.valueOf(), value, label, description, warningMessage])
             .then(result => result.changes);
     }
 
@@ -98,7 +101,8 @@ export class SettingDb {
                 result.key,
                 result.value,
                 result.label,
-                result.description) : null);
+                result.description,
+                result.warningMessage) : null);
     }
 
 
@@ -111,6 +115,7 @@ export class SettingDb {
                 r.key,
                 r.value,
                 r.label,
-                r.description)))
+                r.description, 
+                result.warningMessage)))
     }
 }

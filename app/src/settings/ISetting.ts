@@ -14,4 +14,5 @@ export interface ISetting {
     value: string;
     label: string;
     description: string;
+    warningMessage: string;
 }
