@@ -12,7 +12,7 @@ export enum RouterModel {
 export class Router {
     static foundRouter: RouterModel = RouterModel.Unknown;
 
-    static async init(): Promise<void> {
+    static async detect(): Promise<void> {
         console.log(". searching for router");
         this.foundRouter = (await this.HTTPFileExists(VirginSession.virginMediaIcon)) ? RouterModel.Virgin : RouterModel.Unknown;
         console.log("✓ success");
@@ -20,7 +20,22 @@ export class Router {
         if (this.foundRouter == RouterModel.Unknown) {
             throw ("unable to communicate with router");
         }
+    }
 
+    static async resetFilters(): Promise<void> {
+        let session = new VirginSession();
+
+        let f = await session.getActiveFilters();
+        await session.hardReset();
+
+        let blockedIps = await Keywords.getBlockedIPs();
+        console.log(". updating IP filters configured on router");
+        await Router.updateBlockedIPs(blockedIps, () => null, session);
+        console.log("✓ success");
+        await session.logout();
+    }
+
+    static async disableDHCP(): Promise<void> {
         let session = new VirginSession();
 
         //let result = await session.walkOidTest("1.3.6.1.4.1.4115.1.20.1.1.2.2.1.9");
@@ -34,16 +49,8 @@ export class Router {
                 throw ("unable to turn off DHCP on router");
             }
         }
-        console.log("✓ success");
-
-        let f = await session.getActiveFilters();
-        await session.hardReset();
-
-        let blockedIps = await Keywords.getBlockedIPs();
-        console.log(". updating IP filters configured on router");
-        await Router.updateBlockedIPs(blockedIps, () => null, session);
-        console.log("✓ success");
         await session.logout();
+        console.log("✓ success");
     }
 
     static async updateBlockedIPs(ips: string[], updateProgress: (message: string, isSuccess: boolean) => void, session: VirginSession): Promise<void> {

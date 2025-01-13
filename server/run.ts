@@ -16,6 +16,8 @@ async function run() {
     await Db.start();
     await Jobs.start();
 
+    await Router.detect();
+
     //API
     if (Number(process.env.API_ENABLED)) {
         API.start();
@@ -25,10 +27,13 @@ async function run() {
     await NetPlan.updateIp();
 
     //START DHCP
-    await Dhcp.restartOrStart();
+    if (Number(process.env.DHCP_ENABLED)) {
+        await Router.disableDHCP();
+        await Dhcp.restartOrStart();
+    }
 
     //SET ROUTER FILTERS
-    await Router.init();
+    await Router.resetFilters();
 
     //DNS SERVER
     if (Number(process.env.DNS_ENABLED)) {

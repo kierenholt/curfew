@@ -18,7 +18,7 @@ export class NetPlan {
             defaultGateway: routerIp,
             nameservers: [dnsUpstream],
             domain: `${process.env.HOSTNAME}.local`,
-            prefix: NetworkSetting.getPrefix,
+            prefix: NetworkSetting.getPrefix(),
         });
 
         console.log(`. setting ip address`);
