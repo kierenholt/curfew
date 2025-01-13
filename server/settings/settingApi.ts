@@ -20,7 +20,7 @@ export class SettingApi {
                 let ret = await SettingDb.set(key, req.body.value);
 
                 //change to ip => restart net
-                if (key == SettingKey.lanIp) {
+                if (key == SettingKey.thisHost) {
                     await NetPlan.updateIp();
                     await Dhcp.restartOrStart();
                 }

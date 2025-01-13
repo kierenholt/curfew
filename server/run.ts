@@ -6,7 +6,6 @@ import { Jobs } from "./jobs";
 import { Db } from "./db";
 import { checkSudo } from "./checkSudo";
 import { Dhcp } from "./net/dhcp";
-import { SettingDb, SettingKey } from "./settings/settingDb";
 import { NetPlan } from "./net/netplan";
 
 dotenv.config({ path: (process.env.TEST ? '.test.env' : '.env') });

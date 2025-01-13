@@ -1,4 +1,4 @@
-import { SettingDb, SettingKey } from '../settings/settingDb';
+import { NetworkSetting } from '../settings/networkSetting';
 import { NetInfo } from './netInfo';
 var dhcp = require('isc-dhcp-server');
 var exec = require("child-process-promise").exec
@@ -10,48 +10,51 @@ export class Dhcp {
             await this.stop();
         }
 
-        const ip = await SettingDb.getString(SettingKey.lanIp);
-        const [name, protocol] = NetInfo.getNameAndProtocol();
-        if (name) {
-            var s = dhcp.createServer({
-                interface: name,
-                range: [
-                    "192.168.0.100", "192.168.0.200"
-                ],
-                static: [
-                    {
-                        hostname: process.env.HOSTNAME,
-                        mac_address: protocol.mac,
-                        ip_address: ip
-                    }
-                ],
-                network: '192.168.0.0',
-                netmask: protocol.netmask,
-                router: '192.168.0.1',
-                dns: [ip],
-                broadcast: '192.168.0.255',
-                on_commit: ``
-            });
+        const netInfo = new NetInfo();
+        let dhcpMinIp = await NetworkSetting.getDhcpMin();
+        let dhcpMaxIp = await NetworkSetting.getDhcpMax();
+        let thisIp = await NetworkSetting.getThisIp();
+        let network = await NetworkSetting.getFullNetwork();
+        let routerIp = await NetworkSetting.getRouterIp();
+        let broadcastIp = await NetworkSetting.getBroadcastIp();
 
-            return s.start()
-                .then(() => {
-                    console.log(". starting dhcp server on " + ip);
-                    return Dhcp.isRunning;
-                })
-                .then((success: boolean) => {
-                    if (success) {
-                        console.log("✓ success");
-                        return;
-                    }
-                    else {
-                        throw ("! error starting dhcp server")
-                    }
-                })
-                .catch((e: any) => {
-                    throw ('! error starting DHCP server: ' + e)
-                })
-        }
-        throw ("! unable find available network adapter");
+        var s = dhcp.createServer({
+            interface: netInfo.name,
+            range: [
+                dhcpMinIp, dhcpMaxIp
+            ],
+            static: [
+                {
+                    hostname: process.env.HOSTNAME,
+                    mac_address: netInfo.mac,
+                    ip_address: thisIp
+                }
+            ],
+            network: network,
+            netmask: NetworkSetting.getNetmask,
+            router: routerIp,
+            dns: [thisIp],
+            broadcast: broadcastIp,
+            on_commit: ``
+        });
+
+        return s.start()
+            .then(() => {
+                console.log(". starting dhcp server on " + thisIp);
+                return Dhcp.isRunning;
+            })
+            .then((success: boolean) => {
+                if (success) {
+                    console.log("✓ success");
+                    return;
+                }
+                else {
+                    throw ("! error starting dhcp server")
+                }
+            })
+            .catch((e: any) => {
+                throw ('! error starting DHCP server: ' + e)
+            })
     }
 
     static isRunning(): Promise<boolean> {

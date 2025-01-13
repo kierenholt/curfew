@@ -1,3 +1,4 @@
+import { NetworkSetting } from "../settings/networkSetting";
 import { SettingDb, SettingKey } from "../settings/settingDb";
 import { NetInfo } from "./netInfo";
 
@@ -5,17 +6,19 @@ const Netplan = require('netplan-config');
 
 export class NetPlan {
     static async updateIp(): Promise<void> {
-        const ip: string = await SettingDb.getString(SettingKey.lanIp);
-        const [name, protocol] = NetInfo.getNameAndProtocol();
-        const net = new Netplan();
-
+        const netInfo = new NetInfo();
+        const thisIp = await NetworkSetting.getThisIp();
+        let routerIp = await NetworkSetting.getRouterIp();
+        let dnsUpstream = await SettingDb.getString(SettingKey.upstreamDnsServer);
+        
         // Configure eth0 as a static WAN interface
-        net.configureInterface(name, {
-            ip: ip,
-            defaultGateway: '192.168.0.1',
-            nameservers: [process.env.DNS_UPSTREAM],
+        const net = new Netplan();
+        net.configureInterface(netInfo.name, {
+            ip: thisIp,
+            defaultGateway: routerIp,
+            nameservers: [dnsUpstream],
             domain: `${process.env.HOSTNAME}.local`,
-            prefix: 24,
+            prefix: NetworkSetting.getPrefix,
         });
 
         console.log(`. setting ip address`);
@@ -27,7 +30,7 @@ export class NetPlan {
                     console.log("✓ success");
                     return;
                 }
-                throw ("error trying to set ip address to " + ip);
+                throw ("error trying to set ip address to " + thisIp);
             });
     }
 }

@@ -23,7 +23,7 @@ export class DnsServer {
     static async start() {
         let port: number = Number(process.env.DNS_PORT);
         this.socket = createSocket('udp4');
-        this.dnsForwarder = new DnsForwarder(this.socket);
+        this.dnsForwarder = new DnsForwarder(this.socket, await SettingDb.getString(SettingKey.upstreamDnsServer));
         this.dnsRedirector = new Redirector();
 
         this.socket.bind(port, () => {
@@ -54,7 +54,7 @@ export class DnsServer {
                 }
 
                 if (destination == RedirectDestination.app) {
-                    let appIP = await SettingDb.getString(SettingKey.lanIp);
+                    let appIP = await SettingDb.getString(SettingKey.thisHost);
                     packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], appIP)]);
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;

@@ -3,6 +3,7 @@ import { Socket } from "dgram";
 import { DnsPacket as DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
 import { DnsResponseDb } from "../dnsResponse/dnsResponseDb";
+import { SettingDb, SettingKey } from "../settings/settingDb";
 const dgram = require('dgram');
 
 export class DnsForwarder {
@@ -12,10 +13,12 @@ export class DnsForwarder {
     port: number = 53;
     resolvesById: any = {};
     passThroughResolvesById: any = {};
+    upstreamDns: string;
 
-    constructor(socket: Socket) {
+    constructor(socket: Socket, upstreamDns: string) {
         this.cache = new Cache();
         this.socket = socket;
+        this.upstreamDns = upstreamDns;
     }
 
     processResponse(responsePacket: DnsPacket, responseBuffer: Buffer) {   
@@ -49,7 +52,7 @@ export class DnsForwarder {
         }
 
         return new Promise((resolve, reject) => {
-            this.socket.send(requestBuffer, this.port, process.env.DNS_UPSTREAM, (error: any) => {
+            this.socket.send(requestBuffer, this.port, this.upstreamDns, (error: any) => {
                 if (error) {
                     console.error('Error sending message:', error);
                     this.socket.close();
@@ -66,7 +69,7 @@ export class DnsForwarder {
         let requestPacket = DnsPacket.fromBuffer(requestBuffer);
         
         return new Promise((resolve, reject) => {
-            this.socket.send(requestBuffer, this.port, process.env.DNS_UPSTREAM, (error: any) => {
+            this.socket.send(requestBuffer, this.port, this.upstreamDns, (error: any) => {
                 if (error) {
                     console.error('Error sending message:', error);
                     this.socket.close();
