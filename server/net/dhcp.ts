@@ -31,7 +31,7 @@ export class Dhcp {
                 }
             ],
             network: network,
-            netmask: NetworkSetting.getNetmask,
+            netmask: NetworkSetting.getNetmask(),
             router: routerIp,
             dns: [thisIp],
             broadcast: broadcastIp,
