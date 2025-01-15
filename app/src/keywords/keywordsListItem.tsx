@@ -24,12 +24,14 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
     let [expanded, setExpanded] = useState<boolean>(false);
     let [name, setName] = useState<string>("");
     let [expression, setExpression] = useState<string>("");
+    let [ports, setPorts] = useState<string>("");
 
     useEffect(() => {
         Helpers.get<IKeyword>(`/api/keyword/${props.id}`)
             .then((keyword: IKeyword) => {
                 setName(keyword.name);
                 setExpression(keyword.expression);
+                setPorts(keyword.ports);
                 setIsActive(keyword.isActive == 1);
             })
     }, [props.id])
@@ -41,7 +43,7 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
         let nonce: number = Helpers.createNonce();
         Helpers.put<number>(`/api/keyword/${props.id}`,
             {
-                keyword: { name: name, expression: expression, isActive: value ? 1 : 0 },
+                keyword: { name: name, expression: expression, ports: ports, isActive: value ? 1 : 0 },
                 nonce: nonce
             })
             .then((updated: number) => {
@@ -81,6 +83,8 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
             <AccordionDetails>
                 <Stack>
                     Keywords: {expression}
+                    <br></br>
+                    Ports: {ports}
 
                     <Button onClick={() => {
                         pageContext.setParams({
@@ -88,11 +92,13 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                                 id: props.id,
                                 name: name,
                                 expression: expression,
+                                ports: ports,
                                 isActive: isActive
                             },
-                            updateKeyword: (name: string, expression: string) => {
+                            updateKeyword: (name: string, expression: string, ports: string) => {
                                 setName(name);
                                 setExpression(expression);
+                                setPorts(ports);
                             }
                         });
                         pageContext.goTo(CurrentPage.editKeyword);

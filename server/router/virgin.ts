@@ -1,6 +1,9 @@
 import { Helpers } from "../helpers";
 import { SettingDb, SettingKey } from "../settings/settingDb";
-import { RouterFilter } from "./routerFilter";
+import { IFilter } from "./iFilter";
+import { IPFilter } from "./ipFilter";
+import { OidWalkGroup } from "./oidWalkGroup";
+import { PortFilter } from "./portFilter";
 import { OidEnabledType, OidType, VirginOidBase, VirginWalkOid } from "./virginOids";
 import crossFetch from "cross-fetch";
 
@@ -54,11 +57,6 @@ export class VirginSession {
             .then(obj => oid.convertResponseObjectToValue(obj));
     }
 
-    getActiveFilters(): Promise<RouterFilter[]> {
-        return this.walkOid(OidType.WalkPortFiltering)
-            .then(obj => RouterFilter.fromOidWalkResult(obj));
-    }
-
     getNumFilters(): Promise<number> {
         return this.walkOid(OidType.WalkPortFiltering)
             .then(obj => {
@@ -91,8 +89,8 @@ export class VirginSession {
             });
     }
 
-    setFilter(filter: RouterFilter): Promise<void> {
-        let [types, values, index] = filter.oidsAndValuesForCreate;
+    setFilter(filter: IFilter): Promise<void> {
+        let [types, values, index] = filter.oidsAndValues();
         return this.setBulkOidTypes(types, values, index);
     }
 
@@ -100,9 +98,9 @@ export class VirginSession {
         return this.setBulkOidIndexes(OidType.RowStatus, OidEnabledType.ToDelete, indexes);
     }
 
-    async hardReset() {
+    async deleteAllFilters() {
         let numFilters = await this.getNumFilters();
-        console.log(`. hard deleting ${numFilters} filters`);
+        console.log(`. hard deleting all ${numFilters} filters`);
         let range = Helpers.range(numFilters, 0);
         await this.deleteFilters(range.map(i => i.toString()));
         console.log("✓ success");
@@ -163,5 +161,43 @@ export class VirginSession {
 
     get isLoggedIn() {
         return this.cookie != "";
+    }
+
+    getActiveFilters(): Promise<[IPFilter[], PortFilter[]]> {
+        return this.walkOid(OidType.WalkPortFiltering)
+            .then(obj => this.fromOidWalkResult(obj));
+    }
+
+    fromOidWalkResult(obj: any): [IPFilter[], PortFilter[]] {
+        let sortedByIndex: any = {};
+        for (let key in obj) {
+            let [oid, index] = this.splitWalkResultKey(key);
+            if (oid) {
+                if (!(index in sortedByIndex)) {
+                    sortedByIndex[index] = {};
+                }
+                sortedByIndex[index][oid] = obj[key];
+            }
+        }
+
+        let ipFilters: IPFilter[] = [];
+        let portFilters: PortFilter[] = [];
+        for (let key in sortedByIndex) {
+            let group = new OidWalkGroup(sortedByIndex[key], key);
+            if (group.isValid) {
+                let ipFilter = group.toIpFilter();
+                let portFilter = group.toPortFilter();
+                if (ipFilter != null) ipFilters.push(ipFilter as IPFilter);
+                if (portFilter != null) portFilters.push(portFilter as PortFilter);
+            }
+        }
+        return [ipFilters, portFilters];
+    }
+
+    splitWalkResultKey(key: string) {
+        let spl = key.split(".");
+        let index = spl[spl.length - 1];
+        let oid = spl.slice(0, -1).join(".");
+        return [oid, index];
     }
 }

@@ -47,7 +47,9 @@ export class Db {
                     reject()
                 }
                 await this.createTables();
-                await this.seed();
+                if (Number(process.env.SEED_ENABLED)) {
+                    await this.seed();
+                }
                 resolve();
             });
             this.connection = new AsyncDatabase(db);

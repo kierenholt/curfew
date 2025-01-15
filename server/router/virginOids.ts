@@ -1,8 +1,9 @@
-import { RouterFilter } from "./routerFilter";
+import { IPFilter } from "./ipFilter";
 
 
 export enum OidType {
     DHCPIsEnabled = "1.3.6.1.4.1.4115.1.20.1.1.2.2.1.9.200",
+    ApplyAllSettings = "1.3.6.1.4.1.4115.1.20.1.1.9",
     IpVer = "1.3.6.1.4.1.4115.1.20.1.1.4.47.1.1.2",
     Direction = "1.3.6.1.4.1.4115.1.20.1.1.4.47.1.1.3",
     ProtoType = "1.3.6.1.4.1.4115.1.20.1.1.4.47.1.1.4",
@@ -42,19 +43,19 @@ export class VirginOidBase {
             case OidType.IpVer:
             case OidType.Direction:
             case OidType.Action:
-                return new VirginByteOid(index ? type + "." + index : type);
+                return new VirginByteOid(index ? type + "." + index : type); //2
             case OidType.SrcStartAddr:
             case OidType.SrcEndAddr:
             case OidType.DstStartAddr:
             case OidType.DstEndAddr:
-                return new VirginAddressOid(index ? type + "." + index : type);
+                return new VirginAddressOid(index ? type + "." + index : type); //4
             case OidType.SrcPortStart:
             case OidType.SrcPortEnd:
             case OidType.DstPortStart:
             case OidType.DstPortEnd:
             case OidType.SrcPrefixLen:
             case OidType.DstPrefixLen:
-                return new VirginStringOid(index ? type + "." + index : type);
+                return new VirginStringOid(index ? type + "." + index : type); //6
             case OidType.WalkPortFiltering:
                 return new VirginWalkOid(type);
             default:

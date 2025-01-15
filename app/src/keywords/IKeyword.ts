@@ -3,4 +3,5 @@ export interface IKeyword {
     name: string;
     expression: string;
     isActive: number;
+    ports: string;
 }

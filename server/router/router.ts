@@ -1,6 +1,7 @@
 import { IPAddress } from "../IPAddress";
 import { Keywords } from "../keyword/keywords";
-import { RouterFilter } from "./routerFilter";
+import { IPFilter } from "./ipFilter";
+import { PortFilter } from "./portFilter";
 import { VirginSession } from "./virgin";
 import { OidEnabledType, OidType } from "./virginOids";
 
@@ -26,11 +27,11 @@ export class Router {
         let session = new VirginSession();
 
         let f = await session.getActiveFilters();
-        await session.hardReset();
+        await session.deleteAllFilters();
 
-        let blockedIps = await Keywords.getBlockedIPs();
+        let [blockedIps, ports] = await Keywords.getBlockedIPsAndPorts();
         console.log(". updating IP filters configured on router");
-        await Router.updateBlockedIPs(blockedIps, () => null, session);
+        await Router.updateBlockedIPsAndPorts(blockedIps, ports, () => null, session);
         console.log("✓ success");
         await session.logout();
     }
@@ -44,6 +45,7 @@ export class Router {
         let DCHPIsEnabled = (await session.getOidValue(OidType.DHCPIsEnabled)) == OidEnabledType.Enabled;
         if (DCHPIsEnabled) {
             await session.setOidValue(OidType.DHCPIsEnabled, OidEnabledType.Disabled);
+            await session.setOidValue(OidType.ApplyAllSettings, 1);
             DCHPIsEnabled = (await session.getOidValue(OidType.DHCPIsEnabled)) == OidEnabledType.Enabled;
             if (DCHPIsEnabled) {
                 throw ("unable to turn off DHCP on router");
@@ -53,24 +55,29 @@ export class Router {
         console.log("✓ success");
     }
 
-    static async updateBlockedIPs(ips: string[], updateProgress: (message: string, isSuccess: boolean) => void, session: VirginSession): Promise<void> {
-        let routerFilters = await session.getActiveFilters();
+    static async updateBlockedIPsAndPorts(ips: string[], ports: number[], updateProgress: (message: string, isSuccess: boolean) => void, session: VirginSession): Promise<void> {
+        await session.deleteAllFilters();
 
-        let currentlyBlocked = routerFilters.map(f => f.dest.toString());
-        let ipsToCreate = ips.filter(ip => currentlyBlocked.indexOf(ip) == -1);
-        for (let i = 0; i < ipsToCreate.length; i++) {
+        //ips
+        for (let i = 0; i < ips.length; i++) {
             //create a filter
-            console.log(`. creating filter ${i + 1} of ${ipsToCreate.length}`);
-            updateProgress(`. creating filter for ${i + 1} of ${ipsToCreate.length}`, false);
-            let newIndex = routerFilters.length + i + 1;
-            let newFilter = new RouterFilter(newIndex.toString(), IPAddress.fromString(ipsToCreate[i]));
+            console.log(`. creating ip filter ${i + 1} of ${ips.length}`);
+            updateProgress(`. creating ip filter for ${i + 1} of ${ips.length}`, false);
+            let newIndex = i + 1;
+            let newFilter = new IPFilter(newIndex.toString(), IPAddress.fromString(ips[i]));
+            await session.setFilter(newFilter);
+        }
+        
+        //ports
+        for (let i = 0; i < ports.length; i++) {
+            //create a filter
+            console.log(`. creating port filter ${i + 1} of ${ports.length}`);
+            updateProgress(`. creating port filter for ${i + 1} of ${ports.length}`, false);
+            let newIndex = ips.length + i + 1;
+            let newFilter = new PortFilter(newIndex.toString(), ports[i]);
             await session.setFilter(newFilter);
         }
 
-        let filtersToDelete = routerFilters.filter(f => ips.indexOf(f.dest.toString()) == -1);
-        console.log(`. deleting ${filtersToDelete.length} filters`);
-        updateProgress(`. deleting ${filtersToDelete.length} filters`, false);
-        await session.deleteFilters(filtersToDelete.map(f => f.index));
         updateProgress("✓ success", true);
         await session.logout();
     }

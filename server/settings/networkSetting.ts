@@ -1,4 +1,5 @@
 import { Helpers } from "../helpers"
+import { IPAddress } from "../IPAddress";
 import { SettingDb, SettingKey } from "./settingDb"
 
 
@@ -18,6 +19,11 @@ export class NetworkSetting {
 
     static async getFullNetwork(): Promise<string> {
         return this.combineIpAddresses(await SettingDb.getString(SettingKey.networkId), "0");
+    }
+
+    static async getFullNetworkAsHex(): Promise<string> {
+        let ip = await this.getFullNetwork();
+        return IPAddress.fromString(ip).toHex();
     }
 
     static async getRouterIp(): Promise<string> {

@@ -9,7 +9,7 @@ import { ProgressContext } from "../progress/progressModalContainer";
 interface EditKeywordFormProps {
     onEdited: () => void;
     initialValues: IKeyword;
-    updateKeyword: (name: string, expression: string) => void;
+    updateKeyword: (name: string, expression: string, ports: string) => void;
 }
 
 //https://github.com/kierenholt/curfew/blob/groups-users-requests-full-db/app/src/QuotaEditForm.tsx
@@ -17,20 +17,22 @@ interface EditKeywordFormProps {
 export function EditKeyword(props: EditKeywordFormProps) {
     const [name, setName] = useState<string>(props.initialValues.name);
     const [expression, setExpression] = useState<string>(props.initialValues.expression);
+    const [ports, setPorts] = useState<string>(props.initialValues.ports);
     const progressContext = useContext(ProgressContext);
 
     const save = () => {
         let nonce: number = Helpers.createNonce();
         Helpers.put<number>(`/api/keyword/${props.initialValues.id}`,
             {
-                keyword: { name: name, expression: expression, isActive: props.initialValues.isActive },
+                keyword: { name: name, expression: expression, ports: ports, 
+                    isActive: props.initialValues.isActive },
                 nonce: nonce
             })
             .then((updated: number) => {
                 if (updated > 0) {
                     progressContext.setNonce(nonce);
                     progressContext.setOnSuccess(() => {
-                        props.updateKeyword(name, expression);
+                        props.updateKeyword(name, expression, ports);
                         props.onEdited();
                     });
                     progressContext.setOpen(true);
@@ -62,6 +64,17 @@ export function EditKeyword(props: EditKeywordFormProps) {
                 value={expression}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     setExpression(e.target.value);
+                }}
+            />
+
+            <TextField
+                id="ports"
+                label="ports"
+                helperText="comma separated list of port numbers"
+                variant="standard"
+                value={ports}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    setPorts(e.target.value);
                 }}
             />
 

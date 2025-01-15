@@ -10,11 +10,12 @@ interface CreateKeywordFormProps {
 export function CreateKeyword(props: CreateKeywordFormProps) {
     const [name, setName] = useState<string>("");
     const [expression, setExpression] = useState<string>("");
+    const [ports, setPorts] = useState<string>("");
 
     const save = () => {
         Helpers.post<number>(`/api/keywords`,
             {
-                name: name, expression: expression, isActive: 0
+                name: name, expression: expression, ports: ports, isActive: 0
             })
             .then((updated: number) => {
                 if (updated > 0) {
@@ -50,6 +51,18 @@ export function CreateKeyword(props: CreateKeywordFormProps) {
                 value={expression}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     setExpression(e.target.value);
+                }}
+            />
+
+            <TextField
+                id="ports"
+                label="ports"
+                helperText="comma separated list of port numbers"
+                variant="standard"
+                placeholder="9339"
+                value={ports}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    setPorts(e.target.value);
                 }}
             />
 

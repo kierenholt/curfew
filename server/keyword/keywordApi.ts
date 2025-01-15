@@ -1,6 +1,5 @@
 import { Express, Request, Response } from 'express';
 import { KeywordDb } from './keywordDb';
-import { Helpers } from '../helpers';
 import { Progress } from '../progress/progress';
 import { Router } from '../router/router';
 import { Keywords } from './keywords';
@@ -30,17 +29,18 @@ export class KeywordApi {
             let id = Number(req.params.id);
             let name = req.body.keyword.name;
             let expression = req.body.keyword.expression;
+            let ports = req.body.keyword.ports;
             let isActive = Number(req.body.keyword.isActive);
             let nonce = Number(req.body.nonce);
             if (id > 0) {
-                let ret = await KeywordDb.update(id, name, expression, isActive);
+                let ret = await KeywordDb.update(id, name, expression, ports, isActive);
 
                 Progress.update(nonce, false, "...");
 
                 //no await
-                Keywords.getBlockedIPs()
-                    .then(ips =>
-                        Router.updateBlockedIPs(ips,
+                Keywords.getBlockedIPsAndPorts()
+                    .then(([ips, ports]) =>
+                        Router.updateBlockedIPsAndPorts(ips, ports,
                             (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
                             new VirginSession()));
 
@@ -64,8 +64,8 @@ export class KeywordApi {
 
         //create
         app.post('/api/keywords', async (req: Request, res: Response) => {
-            if (req.body.name && req.body.expression) {
-                let ret = await KeywordDb.create(req.body.name, req.body.expression, 0);
+            if (req.body.name && req.body.expression && req.body.ports) {
+                let ret = await KeywordDb.create(req.body.name, req.body.expression, req.body.ports, 0);
                 res.status(200).json(ret);
             }
             else {

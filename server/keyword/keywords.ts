@@ -8,15 +8,17 @@ export class Keywords {
         return terms.some(t => t.blocksDomain(domain))
     }
 
-    static async getBlockedIPs(): Promise<string[]> {
-        let ret: string[] = [];
+    static async getBlockedIPsAndPorts(): Promise<[string[], number[]]> {
+        let ips: string[] = [];
+        let ports: number[] = [];
         let terms = await KeywordDb.getAllActive();
         for (let t of terms) {
             for (let n of t.needles) {
                 let matchingDomains = await DnsResponseDb.getDomainsContaining(n);
-                ret.push(...matchingDomains.map(d => d.ip));
+                ips.push(...matchingDomains.map(d => d.ip));
             }
+            ports.push(...t.portsArray);
         }
-        return Helpers.removeDuplicates(ret);
+        return [Helpers.removeDuplicates(ips), Helpers.removeDuplicates(ports)];
     }
 }

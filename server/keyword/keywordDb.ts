@@ -1,5 +1,4 @@
 import { Db } from "../db";
-import { Helpers } from "../helpers";
 import { RunResult } from "sqlite3";
 
 //when activated:
@@ -12,10 +11,14 @@ export class KeywordDb {
         return this.needles.some(s => domain.indexOf(s) != -1);
     }
     
-    get needles() {
+    get needles(): string[] {
         return this.expression.split(",");
     }
 
+    get portsArray(): number[] {
+        if (this.ports) return this.ports.split(",").map(p => Number(p));
+        return [];
+    }
     
     static createTable(): Promise<RunResult> {
         return Db.run(`
@@ -23,6 +26,7 @@ export class KeywordDb {
                 id integer primary key not null,
                 name text not null,
                 expression text not null,
+                ports text null,
                 isActive integer not null
             );
         `)
@@ -31,37 +35,40 @@ export class KeywordDb {
     id: number;
     name: string;
     expression: string;
+    ports: string;
     isActive: number;
 
-    constructor(id: number, name: string, expression: string, isActive: number) {
+    constructor(id: number, name: string, expression: string, ports: string, isActive: number) {
         this.id = id;
         this.name = name;
         this.expression = expression;
+        this.ports = ports;
         this.isActive = isActive;
     }
 
     static async seed() {
-        await this.create("youtube", "youtube,googlevideo", 1);
-        await this.create("brawlstars", "brawlstars,supercell", 0);
-        await this.create("tiktok", "tiktok", 0);
+        await this.create("youtube", "youtube,googlevideo", "", 1);
+        await this.create("brawlstars", "brawlstars,supercell", "9339", 0);
+        await this.create("tiktok", "tiktok", "", 1);
     }
 
-    static async create(name: string, expression: string, isActive: number): Promise<number> {
+    static async create(name: string, expression: string, ports: string, isActive: number): Promise<number> {
         return Db.run(`
-            insert into searchTerm (name, expression, isActive)
-            values (?, ?, ?)
-        `, [name, expression, isActive])
+            insert into searchTerm (name, expression, ports, isActive)
+            values (?, ?, ?, ?)
+        `, [name, expression, ports, isActive])
         .then(result => result.changes);
     }
 
-    static async update(id: number, name: string, expression: string, isActive: number): Promise<number> {
+    static async update(id: number, name: string, expression: string, ports: string, isActive: number): Promise<number> {
         return Db.run(`
             update searchTerm 
             set name = ?,
                 expression = ?,
+                ports = ?,
                 isActive = ?
             where id=${id}
-        `, [name, expression, isActive])
+        `, [name, expression, ports, isActive])
         .then(result => result.changes);
     }
 
@@ -74,6 +81,7 @@ export class KeywordDb {
             result.id,
             result.name, 
             result.expression,
+            result.ports,
             result.isActive) : null);
     }
 
@@ -87,6 +95,7 @@ export class KeywordDb {
             r.id,
             r.name,
             r.expression,
+            r.ports,
             r.isActive)))
     }
 
@@ -99,6 +108,7 @@ export class KeywordDb {
             r.id,
             r.name,
             r.expression,
+            r.ports,
             r.isActive)))
     }
     
