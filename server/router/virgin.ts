@@ -5,7 +5,6 @@ import { IPFilter } from "./ipFilter";
 import { OidWalkGroup } from "./oidWalkGroup";
 import { PortFilter } from "./portFilter";
 import { OidEnabledType, OidType, VirginOidBase, VirginWalkOid } from "./virginOids";
-import crossFetch from "cross-fetch";
 
 export class VirginSession {
 
@@ -23,7 +22,7 @@ export class VirginSession {
         let password = await SettingDb.getString(SettingKey.routerAdminPassword);
         var up = Buffer.from(encodeURIComponent(this.name) + ":" + Buffer.from(encodeURIComponent(password))).toString('base64');
         var query = `arg=${up}&` + this.nonceAndDate;
-        return crossFetch("http://192.168.0.1/login?" + query)
+        return Helpers.retryForever(() => fetch("http://192.168.0.1/login?" + query))
             .then(response => {
                 if (response.ok) {
                     return response.text()
@@ -47,7 +46,7 @@ export class VirginSession {
         if (!this.isLoggedIn) await this.login();
         let oid: VirginOidBase = VirginOidBase.create(type, index);
         let query = oid.getQuery() + "&" + this.nonceAndDate;
-        return crossFetch("http://192.168.0.1/snmpGet?oids=" + query, this.cookieHeader)
+        return Helpers.retryForever(() => fetch("http://192.168.0.1/snmpGet?oids=" + query, this.cookieHeader))
             .then(response => {
                 if (response.ok) {
                     return response.json()
@@ -75,7 +74,7 @@ export class VirginSession {
             throw ("cannot run walk query on oid of wrong type");
         }
         let query = oid.getQuery() + "&" + this.nonceAndDate;
-        return crossFetch("http://192.168.0.1/walk?oids=" + query, this.cookieHeader)
+        return Helpers.retryForever(() => fetch("http://192.168.0.1/walk?oids=" + query, this.cookieHeader))
             .then(response => response.json());
     }
 
@@ -83,7 +82,7 @@ export class VirginSession {
         if (!this.isLoggedIn) await this.login();
         let oid: VirginOidBase = VirginOidBase.create(type, index);
         let query = oid.setQuery(value) + "&" + this.nonceAndDate;
-        return fetch("http://192.168.0.1/snmpSet?oids=" + query, this.cookieHeader)
+        return Helpers.retryForever(() => fetch("http://192.168.0.1/snmpSet?oids=" + query, this.cookieHeader))
             .then(response => {
                 if (!response.ok) throw ("set failed");
             });
@@ -113,7 +112,7 @@ export class VirginSession {
         let oids: VirginOidBase[] = types.map(t => VirginOidBase.create(t, index));
         let queries = oids.map((o, i) => o.setQuery(values[i]));
         let fullQuery = queries.join("\\n") + "\\n&" + this.nonceAndDate;
-        return fetch("http://192.168.0.1/snmpSetBulk?oids=" + fullQuery, this.cookieHeader)
+        return Helpers.retryForever(() => fetch("http://192.168.0.1/snmpSetBulk?oids=" + fullQuery, this.cookieHeader))
             .then(response => {
                 if (!response.ok) throw ("set failed");
             });
@@ -126,7 +125,7 @@ export class VirginSession {
         let oids: VirginOidBase[] = indexes.map(i => VirginOidBase.create(type, i));
         let queries = oids.map((o, i) => o.setQuery(value));
         let fullQuery = queries.join("\\n") + "\\n&" + this.nonceAndDate;
-        return fetch("http://192.168.0.1/snmpSetBulk?oids=" + fullQuery, this.cookieHeader)
+        return Helpers.retryForever(() => fetch("http://192.168.0.1/snmpSetBulk?oids=" + fullQuery, this.cookieHeader))
             .then(response => {
                 if (!response.ok) throw ("set failed");
             });
@@ -135,7 +134,7 @@ export class VirginSession {
     async logout(): Promise<void> {
         if (!this.isLoggedIn) return;
         let query = this.nonceAndDate;
-        return fetch("http://192.168.0.1/logout?" + query, this.cookieHeader)
+        return Helpers.retryForever(() => fetch("http://192.168.0.1/logout?" + query, this.cookieHeader))
             .then(response => {
                 if (response.status == 500) {
                     this.cookie = "";

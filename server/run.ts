@@ -12,6 +12,17 @@ import { KeywordDb } from "./keyword/keywordDb";
 dotenv.config({ path: (process.env.TEST ? '.test.env' : '.env') });
 if (process.env.TEST) console.log("test mode enabled");
 
+// let sillyFetch = async (): Promise<any> => {
+//     console.log("try fetch");
+//     return fetch("https://www.nothing.com")
+//         .catch((err) => { 
+//             console.log("retrying");
+//             sillyFetch();
+//         });
+// }
+// sillyFetch();
+
+
 async function run() {
     checkSudo();
     await Db.start();
@@ -48,3 +59,4 @@ async function run() {
 
 }
 run();
+

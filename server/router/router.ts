@@ -1,3 +1,4 @@
+import { Helpers } from "../helpers";
 import { IPAddress } from "../IPAddress";
 import { Keywords } from "../keyword/keywords";
 import { IPFilter } from "./ipFilter";
@@ -83,6 +84,6 @@ export class Router {
     }
 
     static HTTPFileExists(url: string): Promise<boolean> {
-        return fetch(url).then(response => response.ok);
+        return Helpers.retryForever(() => fetch(url).then(response => response.ok));
     }
 }

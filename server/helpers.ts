@@ -139,4 +139,18 @@ export class Helpers {
         }
         return ret;
     }
+
+    static retryForever<T>(fn: () => Promise<T>, n: number = 100): Promise<T>  {
+        return fn()
+            .catch((err) => {
+                console.log(". retrying");
+                return Helpers.wait(n).then(() => Helpers.retryForever(fn, n*2));
+            });
+    }
+
+    static wait(n: number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            setTimeout(resolve, n);
+        })
+    }
 }

@@ -70,7 +70,7 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                     onClick={() => setExpanded(!expanded)}
                 >
                     <LocationSearchingIcon />
-                    <Typography sx={{ verticalAlign: "center", marginLeft: "1rem" }}>
+                    <Typography sx={{ transform: "translateY(0%)", marginLeft: "1rem" }}>
                         {name}
                     </Typography>
                     <Box sx={{ flexGrow: 1 }}></Box>
@@ -78,6 +78,9 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                         checked={isActive}
                         onChange={isActiveClick}
                     />
+                    <Typography sx={{ transform: "translateY(0%)", margin: "0.5rem", color: isActive ? "blue" : "black" }}>
+                        {isActive ? "blocked" : ""}
+                    </Typography>
                 </AccordionSummary>
             </Box>
             <AccordionDetails>
