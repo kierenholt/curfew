@@ -24,6 +24,22 @@ export class Router {
         }
     }
 
+
+    static async checkPassword(): Promise<boolean> {
+        try {
+            console.log(". checking password");
+            let session = new VirginSession();
+            await session.login();
+            await session.logout();
+        }
+        catch (ex) {
+            console.log("x password check failed - please login and set it");
+            return false;
+        }
+        console.log("✓ success");
+        return true;
+    }
+
     static async resetFilters(): Promise<void> {
         let session = new VirginSession();
 
@@ -39,14 +55,13 @@ export class Router {
 
     static async disableDHCP(): Promise<void> {
         let session = new VirginSession();
-
         //let result = await session.walkOidTest("1.3.6.1.4.1.4115.1.20.1.1.2.2.1.9");
 
         console.log(". disabling DHCP on router");
         let DCHPIsEnabled = (await session.getOidValue(OidType.DHCPIsEnabled)) == OidEnabledType.Enabled;
         if (DCHPIsEnabled) {
             await session.setOidValue(OidType.DHCPIsEnabled, OidEnabledType.Disabled);
-            await session.setOidValue(OidType.ApplyAllSettings, 1);
+            await session.setOidValue(OidType.ApplyAllSettings, 1, "0");
             DCHPIsEnabled = (await session.getOidValue(OidType.DHCPIsEnabled)) == OidEnabledType.Enabled;
             if (DCHPIsEnabled) {
                 throw ("unable to turn off DHCP on router");
@@ -78,6 +93,7 @@ export class Router {
             let newFilter = new PortFilter(newIndex.toString(), ports[i]);
             await session.setFilter(newFilter);
         }
+        await session.setOidValue(OidType.ApplyAllSettings, 1, "0");
 
         updateProgress("✓ success", true);
         await session.logout();

@@ -12,6 +12,9 @@ export class KeywordDb {
     }
     
     get needles(): string[] {
+        if (this.expression.length == 0) {
+            return [];
+        }
         return this.expression.split(",");
     }
 

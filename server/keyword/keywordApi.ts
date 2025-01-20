@@ -25,6 +25,17 @@ export class KeywordApi {
             }
         });
 
+        app.get('/api/keyword/:id/blockedIps', async (req: Request, res: Response) => {
+            let id = Number(req.params.id);
+            if (req.params.id.length > 0) {
+                let ret = await Keywords.getBlockedIps(id);
+                res.status(200).json(ret);
+            }
+            else {
+                res.status(400).send("parameter error");
+            }
+        });
+
         app.put('/api/keyword/:id', async (req: Request, res: Response) => {
             let id = Number(req.params.id);
             let name = req.body.keyword.name;

@@ -3,7 +3,7 @@ import { IPFilter } from "./ipFilter";
 
 export enum OidType {
     DHCPIsEnabled = "1.3.6.1.4.1.4115.1.20.1.1.2.2.1.9.200",
-    ApplyAllSettings = "1.3.6.1.4.1.4115.1.20.1.1.9",
+    ApplyAllSettings = "1.3.6.1.4.1.4115.1.20.1.1.9", //has index 0
     IpVer = "1.3.6.1.4.1.4115.1.20.1.1.4.47.1.1.2",
     Direction = "1.3.6.1.4.1.4115.1.20.1.1.4.47.1.1.3",
     ProtoType = "1.3.6.1.4.1.4115.1.20.1.1.4.47.1.1.4",
@@ -43,6 +43,7 @@ export class VirginOidBase {
             case OidType.IpVer:
             case OidType.Direction:
             case OidType.Action:
+            case OidType.ApplyAllSettings:
                 return new VirginByteOid(index ? type + "." + index : type); //2
             case OidType.SrcStartAddr:
             case OidType.SrcEndAddr:

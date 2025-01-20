@@ -29,6 +29,9 @@ async function run() {
     await Jobs.start();
 
     await Router.detect();
+    if (!await Router.checkPassword()) {
+        API.start(); //user needs to set password
+    }
 
     //API
     if (Number(process.env.API_ENABLED)) {

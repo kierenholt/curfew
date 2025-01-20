@@ -32,7 +32,7 @@ export class VirginSession {
                                 return true;
                             }
                             else { //timeout or other error
-                                throw ("unable to login: " + text)
+                                throw ("unable to login: " + text + " - check the password?");
                             }
                         });
                 }
@@ -88,8 +88,8 @@ export class VirginSession {
             });
     }
 
-    setFilter(filter: IFilter): Promise<void> {
-        let [types, values, index] = filter.oidsAndValues();
+    async setFilter(filter: IFilter): Promise<void> {
+        let [types, values, index] = await filter.oidsAndValues();
         return this.setBulkOidTypes(types, values, index);
     }
 
@@ -106,7 +106,6 @@ export class VirginSession {
     }
 
     //used to create a filter
-    // DO NOT TRY TO READ THE RESPONSE
     async setBulkOidTypes(types: OidType[], values: string[], index: string): Promise<void> {
         if (!this.isLoggedIn) await this.login();
         let oids: VirginOidBase[] = types.map(t => VirginOidBase.create(t, index));
@@ -119,7 +118,6 @@ export class VirginSession {
     }
 
     //used to delete multiple filter
-    // DO NOT TRY TO READ THE RESPONSE
     async setBulkOidIndexes(type: OidType, value: string, indexes: string[]): Promise<void> {
         if (!this.isLoggedIn) await this.login();
         let oids: VirginOidBase[] = indexes.map(i => VirginOidBase.create(type, i));

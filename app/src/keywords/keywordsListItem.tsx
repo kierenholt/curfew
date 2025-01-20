@@ -25,6 +25,7 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
     let [name, setName] = useState<string>("");
     let [expression, setExpression] = useState<string>("");
     let [ports, setPorts] = useState<string>("");
+    let [numBlockedIps, setNumBlockedIps] = useState<number>(0); 
 
     useEffect(() => {
         Helpers.get<IKeyword>(`/api/keyword/${props.id}`)
@@ -33,7 +34,12 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                 setExpression(keyword.expression);
                 setPorts(keyword.ports);
                 setIsActive(keyword.isActive == 1);
-            })
+            });
+
+        Helpers.get<string[]>(`/api/keyword/${props.id}/blockedIps`)
+            .then((ips: string[]) => {
+                setNumBlockedIps(ips.length);
+            });
     }, [props.id])
 
     const isActiveClick = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +93,9 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                 <Stack>
                     Keywords: {expression}
                     <br></br>
-                    Ports: {ports}
+                    { ports ? <>Ports: {ports}</> : "" }
+                    <br></br>
+                    {numBlockedIps} matching ip addresses in database
 
                     <Button onClick={() => {
                         pageContext.setParams({

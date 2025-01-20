@@ -21,4 +21,17 @@ export class Keywords {
         }
         return [Helpers.removeDuplicates(ips), Helpers.removeDuplicates(ports)];
     }
+
+    static async getBlockedIps(keywordId: number): Promise<string[]> {
+        let ips: string[] = [];
+        let keyword = await KeywordDb.getById(keywordId);
+        if (keyword == null) {
+            return [];
+        }
+        for (let n of keyword.needles) {
+            let matchingDomains = await DnsResponseDb.getDomainsContaining(n);
+            ips.push(...matchingDomains.map(d => d.ip));
+        }
+        return Helpers.removeDuplicates(ips);
+    }
 }

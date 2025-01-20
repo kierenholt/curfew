@@ -12,7 +12,7 @@ export class IPFilter implements IFilter {
         this.index = index;
     }
 
-    oidsAndValues(): [OidType[], string[], string] {
+    async oidsAndValues(): Promise<[OidType[], string[], string]> {
         let types = [OidType.IpVer, OidType.Direction, OidType.ProtoType,
         OidType.SrcRange, OidType.SrcStartAddr, OidType.SrcEndAddr, OidType.SrcPrefixLen,
         OidType.DstRange, OidType.DstStartAddr, OidType.DstEndAddr, OidType.DstPrefixLen,
