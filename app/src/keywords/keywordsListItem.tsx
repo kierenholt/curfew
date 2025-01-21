@@ -90,7 +90,7 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                 </AccordionSummary>
             </Box>
             <AccordionDetails>
-                <Stack>
+                <Stack spacing={1}>
                     Keywords: {expression}
                     <br></br>
                     { ports ? <>Ports: {ports}</> : "" }

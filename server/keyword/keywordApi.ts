@@ -83,5 +83,41 @@ export class KeywordApi {
                 res.status(400).send("parameter error");
             }
         });
+
+        //block all
+        app.put('/api/keywords/block', async (req: Request, res: Response) => {
+            let nonce = Number(req.body.nonce);
+            let ret = await KeywordDb.setAllActive();
+
+            Progress.update(nonce, false, "...");
+
+            //no await
+            Keywords.getBlockedIPsAndPorts()
+                .then(([ips, ports]) =>
+                    Router.updateBlockedIPsAndPorts(ips, ports,
+                        (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
+                        new VirginSession()));
+
+            res.status(200).json(ret);
+        });
+
+        //allow all
+
+        //block all
+        app.put('/api/keywords/allow', async (req: Request, res: Response) => {
+            let nonce = Number(req.body.nonce);
+            let ret = await KeywordDb.setAllInactive();
+
+            Progress.update(nonce, false, "...");
+
+            //no await
+            Keywords.getBlockedIPsAndPorts()
+                .then(([ips, ports]) =>
+                    Router.updateBlockedIPsAndPorts(ips, ports,
+                        (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
+                        new VirginSession()));
+
+            res.status(200).json(ret);
+        });
     }
 }

@@ -75,6 +75,22 @@ export class KeywordDb {
         .then(result => result.changes);
     }
 
+    static async setAllActive(): Promise<number> {
+        return Db.run(`
+            update searchTerm 
+            set isActive = 1
+        `)
+        .then(result => result.changes);
+    }
+
+    static async setAllInactive(): Promise<number> {
+        return Db.run(`
+            update searchTerm 
+            set isActive = 0
+        `)
+        .then(result => result.changes);
+    }
+
     static getById(id: number): Promise<KeywordDb | null> {
         return Db.get(`
             select * from searchTerm
