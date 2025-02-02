@@ -8,10 +8,10 @@ export class Jobs {
     //https://crontab.guru/examples.html
 
     static async start() {
-        await DnsResponseDb.deleteOlderThan1Day();
+        await DnsResponseDb.deleteOlderThan1Hour();
 
         cron.schedule('0 * * * *', async () => { //every hour
-            DnsResponseDb.deleteOlderThan1Day();
+            DnsResponseDb.deleteOlderThan1Hour();
         });
     }
 }

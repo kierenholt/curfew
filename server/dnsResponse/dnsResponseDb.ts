@@ -63,8 +63,8 @@ export class DnsResponseDb {
                 r.requesterIp)))
     }
 
-    static deleteOlderThan1Day(): Promise<number> {
-        let olderThan = new Date().valueOf() - 24 * 3600 * 1000; //1 day
+    static deleteOlderThan1Hour(): Promise<number> {
+        let olderThan = new Date().valueOf() - 1 * 3600 * 1000; //1 hour
         return Db.run(`
             delete from dnsResponse
             where createdOn < ${olderThan}
