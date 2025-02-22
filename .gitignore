@@ -6,3 +6,4 @@ server/bin
 app/bin
 *.db
 curfew.db
+docker/*

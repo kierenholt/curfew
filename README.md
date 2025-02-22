@@ -1,10 +1,13 @@
 npm init
-## how to run
-### server
-sudo node --inspect=2000 server/bin/run.js
+## how to run LOCALLY OUTSIDE OF VS CODE
+cd ~/Documents/typescript/curfew
+sudo nginx
+sudo TEST=1 node --inspect=2000 server/bin/run.js
 
-### app
-app/npm run start
+## how to run LOCALLY INSIDE VS CODE
+use debug button
+npm run start
+
 
 ## to do
 block for X minutes - needs to show time limit, add timelimit table? add button to cancel timelimit limit,  add job to check for time limit then remove it and disable / enable

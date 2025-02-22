@@ -15,13 +15,10 @@
       ],
       "type": "node",
       "sudo": true,
-      "env": {
-        "PROD": "1"
-      }
     },
     {
       "name": "env=test",
-      "program": "${workspaceFolder}/server/bin/run.js",
+      "program": "TEST=1 ${workspaceFolder}/server/bin/run.js",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**",
@@ -29,9 +26,6 @@
       ],
       "type": "node",
       "sudo": true,
-      "env": {
-        "TEST": "1"
-      }
     },
     // {
     //   "name": "Attach",
