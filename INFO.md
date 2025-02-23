@@ -24,3 +24,6 @@ https://www.lancaster.ac.uk/iss/tsg/cosign/csr-windows.html
 
 # about pm2
 https://pm2.keymetrics.io/docs/usage/quick-start/
+
+# about netplan
+https://netplan.readthedocs.io/en/latest/examples/#how-to-connect-multiple-interfaces-with-dhcp

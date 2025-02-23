@@ -1,9 +1,10 @@
 [ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
 
-# disable systemd-resolved to free up port 53
+# disable systemd-resolved dns listener to free up port 53
     systemctl stop systemd-resolved
     cp -f resolved.conf /etc/systemd/resolved.conf
     systemctl start systemd-resolved
+
 # check port 53 is free (command should return nothing)
     lsof -i:53
 
@@ -19,7 +20,7 @@
     cp localhost_cert.pem /etc/nginx/ssl
     cp localhost_key.pem /etc/nginx/ssl
 
-# configure nginx
+# copy nginx configuration
     systemctl stop nginx
     cp -f default /etc/nginx/sites-available/default
     systemctl start nginx
@@ -32,12 +33,11 @@
 #    view logs in /var/log/nginx
 #    sudo systemctl restart nginx
 
-# deploy
+# deploy app and server code
     ./deploy_next.sh
 
 # start as a service
-    cd /opt/curfew
-    pm2 start bin/run.js
+    pm2 start /opt/curfew/bin/run.js
     pm2 save
 
 # also helpful
