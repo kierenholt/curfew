@@ -22,3 +22,5 @@ https://stackoverflow.com/questions/66558788/how-to-create-a-self-signed-or-sign
 ## uk example values
 https://www.lancaster.ac.uk/iss/tsg/cosign/csr-windows.html
 
+# about pm2
+https://pm2.keymetrics.io/docs/usage/quick-start/

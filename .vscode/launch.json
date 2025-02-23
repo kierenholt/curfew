@@ -4,29 +4,14 @@
   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-    
     {
-      "name": "env=prod",
+      "name": "debug",
       "program": "server/bin/run.js",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**",
         "**/node_modules/**"
       ],
-      "type": "node",
-      "sudo": true,
-    },
-    {
-      "name": "env=test",
-      "program": "server/bin/run.js",
-      "request": "launch",
-      "skipFiles": [
-        "<node_internals>/**",
-        "**/node_modules/**"
-      ],
-      "env": {
-        "TEST":"1"
-      },
       "type": "node",
       "sudo": true,
     },

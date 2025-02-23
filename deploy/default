@@ -3,8 +3,8 @@ server {
 	listen 80;
 	listen 443 ssl;
 
-	ssl_certificate /home/full/path/to/localhost_cert.pem;
-	ssl_certificate_key /home/full/path/to/localhost_key.pem;
+	ssl_certificate /etc/nginx/ssl/localhost_cert.pem;
+	ssl_certificate_key /etc/nginx/ssl/localhost_key.pem;
 
 	root /var/www/html;
 

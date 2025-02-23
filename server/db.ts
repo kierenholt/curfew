@@ -6,6 +6,7 @@ import { KeywordDb } from "./keyword/keywordDb";
 
 export class Db {
     static connection: AsyncDatabase;
+    static databaseName = "curfew.db";
 
     static async createTables() {
         await SettingDb.createTable();
@@ -21,7 +22,7 @@ export class Db {
 
     static start(): Promise<void> {
         return new Promise((resolve, reject) => {
-            let db = new Database(process.env.DATABASE_NAME as string, 
+            let db = new Database(Db.databaseName, 
                 OPEN_READWRITE, 
                 async (err: any) => {
                     if (err && err.code == "SQLITE_CANTOPEN") {
@@ -41,7 +42,7 @@ export class Db {
 
     static createDatabase(): Promise<void> {
         return new Promise((resolve, reject) => {
-            let db = new Database(process.env.DATABASE_NAME as string, async (err: any) => {
+            let db = new Database(Db.databaseName, async (err: any) => {
                 if (err) {
                     console.log("Getting error " + err);
                     reject()

@@ -9,19 +9,7 @@ import { Dhcp } from "./net/dhcp";
 import { NetPlan } from "./net/netplan";
 import { KeywordDb } from "./keyword/keywordDb";
 
-dotenv.config({ path: (Number(process.env.TEST) ? '.test.env' : '.env') });
-if (Number(process.env.TEST)) console.log("test mode enabled");
-
-// let sillyFetch = async (): Promise<any> => {
-//     console.log("try fetch");
-//     return fetch("https://www.nothing.com")
-//         .catch((err) => { 
-//             console.log("retrying");
-//             sillyFetch();
-//         });
-// }
-// sillyFetch();
-
+dotenv.config();
 
 async function run() {
     checkSudo();

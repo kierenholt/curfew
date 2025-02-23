@@ -42,7 +42,7 @@ export class SettingDb {
     }
 
     static async seed() {
-        await this.create(SettingKey.routerAdminPassword, process.env.DEFAULT_PASSWORD as string, "router admin password", "password you use to login to router", "");
+        await this.create(SettingKey.routerAdminPassword, "", "router admin password", "password you use to login to router", "");
         await this.create(SettingKey.thisHost, process.env.DEFAULT_THIS_HOST as string, "this ip address (last octet)", "ip address to connect to curfew. e.g. if set to 39 then this ip will become <network id>.39", 
             "if this setting is changed, all devices will need to disconnect and reconnect to the wifi. Do not allow this setting to fall with the dhcp range (below)");
         await this.create(SettingKey.pin, "0000", "pin", "code to access web pages", 
