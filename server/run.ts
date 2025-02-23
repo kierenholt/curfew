@@ -32,14 +32,14 @@ async function run() {
     if (!await Router.checkPassword()) {
         API.start(); //user needs to set password
     }
-
+    
+    //SET IP
+    // await NetPlan.updateIp();
+    
     //API
     if (Number(process.env.API_ENABLED)) {
         API.start();
     }
-
-    //SET IP
-    await NetPlan.updateIp();
 
     //START DHCP
     if (Number(process.env.DHCP_ENABLED)) {

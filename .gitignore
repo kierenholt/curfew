@@ -7,3 +7,5 @@ app/bin
 *.db
 curfew.db
 docker/*
+*.pem
+app/build

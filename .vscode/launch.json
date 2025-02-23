@@ -7,7 +7,7 @@
     
     {
       "name": "env=prod",
-      "program": "${workspaceFolder}/server/bin/run.js",
+      "program": "server/bin/run.js",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**",
@@ -18,12 +18,15 @@
     },
     {
       "name": "env=test",
-      "program": "TEST=1 ${workspaceFolder}/server/bin/run.js",
+      "program": "server/bin/run.js",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**",
         "**/node_modules/**"
       ],
+      "env": {
+        "TEST":"1"
+      },
       "type": "node",
       "sudo": true,
     },

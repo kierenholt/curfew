@@ -10,6 +10,15 @@
 			],
 			"group": "build",
 			"label": "tsc: watch - server/tsconfig.json"
+		},
+		{
+			"type": "typescript",
+			"tsconfig": "server/tsconfig.json",
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build",
+			"label": "tsc: build - server/tsconfig.json"
 		}
 	]
 }

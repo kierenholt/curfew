@@ -6,14 +6,14 @@ const Netplan = require('netplan-config');
 
 export class NetPlan {
     static async updateIp(): Promise<void> {
-        const netInfo = new NetInfo();
+        //const netInfo = new NetInfo();
         const thisIp = await NetworkSetting.getThisIp();
         let routerIp = await NetworkSetting.getRouterIp();
         let dnsUpstream = await SettingDb.getString(SettingKey.upstreamDnsServer);
         
         // Configure eth0 as a static WAN interface
         const net = new Netplan();
-        net.configureInterface(netInfo.name, {
+        net.configureInterface('wlp2s0', {
             ip: thisIp,
             defaultGateway: routerIp,
             nameservers: [dnsUpstream],
