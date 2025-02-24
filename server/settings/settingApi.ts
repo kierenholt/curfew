@@ -21,8 +21,8 @@ export class SettingApi {
 
                 //change to ip => restart net
                 if (key == SettingKey.thisHost) {
-                    await NetPlan.updateIp();
-                    await Dhcp.restartOrStart();
+                    await NetPlan.update();
+                    await Dhcp.update();
                 }
 
                 res.status(200).json(ret);

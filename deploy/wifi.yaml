@@ -3,7 +3,14 @@ network:
   renderer: networkd
   wifis:
     wlp2s0b1:
-      dhcp4: true
+      dhcp4: no
+      dhcp6: no
+      addresses: [192.168.0.39/24]
+      nameservers:
+        addresses: [1.1.1.1]
       access-points:
         "network_ssid_name":
           password: "**********"
+      routes:
+        - to: default
+          via: 192.168.0.1

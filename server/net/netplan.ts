@@ -1,19 +1,17 @@
 import { NetworkSetting } from "../settings/networkSetting";
 import { SettingDb, SettingKey } from "../settings/settingDb";
-import { NetInfo } from "./netInfo";
 
-const Netplan = require('netplan-config');
+const Netplan1 = require('netplan-config');
 
 export class NetPlan {
-    static async updateIp(): Promise<void> {
-        //const netInfo = new NetInfo();
+    static async update(): Promise<void> {
         const thisIp = await NetworkSetting.getThisIp();
         let routerIp = await NetworkSetting.getRouterIp();
         let dnsUpstream = await SettingDb.getString(SettingKey.upstreamDnsServer);
         
         // Configure eth0 as a static WAN interface
-        const net = new Netplan();
-        net.configureInterface('wlp2s0', {
+        const net = new Netplan1();
+        net.configureInterface(this.getInterfaceName(), {
             ip: thisIp,
             defaultGateway: routerIp,
             nameservers: [dnsUpstream],
@@ -32,5 +30,22 @@ export class NetPlan {
                 }
                 throw ("error trying to set ip address to " + thisIp);
             });
+    }
+
+    static getInterfaceName(): string {
+        const net = new Netplan1();
+        net.loadConfig();
+        let key = "";
+        for (let prop in net.plan.network.wifis) { 
+            if (prop) {
+                return prop;
+            } 
+        };
+        for (let prop in net.plan.network.ethernets) { 
+            if (prop) {
+                return prop;
+            } 
+        };
+        throw("interface not found");
     }
 }

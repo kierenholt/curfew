@@ -1,32 +1,33 @@
 import { NetworkSetting } from '../settings/networkSetting';
-import { NetInfo } from './netInfo';
+import { NetPlan } from './netplan';
 var dhcp = require('isc-dhcp-server');
 var exec = require("child-process-promise").exec
+import getMAC, { isMAC } from 'getmac'
 
 export class Dhcp {
-
-    static async restartOrStart(): Promise<void> {
+    static async update(): Promise<void> {
         if (await this.isRunning()) {
             await this.stop();
         }
 
-        const netInfo = new NetInfo();
         let dhcpMinIp = await NetworkSetting.getDhcpMin();
         let dhcpMaxIp = await NetworkSetting.getDhcpMax();
         let thisIp = await NetworkSetting.getThisIp();
         let network = await NetworkSetting.getFullNetwork();
         let routerIp = await NetworkSetting.getRouterIp();
         let broadcastIp = await NetworkSetting.getBroadcastIp();
+        let interfaceName = NetPlan.getInterfaceName();
+        let mac = getMAC(interfaceName);
 
         var s = dhcp.createServer({
-            interface: netInfo.name,
+            interface: interfaceName,
             range: [
                 dhcpMinIp, dhcpMaxIp
             ],
             static: [
                 {
                     hostname: process.env.HOSTNAME,
-                    mac_address: netInfo.mac,
+                    mac_address: mac,
                     ip_address: thisIp
                 }
             ],
