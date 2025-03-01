@@ -1,10 +1,11 @@
 
 # setup - one time only
-    sudo apt install node-typescript
-    sudo apt install npm
-    sudo apt-get install nginx
-    sudo apt install isc-dhcp-server
+    sudo apt install nodejs (arm supported) and npm
+    ~~sudo apt install nginx~~
+    ~~sudo apt install isc-dhcp-server~~
     sudo npm install pm2 -g
+
+    git clone https://github.com/kierenholt/curfew.git
 
     cd ./app
     npm install

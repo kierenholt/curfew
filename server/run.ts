@@ -5,8 +5,6 @@ import * as dotenv from "dotenv";
 import { Jobs } from "./jobs";
 import { Db } from "./db";
 import { checkSudo } from "./checkSudo";
-import { Dhcp } from "./net/dhcp";
-import { NetPlan } from "./net/netplan";
 
 dotenv.config();
 
@@ -16,9 +14,10 @@ async function run() {
     await Jobs.start();
 
     await Router.detect();
+    //router is not found
 
     if (!await Router.checkPassword()) {
-        API.start(); //user needs to set password
+        API.start(); //cannot login - user needs to set password
     }
     else {
         //CONFIGURE ROUTER

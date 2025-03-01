@@ -1,70 +1,85 @@
-## chip
-https://wiki.luckfox.com/Luckfox-Pico/Download
-SPI NAND FLASH 128MB
-pico plus - Rockchip RV1103 (ARM Cortex-A7 ARMv7-A architecture)
 
-## about the chip
-http://file.whycan.com/files/members/9058/Rockchip%20RV1103%20Datasheet%20V1.1-20220427.pdf
-
-## rootfs images ubuntu etc.
-https://drive.google.com/drive/folders/1sFUWjYpDDisf92q9EwP1Ia7lHgp9PaFS
-
-# alpine rootfs image
-https://wiki.luckfox.com/Luckfox-Pico/Luckfox-Pico-RV1103/Luckfox-Pico-Plus-Mini/Luckfox-Pico-Alpine-Linux-1/
-
-## make custom linux kernel for cortex a7
-https://developer.arm.com/documentation/den0013/d/Building-Linux-for-ARM-Systems/Building-the-Linux-kernel
-
-## test kernel on qemu
-
-## make custom alpine image using alpine sdk
-https://wiki.alpinelinux.org/wiki/How_to_make_a_custom_ISO_image_with_mkimage#Create_the_ISO
-
-## test image on qemu
+# install upgrade tool
+sudo unzip upgrade_tool_v2.17.zip
+cd upgrade_tool_v2.17_for_linux/
+sudo cp upgrade_tool /usr/local/bin
+sudo chmod +x /usr/local/bin/upgrade_tool
 
 
-## linux version command
-cat /etc/os-release
-
-## USING ROCKCHIP SDK (support custom alpine kernel)
-add to path
-    export PATH="/home/kieren/Documents/typescript/rkbin/tools:$PATH"
+# how to use upgrade_tool
+https://github.com/vicharak-in/Linux_Upgrade_Tool
 
 
-## USING LUCKFOX SDK (buildroot only, and > 128M)
+## MAKING IMAGES
+https://wiki.luckfox.com/Luckfox-Pico/Luckfox-Pico-SDK/
 
-# how to get upgrade tool
-https://wiki.luckfox.com/Luckfox-Pico/Linux-MacOS-Burn-Image/
-https://wiki.luckfox.com/Luckfox-Pico/Luckfox-Pico-RV1103/Luckfox-Pico-Plus-Mini/Linux-MacOS-Burn-Image
+    cd "/home/kieren/Documents/typescript/luckfox-pico"
+    ./build.sh lunch
 
-# HOW TO FLASH
+
+choose custom
+then option 15
+15. BoardConfig_IPC/BoardConfig-SD_CARD-Ubuntu-RV1103_Luckfox_Pico_Plus-IPC.mk
+                             boot medium(启动介质): SD_CARD
+                          system version(系统版本): Ubuntu
+                        hardware version(硬件版本): RV1103_Luckfox_Pico_Plus
+                             application(应用场景): IPC
+----------------------------------------------------------------
+    sudo ./build.sh
+
+# IMAGE FILE -> SD
 hold button while connecting USB cable
 run lsusb to check it has connected - should say "Fuzhou Rockchip Electronics Company"
-it should NOT say "Fuzhou Rockchip Electronics Company rk3xxx" - this is system mode not burn mode
-download the image
-unzip it
-cd into the unzipped folder
-run 
-    sudo upgrade_tool uf update.img 
+it should NOT say "Fuzhou Rockchip Electronics Company rk3xxx" - this is system mode not 
+
+list devices to find sd card
+    sudo blkid /dev/sd*
+make sure device and path are correct in flash.py
+run flash.py
+
+# SD -> IMAGE FILE
+list devices to find sd card
+    sudo blkid /dev/sd*
+clone sd to file
+    sudo dd if=/dev/sdb1 of=/home/kieren/Documents/typescript/curfew-images/rootfs.img bs=64K conv=noerror,sync
+
+## LOGIN VIA SSH
 connect pico plus to network
 to check the leases:
-vendor-class-identifier = "udhcp 1.36.1";
+client-hostname "luckfox";
+mac ea:7b:5c:56:bb:b1
     sudo service isc-dhcp-server status 
 OR
     nano /var/lib/dhcp/dhcpd.leases
-    ssh root@<ip address>
+    ssh pico@192.168.0.118
 password is luckfox
+linux version command
+    cat /etc/os-release
+    uname -a
+
+## MOUNT DISK IMAGE FOR EDITING FILES
+    cd /home/kieren/Documents/typescript/curfew-images
+    sudo losetup /dev/curfew rootfs.img
+    sudo mount /dev/curfew /curfew-root
 
 
+## COPY FILES
 
+## THEN SYNC
 
-## BOOT SPECIFICS - HOW IT LOADS
-https://opensource.rock-chips.com/wiki_Boot_option
-1. rom
-2. idblock.img - preloader
-3. uboot.img - boot loader. boots the kernel
-4. boot.img - linux kernel
-5. rootfs.img - linux FILESYSTEM (what needs replacing from docker)
+## UPDATE NPM ON THE PICO
+% sudo apt update  # Update package list
+% sudo apt upgrade # Upgrade installed packages
+% sudo apt install -y ca-certificates curl gnupg
+% sudo mkdir -p /etc/apt/keyrings
+% curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+% echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+% sudo apt update
+% sudo apt install nodejs -y
+    node -v # Should print "v22.14.0".
+    npm -v # Should print "10.9.2".
+    sync
 
-## different kernel? ROCKCHIP KERNEL REPO
-git clone https://github.com/rockchip-linux/kernel.git
+## UNOUNT DEVICE (NOT REALLY NECESSARY)
+    sudo umount /curfew-root
+    sudo losetup -d /dev/curfew
