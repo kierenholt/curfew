@@ -1,5 +1,7 @@
 [ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
 
+cd "$(dirname "$0")"
+
 # disable systemd-resolved dns listener to free up port 53
     systemctl stop systemd-resolved
     cp -f resolved.conf /etc/systemd/resolved.conf
@@ -16,22 +18,12 @@
     rm localhost.csr
 
 # copy certificate files
-    mkdir -p /etc/nginx/ssl
-    cp localhost_cert.pem /etc/nginx/ssl
-    cp localhost_key.pem /etc/nginx/ssl
-
-# copy nginx configuration
-    systemctl stop nginx
-    cp -f default /etc/nginx/sites-available/default
-    systemctl start nginx
+    mkdir -p ../server/bin/cert
+    cp localhost_cert.pem ../server/bin/cert
+    cp localhost_key.pem ../server/bin/cert
 
 # configure pm2 to run on startup 
     pm2 startup
-
-# also helpful
-#    sudo systemctl status nginx
-#    view logs in /var/log/nginx
-#    sudo systemctl restart nginx
 
 # deploy app and server code
     ./deploy_next.sh

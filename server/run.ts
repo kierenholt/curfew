@@ -20,14 +20,19 @@ async function run() {
         API.start(); //cannot login - user needs to set password
     }
     else {
-        //CONFIGURE ROUTER
-        await Router.disableDHCP();
-    
-        //SET ROUTER FILTERS
-        await Router.resetFilters();
-    
-        //DNS SERVER
-        await DnsServer.start();
+        
+        if (Number(process.env.ROUTER_ENABLED)) {
+            //CONFIGURE ROUTER
+            await Router.disableDHCP();
+        
+            //SET ROUTER FILTERS
+            await Router.resetFilters();
+        }
+        
+        if (Number(process.env.DNS_ENABLED)) {
+            //DNS SERVER
+            await DnsServer.start();
+        }
         
         //API
         API.start();

@@ -1,8 +1,8 @@
 
+## this is for dev setup, for SoC/production setup, see PICO.md
 # setup - one time only
-    sudo apt install nodejs (arm supported) and npm
-    ~~sudo apt install nginx~~
-    ~~sudo apt install isc-dhcp-server~~
+    sudo apt install nodejs
+    sudo apt install isc-dhcp-server
     sudo npm install pm2 -g
 
     git clone https://github.com/kierenholt/curfew.git

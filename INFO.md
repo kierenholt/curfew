@@ -13,9 +13,6 @@ sudo systemctl start isc-dhcp-server.service
 https://github.com/adonespitogo/node-isc-dhcp-server/blob/master/src/service.js
 https://www.npmjs.com/package/isc-dhcp-server
 
-## how to configure nginx  
-https://gist.github.com/soheilhy/8b94347ff8336d971ad0
-
 ## how to make certificate for local ips
 https://stackoverflow.com/questions/66558788/how-to-create-a-self-signed-or-signed-by-own-ca-ssl-certificate-for-ip-address
 

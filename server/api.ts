@@ -1,29 +1,48 @@
-import express, { Express, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { SettingApi } from './settings/settingApi';
 import { DnsResponseApi } from './dnsResponse/dnsResponseApi';
 import { KeywordApi } from './keyword/keywordApi';
 import { ProgressApi } from './progress/progressApi';
+import path from 'node:path';
 const nocache = require("nocache");
+var https = require('https');
+var http = require('http');
+var app = express();
+import * as fs from 'fs';
 
 export class API {
     static start() {
-        const http: Express = express();
+        let wwwPath = path.join(__dirname, 'wwwroot');
+        let certPath = path.join(__dirname, 'cert');
 
-        http.use(nocache());
-        http.use(express.json()); // to support JSON-encoded bodies
+        let options = {
+            key: fs.readFileSync(path.join(certPath, 'localhost_key.pem')),
+            cert: fs.readFileSync(path.join(certPath, 'localhost_cert.pem'))
+        };
+        
+        app.use(nocache());
+        app.use(express.json()); // to support JSON-encoded bodies
+        
+        app.use(express.static(wwwPath))
         //app.use(cors); //breaks everything do not use
         //app.use(express.urlencoded()); // to support URL-encoded bodies
-
-        const port: number = Number(process.env.API_PORT);
-        const INADDR_ANY = "0.0.0.0"; //https://nodejs.org/dist/latest-v4.x/docs/api/http.html#http_server_listen_port_hostname_backlog_callback
-
-        SettingApi.init(http);
-        DnsResponseApi.init(http);
-        KeywordApi.init(http);
-        ProgressApi.init(http);
         
-        http.listen(port, INADDR_ANY, () => {
-            console.log(`✓ Server is listening at http://localhost:${port}`);
+        SettingApi.init(app);
+        DnsResponseApi.init(app);
+        KeywordApi.init(app);
+        ProgressApi.init(app);
+        
+        //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
+        app.get("*", (req: Request, res: Response) => {
+            res.sendFile(path.join(wwwPath, "index.html"));
+        })
+        
+        http.createServer(app).listen(process.env.HTTP_PORT, () => {
+            console.log(`✓ Server is listening at http://localhost:${process.env.HTTP_PORT}`);
+        });
+
+        https.createServer(options, app).listen(process.env.HTTPS_PORT, () => {
+            console.log(`✓ Server is listening at https://localhost:${process.env.HTTPS_PORT}`);
         });
     }
 }

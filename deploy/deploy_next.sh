@@ -1,17 +1,7 @@
 [ `whoami` = root ] || { sudo "$0" "$@"; exit $?; }
 
-## frontend
-# build
-# copy build files to html directory
-    cd ../app
-    npm run build
-    cp -r ./build/* /var/www/html
-    cd -
+cd "$(dirname "$0")"
 
-# change permissions to www
-    chmod -R 755 /var/www/
-
-##backend
 # build
 # copy build files over
     cd ../server
