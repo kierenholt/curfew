@@ -9,3 +9,4 @@ curfew.db
 docker/*
 *.pem
 app/build
+device.csv
