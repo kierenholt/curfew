@@ -1,5 +1,4 @@
 import { Db } from "../db";
-import { Helpers } from "../helpers";
 import { RunResult } from "sqlite3";
 
 export class DnsResponseDb {
