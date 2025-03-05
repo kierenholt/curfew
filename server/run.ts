@@ -1,6 +1,6 @@
 import { DnsServer } from "./dns/dnsServer";
 import { API as API } from "./api";
-import { Router } from "./router/router";
+import { RouterManager } from "./router/routerManager";
 import * as dotenv from "dotenv";
 import { Jobs } from "./jobs";
 import { Db } from "./db";
@@ -13,20 +13,20 @@ async function run() {
     await Db.start();
     await Jobs.start();
 
-    await Router.detect();
+    await RouterManager.detect();
     //router is not found
 
-    if (!await Router.checkPassword()) {
+    if (!await RouterManager.checkPassword()) {
         API.start(); //cannot login - user needs to set password
     }
     else {
         
         if (Number(process.env.ROUTER_ENABLED)) {
             //CONFIGURE ROUTER
-            await Router.disableDHCP();
+            await RouterManager.disableDHCP();
         
             //SET ROUTER FILTERS
-            await Router.resetFilters();
+            await RouterManager.resetFilters();
         }
         
         if (Number(process.env.DNS_ENABLED)) {

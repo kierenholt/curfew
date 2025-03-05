@@ -3,34 +3,31 @@ import { IPAddress } from "../IPAddress";
 import { Keywords } from "../keyword/keywords";
 import { IPFilter } from "./ipFilter";
 import { PortFilter } from "./portFilter";
-import { VirginSession } from "./virgin";
-import { OidEnabledType, OidType } from "./virginOids";
+import { IRouter } from "./iRouter";
+import { VirginSession } from "./virgin/virginSession";
 
-export enum RouterModel {
-    Unknown = 0,
-    Virgin = 1
-}
+export class RouterManager {
+    router: IRouter;
 
-export class Router {
-    static foundRouter: RouterModel = RouterModel.Unknown;
-
-    static async detect(): Promise<void> {
-        console.log(". searching for router");
-        this.foundRouter = (await this.HTTPFileExists(VirginSession.virginMediaIcon)) ? RouterModel.Virgin : RouterModel.Unknown;
-        console.log("✓ success");
-
-        if (this.foundRouter == RouterModel.Unknown) {
-            throw ("unable to communicate with router");
-        }
+    constructor(router: IRouter) {
+        this.router = router;
     }
 
+    static async detect(routerIp: string): Promise<void> {
+        console.log(". searching for router");
+        let virginExists = await RouterManager.HTTPFileExists(VirginSession.staticFile(routerIp));
+        
+        if (!virginExists) {
+            throw ("unable to communicate with router");
+        }
+        console.log("✓ success");
+    }
 
-    static async checkPassword(): Promise<boolean> {
+    async checkPassword(): Promise<boolean> {
         try {
             console.log(". checking password");
-            let session = new VirginSession();
-            await session.login();
-            await session.logout();
+            await this.router.login();
+            await this.router.logout();
         }
         catch (ex) {
             console.log("x password check failed - please login and set it");
@@ -40,39 +37,34 @@ export class Router {
         return true;
     }
 
-    static async resetFilters(): Promise<void> {
-        let session = new VirginSession();
-
-        let f = await session.getActiveFilters();
-        await session.deleteAllFilters();
+    async resetFilters(): Promise<void> {
+        let f = await this.router.getActiveFilters();
+        await this.router.deleteAllFilters();
 
         let [blockedIps, ports] = await Keywords.getBlockedIPsAndPorts();
         console.log(". updating IP filters configured on router");
-        await Router.updateBlockedIPsAndPorts(blockedIps, ports, () => null, session);
+        await this.updateBlockedIPsAndPorts(blockedIps, ports, () => null);
         console.log("✓ success");
-        await session.logout();
+        await this.router.logout();
     }
 
-    static async disableDHCP(): Promise<void> {
-        let session = new VirginSession();
-        //let result = await session.walkOidTest("1.3.6.1.4.1.4115.1.20.1.1.2.2.1.9");
-
+    async disableDHCP(): Promise<void> {
         console.log(". disabling DHCP on router");
-        let DCHPIsEnabled = (await session.getOidValue(OidType.DHCPIsEnabled)) == OidEnabledType.Enabled;
+        let DCHPIsEnabled = await this.router.isDHCPEnabled();
         if (DCHPIsEnabled) {
-            await session.setOidValue(OidType.DHCPIsEnabled, OidEnabledType.Disabled);
-            await session.setOidValue(OidType.ApplyAllSettings, 1, "0");
-            DCHPIsEnabled = (await session.getOidValue(OidType.DHCPIsEnabled)) == OidEnabledType.Enabled;
+            await this.router.setDHCPEnabled(false);
+            await this.router.applyAllSettings;
+            DCHPIsEnabled = await this.router.isDHCPEnabled();
             if (DCHPIsEnabled) {
                 throw ("unable to turn off DHCP on router");
             }
         }
-        await session.logout();
+        await this.router.logout();
         console.log("✓ success");
     }
 
-    static async updateBlockedIPsAndPorts(ips: string[], ports: number[], updateProgress: (message: string, isSuccess: boolean) => void, session: VirginSession): Promise<void> {
-        await session.deleteAllFilters();
+    async updateBlockedIPsAndPorts(ips: string[], ports: number[], updateProgress: (message: string, isSuccess: boolean) => void): Promise<void> {
+        await this.router.deleteAllFilters();
 
         //ips
         for (let i = 0; i < ips.length; i++) {
@@ -81,7 +73,7 @@ export class Router {
             updateProgress(`. creating ip filter for ${i + 1} of ${ips.length}`, false);
             let newIndex = i + 1;
             let newFilter = new IPFilter(newIndex.toString(), IPAddress.fromString(ips[i]));
-            await session.setFilter(newFilter);
+            await this.router.setFilter(newFilter);
         }
         
         //ports
@@ -91,12 +83,12 @@ export class Router {
             updateProgress(`. creating port filter for ${i + 1} of ${ports.length}`, false);
             let newIndex = ips.length + i + 1;
             let newFilter = new PortFilter(newIndex.toString(), ports[i]);
-            await session.setFilter(newFilter);
+            await this.router.setFilter(newFilter);
         }
-        await session.setOidValue(OidType.ApplyAllSettings, 1, "0");
+        await this.router.applyAllSettings()
 
         updateProgress("✓ success", true);
-        await session.logout();
+        await this.router.logout();
     }
 
     static HTTPFileExists(url: string): Promise<boolean> {

@@ -1,9 +1,11 @@
 import { Express, Request, Response } from 'express';
 import { KeywordDb } from './keywordDb';
 import { Progress } from '../progress/progress';
-import { Router } from '../router/router';
+import { RouterManager } from '../router/routerManager';
 import { Keywords } from './keywords';
-import { VirginSession } from '../router/virgin';
+import { VirginSession } from '../router/virgin/virginSession';
+import { SettingDb, SettingKey } from '../settings/settingDb';
+import { NetworkSetting } from '../settings/networkSetting';
 
 export class KeywordApi {
     static init(app: Express) {
@@ -47,13 +49,17 @@ export class KeywordApi {
                 let ret = await KeywordDb.update(id, name, expression, ports, isActive);
 
                 Progress.update(nonce, false, "...");
+                let password = await SettingDb.getString(SettingKey.routerAdminPassword);
+                let ipAddress = await NetworkSetting.getRouterIp();
+                let fullNetworkAsHex = await NetworkSetting.getFullNetworkAsHex();
 
                 //no await
                 Keywords.getBlockedIPsAndPorts()
                     .then(([ips, ports]) =>
-                        Router.updateBlockedIPsAndPorts(ips, ports,
-                            (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
-                            new VirginSession()));
+                        new RouterManager(new VirginSession(password, ipAddress, fullNetworkAsHex)).updateBlockedIPsAndPorts(ips, 
+                                ports,
+                                (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
+                            ));
 
                 res.status(200).json(ret);
             }
@@ -90,13 +96,16 @@ export class KeywordApi {
             let ret = await KeywordDb.setAllActive();
 
             Progress.update(nonce, false, "...");
+            let password = await SettingDb.getString(SettingKey.routerAdminPassword);
+            let ipAddress = await NetworkSetting.getRouterIp();
+            let fullNetworkAsHex = await NetworkSetting.getFullNetworkAsHex();
 
             //no await
             Keywords.getBlockedIPsAndPorts()
                 .then(([ips, ports]) =>
-                    Router.updateBlockedIPsAndPorts(ips, ports,
-                        (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
-                        new VirginSession()));
+                    new RouterManager(new VirginSession(password, ipAddress, fullNetworkAsHex)).updateBlockedIPsAndPorts(ips, 
+                        ports,
+                        (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message)));
 
             res.status(200).json(ret);
         });
@@ -109,13 +118,16 @@ export class KeywordApi {
             let ret = await KeywordDb.setAllInactive();
 
             Progress.update(nonce, false, "...");
+            let password = await SettingDb.getString(SettingKey.routerAdminPassword);
+            let ipAddress = await NetworkSetting.getRouterIp();
+            let fullNetworkAsHex = await NetworkSetting.getFullNetworkAsHex();
 
             //no await
             Keywords.getBlockedIPsAndPorts()
                 .then(([ips, ports]) =>
-                    Router.updateBlockedIPsAndPorts(ips, ports,
-                        (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
-                        new VirginSession()));
+                    new RouterManager(new VirginSession(password, ipAddress, fullNetworkAsHex)).updateBlockedIPsAndPorts(ips, 
+                        ports,
+                        (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message)));
 
             res.status(200).json(ret);
         });

@@ -1,6 +1,3 @@
-import { IPFilter } from "./ipFilter";
-
-
 export enum OidType {
     DHCPIsEnabled = "1.3.6.1.4.1.4115.1.20.1.1.2.2.1.9.200",
     ApplyAllSettings = "1.3.6.1.4.1.4115.1.20.1.1.9", //has index 0
