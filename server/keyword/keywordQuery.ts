@@ -1,30 +1,16 @@
-import { Db } from "../db";
 import { RunResult } from "sqlite3";
+import { AsyncDatabase } from "promised-sqlite3";
+import { Keyword } from "./keyword";
 
-//when activated:
-//selects matching domains from the dns response table, activates those ip filters on the router
-//also checks all dns queries
+export class KeywordQuery {
+    connection: AsyncDatabase;
 
-export class KeywordDb {
-
-    blocksDomain(domain: string) {
-        return this.needles.some(s => domain.indexOf(s) != -1);
+    constructor(connection: AsyncDatabase) {
+        this.connection = connection;
     }
     
-    get needles(): string[] {
-        if (this.expression.length == 0) {
-            return [];
-        }
-        return this.expression.split(",");
-    }
-
-    get portsArray(): number[] {
-        if (this.ports) return this.ports.split(",").map(p => Number(p));
-        return [];
-    }
-    
-    static createTable(): Promise<RunResult> {
-        return Db.run(`
+    createTable(): Promise<RunResult> {
+        return this.connection.run(`
             create table searchTerm (
                 id integer primary key not null,
                 name text not null,
@@ -35,36 +21,22 @@ export class KeywordDb {
         `)
     }
 
-    id: number;
-    name: string;
-    expression: string;
-    ports: string;
-    isActive: number;
-
-    constructor(id: number, name: string, expression: string, ports: string, isActive: number) {
-        this.id = id;
-        this.name = name;
-        this.expression = expression;
-        this.ports = ports;
-        this.isActive = isActive;
-    }
-
-    static async seed() {
+    async seed() {
         await this.create("youtube", "youtube,googlevideo", "", 1);
         await this.create("brawlstars", "brawlstars,supercell", "9339", 0);
         await this.create("tiktok", "tiktok", "", 1);
     }
 
-    static async create(name: string, expression: string, ports: string, isActive: number): Promise<number> {
-        return Db.run(`
+    async create(name: string, expression: string, ports: string, isActive: number): Promise<number> {
+        return this.connection.run(`
             insert into searchTerm (name, expression, ports, isActive)
             values (?, ?, ?, ?)
         `, [name, expression, ports, isActive])
         .then(result => result.changes);
     }
 
-    static async update(id: number, name: string, expression: string, ports: string, isActive: number): Promise<number> {
-        return Db.run(`
+    async update(id: number, name: string, expression: string, ports: string, isActive: number): Promise<number> {
+        return this.connection.run(`
             update searchTerm 
             set name = ?,
                 expression = ?,
@@ -75,28 +47,28 @@ export class KeywordDb {
         .then(result => result.changes);
     }
 
-    static async setAllActive(): Promise<number> {
-        return Db.run(`
+    async setAllActive(): Promise<number> {
+        return this.connection.run(`
             update searchTerm 
             set isActive = 1
         `)
         .then(result => result.changes);
     }
 
-    static async setAllInactive(): Promise<number> {
-        return Db.run(`
+    async setAllInactive(): Promise<number> {
+        return this.connection.run(`
             update searchTerm 
             set isActive = 0
         `)
         .then(result => result.changes);
     }
 
-    static getById(id: number): Promise<KeywordDb | null> {
-        return Db.get(`
+    getById(id: number): Promise<Keyword | null> {
+        return this.connection.get(`
             select * from searchTerm
             where id=${id}
         `)
-        .then(result => result ? new KeywordDb(
+        .then((result: any) => result ? new Keyword(
             result.id,
             result.name, 
             result.expression,
@@ -104,13 +76,13 @@ export class KeywordDb {
             result.isActive) : null);
     }
 
-    static getAllActive(): Promise<KeywordDb[]> {
-        return Db.all(`
+    getAllActive(): Promise<Keyword[]> {
+        return this.connection.all(`
             select * from searchTerm
             where isActive=1
             order by id asc
         `)
-        .then((result: any) => result.map((r:any) => new KeywordDb(
+        .then((result: any) => result.map((r:any) => new Keyword(
             r.id,
             r.name,
             r.expression,
@@ -118,12 +90,12 @@ export class KeywordDb {
             r.isActive)))
     }
 
-    static getAll(): Promise<KeywordDb[]> {
-        return Db.all(`
+    getAll(): Promise<Keyword[]> {
+        return this.connection.all(`
             select * from searchTerm
             order by id asc
         `)
-        .then((result: any) => result.map((r:any) => new KeywordDb(
+        .then((result: any) => result.map((r:any) => new Keyword(
             r.id,
             r.name,
             r.expression,
@@ -131,8 +103,8 @@ export class KeywordDb {
             r.isActive)))
     }
     
-    static delete(id: number): Promise<number> {
-        return Db.run(`
+    delete(id: number): Promise<number> {
+        return this.connection.run(`
             delete from searchTerm
             where id = ?
         `, [id])

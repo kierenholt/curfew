@@ -1,74 +1,74 @@
 import { AsyncDatabase } from "promised-sqlite3";
 import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
-import { SettingDb } from "./settings/settingDb";
-import { DnsResponseDb } from "./dnsResponse/dnsResponseDb";
-import { KeywordDb } from "./keyword/keywordDb";
+import { SettingQuery as SettingQuery } from "./settings/settingDb";
+import { DnsResponseQuery } from "./dnsResponse/dnsResponseDb";
+import { KeywordQuery } from "./keyword/keywordQuery";
 
-export class Db {
-    static connection: AsyncDatabase;
-    static databaseName = "curfew.db";
-
-    static async createTables() {
-        await SettingDb.createTable();
-        await DnsResponseDb.createTable();
-        await KeywordDb.createTable();
+export class CurfewDb {
+    connection: AsyncDatabase;
+    static databaseFile = "curfew.db";
+    static databaseInMemory = ":memory";
+    
+    constructor(connection: AsyncDatabase) {
+        this.connection = connection;
     }
 
-    static async seed() {
-        await SettingDb.seed();
-        await DnsResponseDb.seed();
-        await KeywordDb.seed();
+    get settingQuery() { return new SettingQuery(this.connection); }
+    get dnsResponseQuery() { return new DnsResponseQuery(this.connection); }
+    get keywordQuery() { return new KeywordQuery(this.connection); }
+
+    static async createTables(connection: AsyncDatabase) {
+        await new SettingQuery(connection).createTable();
+        await new DnsResponseQuery(connection).createTable();
+        await new KeywordQuery(connection).createTable();
+    }
+    
+    static async seed(connection: AsyncDatabase) {
+        await new SettingQuery(connection).seed();
+        await new DnsResponseQuery(connection).seed();
+        await new KeywordQuery(connection).seed();
     }
 
-    static start(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            let db = new Database(Db.databaseName, 
-                OPEN_READWRITE, 
-                async (err: any) => {
-                    if (err && err.code == "SQLITE_CANTOPEN") {
-                        await this.createDatabase();
-                        resolve();
-                    } else if (err) {
-                        console.log("db error " + err);
-                        reject();
-                    }
-                    else {
-                        resolve();
-                    }
-                });
-            this.connection = new AsyncDatabase(db);
+    static async init(inMemory: boolean = false): Promise<CurfewDb> {
+        return new Promise(async (resolve, reject) => {
+            if (inMemory) {
+                let db = new Database(this.databaseInMemory);
+                let connection = new AsyncDatabase(db);
+                await this.createTables(connection);
+                resolve(new CurfewDb(connection));
+            }
+            else {
+                let db = new Database(this.databaseFile, 
+                    OPEN_READWRITE, 
+                    async (err: any) => {
+                        if (err && err.code == "SQLITE_CANTOPEN") {
+                            let db = await this.createDatabase();
+                            let connection = new AsyncDatabase(db);
+                            await this.createTables(connection);
+                            await this.seed(connection);
+                            resolve(new CurfewDb(connection));
+                        } else if (err) {
+                            console.log("Error opening database: " + err);
+                            reject();
+                        }
+                        else {
+                            let connection = new AsyncDatabase(db);
+                            resolve(new CurfewDb(connection));
+                        }
+                    });
+            }
         })
     }
 
-    static createDatabase(): Promise<void> {
+    static createDatabase(): Promise<Database> {
         return new Promise((resolve, reject) => {
-            let db = new Database(Db.databaseName, async (err: any) => {
+            let db = new Database(this.databaseFile, async (err: any) => {
                 if (err) {
-                    console.log("Getting error " + err);
+                    console.log("Error creating database: " + err);
                     reject()
                 }
-                await this.createTables();
-                if (Number(process.env.SEED_ENABLED)) {
-                    await this.seed();
-                }
-                resolve();
+                resolve(db);
             });
-            this.connection = new AsyncDatabase(db);
         })
-    }
-
-    static run(sql: string, params: any = []): Promise<RunResult> {
-        //console.log(sql);
-        return this.connection.run(sql, params);
-    }
-
-    static get(sql: string, params: any = []): Promise<any> {
-        // console.log(sql);
-        return this.connection.get(sql, params);
-    }
-
-    static all(sql: string, params: any = []): Promise<any[]> {
-        // console.log(sql);
-        return this.connection.all(sql, params);
     }
 }

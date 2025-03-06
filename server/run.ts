@@ -3,20 +3,20 @@ import { API as API } from "./api";
 import { RouterBase } from "./router/routerBase";
 import * as dotenv from "dotenv";
 import { Jobs } from "./jobs";
-import { Db } from "./db";
+import { CurfewDb } from "./db";
 import { checkSudo } from "./checkSudo";
 import { VirginRouter as VirginRouter } from "./router/virgin/virginRouter";
-import { SettingDb, SettingKey } from "./settings/settingDb";
+import { SettingQuery } from "./settings/settingDb";
 import { NetworkSetting } from "./settings/networkSetting";
 
 dotenv.config();
 
 async function run() {
     checkSudo();
-    await Db.start();
+    await CurfewDb.start();
     await Jobs.start();
 
-    let password = await SettingDb.getString(SettingKey.routerAdminPassword);
+    let password = await SettingQuery.getString(SettingKey.routerAdminPassword);
     let routerIp = await NetworkSetting.getRouterIp();
     let fullNetworkAsHex = await NetworkSetting.getFullNetworkAsHex();
     let router: RouterBase = new VirginRouter(password, routerIp, fullNetworkAsHex);

@@ -1,22 +1,17 @@
-import { Db } from "../db";
+import { AsyncDatabase } from "promised-sqlite3";
 import { RunResult } from "sqlite3";
+import { Setting, SettingKey } from "./setting";
 
-// must be copied over to app
-export enum SettingKey {
-    routerAdminPassword = 1,
-    thisHost = 2,
-    pin = 3,
-    inactivityLockSecs = 4,
-    networkId = 5, //first three octets
-    dhcpMinHost = 6, //last octet
-    dhcpMaxHost = 7, //last octet
-    upstreamDnsServer = 8
-}
+export class SettingQuery {
 
-export class SettingDb {
+    connection: AsyncDatabase;
 
-    static createTable(): Promise<RunResult> {
-        return Db.run(`
+    constructor(connection: AsyncDatabase) {
+        this.connection = connection;
+    }
+
+    createTable(): Promise<RunResult> {
+        return this.connection.run(`
             create table setting (
                 key integer primary key not null,
                 value text not null,
@@ -27,21 +22,7 @@ export class SettingDb {
         `)
     }
 
-    key: SettingKey;
-    value: string;
-    label: string;
-    description: string;
-    warningMessage: string;
-
-    constructor(key: number, value: string, label: string, description: string, warningMessage: string) {
-        this.key = key as SettingKey;
-        this.value = value;
-        this.label = label;
-        this.description = description;
-        this.warningMessage = warningMessage;
-    }
-
-    static async seed() {
+    async seed() {
         await this.create(SettingKey.routerAdminPassword, "", "router admin password", "password you use to login to router", "");
         await this.create(SettingKey.thisHost, process.env.DEFAULT_THIS_HOST as string, "this ip address (last octet)", "ip address to connect to curfew. e.g. if set to 39 then this ip will become <network id>.39", 
             "if this setting is changed, all devices will need to disconnect and reconnect to the wifi. Do not allow this setting to fall with the dhcp range (below)");
@@ -54,16 +35,16 @@ export class SettingDb {
         await this.create(SettingKey.upstreamDnsServer, process.env.DEFAULT_DNS_SERVER as string, "upstream DNS server", "IP address of a DNS server", "");
     }
 
-    static async create(key: SettingKey, value: string, label: string, description: string, warningMessage: string): Promise<number> {
-        return Db.run(`
+    async create(key: SettingKey, value: string, label: string, description: string, warningMessage: string): Promise<number> {
+        return this.connection.run(`
             insert into setting (key, value, label, description, warningMessage)
             values (?, ?, ?, ?, ?)
         `, [key.valueOf(), value, label, description, warningMessage])
             .then(result => result.changes);
     }
 
-    static async set(key: SettingKey, value: string): Promise<number> {
-        return Db.run(`
+    async set(key: SettingKey, value: string): Promise<number> {
+        return this.connection.run(`
             update setting 
             set value = ?
             where key = ?
@@ -71,22 +52,22 @@ export class SettingDb {
             .then(result => result.changes);
     }
 
-    static getNumber(key: SettingKey): Promise<number> {
-        return Db.get(`
+    getNumber(key: SettingKey): Promise<number> {
+        return this.connection.get(`
             select value from setting
             where key=${key}
         `)
-            .then(result => {
+            .then((result: any) => {
                 return Number(result.value)
             });
     }
 
-    static getString(key: SettingKey): Promise<string> {
-        return Db.get(`
+    getString(key: SettingKey): Promise<string> {
+        return this.connection.get(`
             select value from setting
             where key = ?
         `, [key.valueOf()])
-            .then(result => {
+            .then((result: any) => {
                 if (result == null || !("value" in result)) {
                     throw ("key not found");
                 }
@@ -94,20 +75,20 @@ export class SettingDb {
             });
     }
 
-    static getBool(key: SettingKey): Promise<boolean> {
-        return Db.get(`
+    getBool(key: SettingKey): Promise<boolean> {
+        return this.connection.get(`
             select value from setting
             where key=${key}
         `)
-            .then(result => result.value === "true");
+            .then((result: any) => result.value === "true");
     }
 
-    static getObjectByKey(key: SettingKey): Promise<SettingDb | null> {
-        return Db.get(`
+    getObjectByKey(key: SettingKey): Promise<Setting | null> {
+        return this.connection.get(`
             select * from setting
             where key=?
         `, [key.valueOf()])
-            .then(result => result ? new SettingDb(
+            .then((result: any) => result ? new Setting(
                 result.key,
                 result.value,
                 result.label,
@@ -116,12 +97,12 @@ export class SettingDb {
     }
 
 
-    static getAll(): Promise<SettingDb[]> {
-        return Db.all(`
+    getAll(): Promise<SettingQuery[]> {
+        return this.connection.all(`
             select * from setting
             order by key asc
         `)
-            .then((result: any) => result.map((r: any) => new SettingDb(
+            .then((result: any) => result.map((r: any) => new Setting(
                 r.key,
                 r.value,
                 r.label,

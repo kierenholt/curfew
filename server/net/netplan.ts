@@ -1,5 +1,5 @@
 import { NetworkSetting } from "../settings/networkSetting";
-import { SettingDb, SettingKey } from "../settings/settingDb";
+import { SettingQuery, SettingKey } from "../settings/settingDb";
 
 const Netplan1 = require('netplan-config');
 
@@ -7,7 +7,7 @@ export class NetPlan {
     static async update(): Promise<void> {
         const thisIp = await NetworkSetting.getThisIp();
         let routerIp = await NetworkSetting.getRouterIp();
-        let dnsUpstream = await SettingDb.getString(SettingKey.upstreamDnsServer);
+        let dnsUpstream = await SettingQuery.getString(SettingKey.upstreamDnsServer);
         
         // Configure eth0 as a static WAN interface
         const net = new Netplan1();

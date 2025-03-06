@@ -1,20 +1,20 @@
-import { DnsResponseDb } from "../dnsResponse/dnsResponseDb";
+import { DnsResponseQuery } from "../dnsResponse/dnsResponseDb";
 import { Helpers } from "../helpers";
-import { KeywordDb } from "./keywordDb";
+import { KeywordQuery } from "./keywordQuery";
 
 export class Keywords {
     static async isDomainBlocked(domain: string) {
-        let terms = await KeywordDb.getAllActive();
+        let terms = await KeywordQuery.getAllActive();
         return terms.some(t => t.blocksDomain(domain))
     }
 
     static async getBlockedIPsAndPorts(): Promise<[string[], number[]]> {
         let ips: string[] = [];
         let ports: number[] = [];
-        let terms = await KeywordDb.getAllActive();
+        let terms = await KeywordQuery.getAllActive();
         for (let t of terms) {
             for (let n of t.needles) {
-                let matchingDomains = await DnsResponseDb.getDomainsContaining(n);
+                let matchingDomains = await DnsResponseQuery.getDomainsContaining(n);
                 ips.push(...matchingDomains.map(d => d.ip));
             }
             ports.push(...t.portsArray);
@@ -22,16 +22,4 @@ export class Keywords {
         return [Helpers.removeDuplicates(ips), Helpers.removeDuplicates(ports)];
     }
 
-    static async getBlockedIps(keywordId: number): Promise<string[]> {
-        let ips: string[] = [];
-        let keyword = await KeywordDb.getById(keywordId);
-        if (keyword == null) {
-            return [];
-        }
-        for (let n of keyword.needles) {
-            let matchingDomains = await DnsResponseDb.getDomainsContaining(n);
-            ips.push(...matchingDomains.map(d => d.ip));
-        }
-        return Helpers.removeDuplicates(ips);
-    }
 }

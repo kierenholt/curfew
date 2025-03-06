@@ -2,9 +2,6 @@ import { Cache } from "./cache";
 import { Socket } from "dgram";
 import { DnsPacket as DnsPacket } from "./dnsPacket";
 import { Answer } from "./answer";
-import { DnsResponseDb } from "../dnsResponse/dnsResponseDb";
-import { SettingDb, SettingKey } from "../settings/settingDb";
-const dgram = require('dgram');
 
 export class DnsForwarder {
     cache: Cache;

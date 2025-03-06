@@ -5,8 +5,8 @@ import { Answer } from "./answer";
 import { RedirectDestination, Redirector } from "./redirector";
 import { ReturnCode } from "./header";
 import { RecordType } from "./question";
-import { SettingDb, SettingKey } from "../settings/settingDb";
-import { DnsResponseDb } from "../dnsResponse/dnsResponseDb";
+import { SettingQuery, SettingKey } from "../settings/settingDb";
+import { DnsResponseQuery } from "../dnsResponse/dnsResponseDb";
 import { NetworkSetting } from "../settings/networkSetting";
 
 export class DnsServer {
@@ -24,7 +24,7 @@ export class DnsServer {
     static async start() {
         let port: number = Number(process.env.DNS_PORT);
         this.socket = createSocket('udp4');
-        this.dnsForwarder = new DnsForwarder(this.socket, await SettingDb.getString(SettingKey.upstreamDnsServer));
+        this.dnsForwarder = new DnsForwarder(this.socket, await SettingQuery.getString(SettingKey.upstreamDnsServer));
         this.dnsRedirector = new Redirector();
 
         this.socket.bind(port, () => {
@@ -106,7 +106,7 @@ export class DnsServer {
 
                             //console.log(`forwarding ${answer[0].domainName.name} as ${answer[0].IPAddress} to ${requestInfo.address}`);
                             if (answer && answer[0])
-                                DnsResponseDb.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
+                                DnsResponseQuery.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
 
                             //add (cached) answer
                             packet.addAnswers(answer);

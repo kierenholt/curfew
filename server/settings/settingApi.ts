@@ -1,5 +1,5 @@
-import express, { Express, Request, Response } from 'express';
-import { SettingDb, SettingKey } from './settingDb';
+import { Express, Request, Response } from 'express';
+import { SettingQuery, SettingKey } from './settingDb';
 import { NetPlan } from '../net/netplan';
 import { Dhcp } from '../net/dhcp';
 
@@ -8,7 +8,7 @@ export class SettingApi {
 
         // check pin
         app.post('/api/check-pin', async (req: Request, res: Response) => {
-            let pin = await SettingDb.getString(SettingKey.pin);
+            let pin = await SettingQuery.getString(SettingKey.pin);
             let isMatch = pin == req.body.pin.substring(0, 4);
             res.status(200).json(isMatch);
         });
@@ -17,7 +17,7 @@ export class SettingApi {
         app.put('/api/settings/:key', async (req: Request, res: Response) => {
             let key = Number(req.params.key);
             if (key > 0 && req.body.value.length > 0) {
-                let ret = await SettingDb.set(key, req.body.value);
+                let ret = await SettingQuery.set(key, req.body.value);
 
                 //change to ip => restart net
                 if (key == SettingKey.thisHost) {
@@ -35,14 +35,14 @@ export class SettingApi {
 
         //get all requests
         app.get('/api/settings', async (req: Request, res: Response) => {
-            let ret = await SettingDb.getAll();
+            let ret = await SettingQuery.getAll();
             res.status(200).json(ret);
         });
 
         app.get('/api/settings/:key', async (req: Request, res: Response) => {
             let key = Number(req.params.key);
             if (key > 0) {
-                let ret = await SettingDb.getObjectByKey(key);
+                let ret = await SettingQuery.getObjectByKey(key);
                 res.status(200).json(ret);
             }
             else {
