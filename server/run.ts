@@ -1,10 +1,13 @@
 import { DnsServer } from "./dns/dnsServer";
 import { API as API } from "./api";
-import { RouterManager } from "./router/routerManager";
+import { RouterBase } from "./router/routerBase";
 import * as dotenv from "dotenv";
 import { Jobs } from "./jobs";
 import { Db } from "./db";
 import { checkSudo } from "./checkSudo";
+import { VirginRouter as VirginRouter } from "./router/virgin/virginRouter";
+import { SettingDb, SettingKey } from "./settings/settingDb";
+import { NetworkSetting } from "./settings/networkSetting";
 
 dotenv.config();
 
@@ -13,20 +16,22 @@ async function run() {
     await Db.start();
     await Jobs.start();
 
-    await RouterManager.detect();
-    //router is not found
+    let password = await SettingDb.getString(SettingKey.routerAdminPassword);
+    let routerIp = await NetworkSetting.getRouterIp();
+    let fullNetworkAsHex = await NetworkSetting.getFullNetworkAsHex();
+    let router: RouterBase = new VirginRouter(password, routerIp, fullNetworkAsHex);
 
-    if (!await RouterManager.checkPassword()) {
+    if (!await router.checkPassword()) {
         API.start(); //cannot login - user needs to set password
     }
     else {
         
         if (Number(process.env.ROUTER_ENABLED)) {
             //CONFIGURE ROUTER
-            await RouterManager.disableDHCP();
+            await router.disableDHCP();
         
             //SET ROUTER FILTERS
-            await RouterManager.resetFilters();
+            await router.resetFilters();
         }
         
         if (Number(process.env.DNS_ENABLED)) {

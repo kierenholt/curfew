@@ -1,4 +1,4 @@
-import { IPAddress } from "../IPAddress";
+import { IPAddress } from "./IPAddress";
 
 export class IPFilter {
     dest: IPAddress;

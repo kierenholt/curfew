@@ -2,13 +2,11 @@ import { Helpers } from "../../helpers";
 import { IPFilter } from "../ipFilter";
 import { PortFilter } from "../portFilter";
 import { OidEnabledType, OidType, VirginOidBase, VirginWalkOid } from "./virginOids";
-import { IRouter } from "../iRouter";
-import { IPAddress } from "../../IPAddress";
+import { IPAddress } from "../IPAddress";
+import { RouterBase } from "../routerBase";
 
-export class VirginSession implements IRouter {
+export class VirginRouter extends RouterBase {
 
-    static staticFile(routerIpAddress: string) { return `http://${routerIpAddress}/skins/vm/css/images/logo-VirginMedia.png`;}
-    
     nonce: string;
     cookie: string = "";
     name = "admin";
@@ -17,10 +15,15 @@ export class VirginSession implements IRouter {
     fullNetworkAsHex: string;
 
     constructor(password: string, ipAddress: string, fullNetworkAsHex: string) {
+        super();
         this.nonce = Math.random().toString().substring(2, 7);
         this.password = password;
         this.ipAddress = ipAddress;
         this.fullNetworkAsHex = fullNetworkAsHex;
+    }
+
+    async hasLoginPage(): Promise<boolean> {
+        return await Helpers.HTTPFileExists(`http://${this.ipAddress}/skins/vm/css/images/logo-VirginMedia.png`);
     }
     
     async login(): Promise<boolean> {
@@ -47,7 +50,7 @@ export class VirginSession implements IRouter {
             })
     }
 
-    getNumFilters(): Promise<number> {
+    getNumIPFilters(): Promise<number> {
         return this.walkOid(OidType.WalkPortFiltering)
             .then(obj => {
                 let ret = 0;
@@ -121,7 +124,7 @@ export class VirginSession implements IRouter {
     }
 
     async deleteAllFilters() {
-        let numFilters = await this.getNumFilters();
+        let numFilters = await this.getNumIPFilters();
         console.log(`. hard deleting all ${numFilters} filters`);
         let range = Helpers.range(numFilters, 0);
         await this.deleteFilters(range.map(i => i.toString()));
@@ -149,7 +152,7 @@ export class VirginSession implements IRouter {
 
     getActiveFilters(): Promise<(IPFilter | PortFilter)[]> {
         return this.walkOid(OidType.WalkPortFiltering)
-            .then(obj => VirginSession.fromOidWalkResult(obj));
+            .then(obj => VirginRouter.fromOidWalkResult(obj));
     }
 
     async isDHCPEnabled(): Promise<boolean> {
@@ -229,7 +232,7 @@ export class VirginSession implements IRouter {
     static fromOidWalkResult(obj: any): (IPFilter | PortFilter)[] {
         let sortedByIndex: any = {};
         for (let key in obj) {
-            let [oid, index] = VirginSession.splitWalkResultKey(key);
+            let [oid, index] = VirginRouter.splitWalkResultKey(key);
             if (oid) {
                 if (!(index in sortedByIndex)) {
                     sortedByIndex[index] = {};

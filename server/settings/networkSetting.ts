@@ -1,5 +1,5 @@
 import { Helpers } from "../helpers"
-import { IPAddress } from "../IPAddress";
+import { IPAddress } from "../router/IPAddress";
 import { SettingDb, SettingKey } from "./settingDb"
 
 

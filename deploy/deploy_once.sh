@@ -36,3 +36,6 @@ cd "$(dirname "$0")"
 #   pm2 stop 0
 #   pm2 flush
 #   pm2 logs 0
+
+# copy production db to local dir - for inspection?
+    cp /opt/curfew/curfew.db ./

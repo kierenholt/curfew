@@ -153,4 +153,8 @@ export class Helpers {
             setTimeout(resolve, n);
         })
     }
+
+    static HTTPFileExists(url: string): Promise<boolean> {
+        return this.retryForever(() => fetch(url).then(response => response.ok));
+    }
 }

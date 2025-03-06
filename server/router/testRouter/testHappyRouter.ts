@@ -1,12 +1,16 @@
 import { Helpers } from "../../helpers";
 import { IPFilter } from "../ipFilter";
-import { IRouter } from "../iRouter";
 import { PortFilter } from "../portFilter";
+import { RouterBase } from "../routerBase";
 
-export class TestHappyRouter implements IRouter {
+export class TestHappyRouter extends RouterBase {
     _isDHCPEnabled: boolean = false;
     _IPFilters: IPFilter[] = [];
     _PortFilters: PortFilter[] = [];
+
+    hasLoginPage(): Promise<boolean> {
+        return Promise.resolve(true);
+    }
 
     isDHCPEnabled(): Promise<boolean> {
         return Promise.resolve(this._isDHCPEnabled);

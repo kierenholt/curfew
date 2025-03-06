@@ -1,9 +1,8 @@
 import { Express, Request, Response } from 'express';
 import { KeywordDb } from './keywordDb';
 import { Progress } from '../progress/progress';
-import { RouterManager } from '../router/routerManager';
 import { Keywords } from './keywords';
-import { VirginSession } from '../router/virgin/virginSession';
+import { VirginRouter } from '../router/virgin/virginRouter';
 import { SettingDb, SettingKey } from '../settings/settingDb';
 import { NetworkSetting } from '../settings/networkSetting';
 
@@ -50,13 +49,13 @@ export class KeywordApi {
 
                 Progress.update(nonce, false, "...");
                 let password = await SettingDb.getString(SettingKey.routerAdminPassword);
-                let ipAddress = await NetworkSetting.getRouterIp();
+                let routerIp = await NetworkSetting.getRouterIp();
                 let fullNetworkAsHex = await NetworkSetting.getFullNetworkAsHex();
 
                 //no await
                 Keywords.getBlockedIPsAndPorts()
                     .then(([ips, ports]) =>
-                        new RouterManager(new VirginSession(password, ipAddress, fullNetworkAsHex)).updateBlockedIPsAndPorts(ips, 
+                        new VirginRouter(password, routerIp, fullNetworkAsHex).updateBlockedIPsAndPorts(ips, 
                                 ports,
                                 (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
                             ));
@@ -97,13 +96,13 @@ export class KeywordApi {
 
             Progress.update(nonce, false, "...");
             let password = await SettingDb.getString(SettingKey.routerAdminPassword);
-            let ipAddress = await NetworkSetting.getRouterIp();
+            let routerIp = await NetworkSetting.getRouterIp();
             let fullNetworkAsHex = await NetworkSetting.getFullNetworkAsHex();
 
             //no await
             Keywords.getBlockedIPsAndPorts()
                 .then(([ips, ports]) =>
-                    new RouterManager(new VirginSession(password, ipAddress, fullNetworkAsHex)).updateBlockedIPsAndPorts(ips, 
+                    new VirginRouter(password, routerIp, fullNetworkAsHex).updateBlockedIPsAndPorts(ips, 
                         ports,
                         (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message)));
 
@@ -111,21 +110,19 @@ export class KeywordApi {
         });
 
         //allow all
-
-        //block all
         app.put('/api/keywords/allow', async (req: Request, res: Response) => {
             let nonce = Number(req.body.nonce);
             let ret = await KeywordDb.setAllInactive();
 
             Progress.update(nonce, false, "...");
             let password = await SettingDb.getString(SettingKey.routerAdminPassword);
-            let ipAddress = await NetworkSetting.getRouterIp();
+            let routerIp = await NetworkSetting.getRouterIp();
             let fullNetworkAsHex = await NetworkSetting.getFullNetworkAsHex();
 
             //no await
             Keywords.getBlockedIPsAndPorts()
                 .then(([ips, ports]) =>
-                    new RouterManager(new VirginSession(password, ipAddress, fullNetworkAsHex)).updateBlockedIPsAndPorts(ips, 
+                    new VirginRouter(password, routerIp, fullNetworkAsHex).updateBlockedIPsAndPorts(ips, 
                         ports,
                         (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message)));
 
