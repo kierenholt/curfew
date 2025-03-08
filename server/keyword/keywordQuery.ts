@@ -110,4 +110,9 @@ export class KeywordQuery {
         `, [id])
         .then((result: RunResult) => result.changes);
     }
+
+    async isDomainBlocked(domain: string) {
+        let terms = await this.getAllActive();
+        return terms.some(t => t.blocksDomain(domain))
+    }
 }

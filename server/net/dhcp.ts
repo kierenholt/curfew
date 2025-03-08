@@ -1,21 +1,21 @@
-import { NetworkSetting } from '../settings/networkSetting';
+import { CurfewDb } from '../db';
 import { NetPlan } from './netplan';
 var dhcp = require('isc-dhcp-server');
 var exec = require("child-process-promise").exec
 import getMAC, { isMAC } from 'getmac'
 
 export class Dhcp {
-    static async update(): Promise<void> {
+    static async update(db: CurfewDb): Promise<void> {
         if (await this.isRunning()) {
             await this.stop();
         }
 
-        let dhcpMinIp = await NetworkSetting.getDhcpMin();
-        let dhcpMaxIp = await NetworkSetting.getDhcpMax();
-        let thisIp = await NetworkSetting.getThisIp();
-        let network = await NetworkSetting.getFullNetwork();
-        let routerIp = await NetworkSetting.getRouterIp();
-        let broadcastIp = await NetworkSetting.getBroadcastIp();
+        let dhcpMinIp = await db.networkSetting.getDhcpMin();
+        let dhcpMaxIp = await db.networkSetting.getDhcpMax();
+        let thisIp = await db.networkSetting.getThisIp();
+        let network = await db.networkSetting.getFullNetwork();
+        let routerIp = await db.networkSetting.getRouterIp();
+        let broadcastIp = await db.networkSetting.getBroadcastIp();
         let interfaceName = NetPlan.getInterfaceName();
         let mac = getMAC(interfaceName);
 
@@ -32,7 +32,7 @@ export class Dhcp {
                 }
             ],
             network: network,
-            netmask: NetworkSetting.getNetmask(),
+            netmask: db.networkSetting.getNetmask(),
             router: routerIp,
             dns: [thisIp],
             broadcast: broadcastIp,

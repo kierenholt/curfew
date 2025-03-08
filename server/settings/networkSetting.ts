@@ -1,55 +1,61 @@
 import { Helpers } from "../helpers"
 import { IPAddress } from "../router/IPAddress";
-import { SettingQuery, SettingKey } from "./settingDb"
+import { SettingKey } from "./setting";
+import { SettingQuery } from "./settingQuery"
 
 
 export class NetworkSetting {
+    settingQuery: SettingQuery;
 
-    static getNetmask() {
+    constructor(settingQuery: SettingQuery) {
+        this.settingQuery = settingQuery;
+    }
+
+    getNetmask() {
         return "255.255.255.0";
     }
 
-    static getPrefix() {
+    getPrefix() {
         return 24;
     }
 
     // e.g. 192.168.0.39
-    static async getThisIp(): Promise<string> {
-        return this.combineIpAddresses(await SettingQuery.getString(SettingKey.networkId), await SettingQuery.getString(SettingKey.thisHost));
+    async getThisIp(): Promise<string> {
+        return this.combineIpAddresses(await this.settingQuery.getString(SettingKey.networkId), await this.settingQuery.getString(SettingKey.thisHost));
     }
 
     // e.g. 192.168.0.0
-    static async getFullNetwork(): Promise<string> {
-        return this.combineIpAddresses(await SettingQuery.getString(SettingKey.networkId), "0");
+    async getFullNetwork(): Promise<string> {
+        return this.combineIpAddresses(await this.settingQuery.getString(SettingKey.networkId), "0");
     }
 
-    // e.g. 
-    static async getFullNetworkAsHex(): Promise<string> {
+    // e.g.
+    async getFullNetworkAsHex(): Promise<string> {
         let ip = await this.getFullNetwork();
         return IPAddress.fromString(ip).toHex();
     }
 
     // e.g. 192.168.0.1
-    static async getRouterIp(): Promise<string> {
-        return this.combineIpAddresses(await SettingQuery.getString(SettingKey.networkId), "1");
+    async getRouterIp(): Promise<string> {
+        return this.combineIpAddresses(await this.settingQuery.getString(SettingKey.networkId), "1");
     }
 
     // e.g. 192.168.0.255
-    static async getBroadcastIp(): Promise<string> {
-        return this.combineIpAddresses(await SettingQuery.getString(SettingKey.networkId), "255");
+    async getBroadcastIp(): Promise<string> {
+        return this.combineIpAddresses(await this.settingQuery.getString(SettingKey.networkId), "255");
     }
 
     // e.g. 192.168.0.100
-    static async getDhcpMin(): Promise<string> {
-        return this.combineIpAddresses(await SettingQuery.getString(SettingKey.networkId), await SettingQuery.getString(SettingKey.dhcpMinHost));
+    async getDhcpMin(): Promise<string> {
+        return this.combineIpAddresses(await this.settingQuery.getString(SettingKey.networkId), await this.settingQuery.getString(SettingKey.dhcpMinHost));
     }
 
     // e.g. 192.168.0.200
-    static async getDhcpMax(): Promise<string> {
-        return this.combineIpAddresses(await SettingQuery.getString(SettingKey.networkId), await SettingQuery.getString(SettingKey.dhcpMaxHost));
+    async getDhcpMax(): Promise<string> {
+        return this.combineIpAddresses(await this.settingQuery.getString(SettingKey.networkId), await this.settingQuery.getString(SettingKey.dhcpMaxHost));
     }
 
-    static combineIpAddresses(a: string, b: string) {
+    combineIpAddresses(a: string, b: string) {
         return Helpers.trim(a, ".") + "." + Helpers.trim(b, ".");
     }
 } 

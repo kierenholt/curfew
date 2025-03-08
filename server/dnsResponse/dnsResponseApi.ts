@@ -1,7 +1,8 @@
 import express, { Express, Request, Response } from 'express';
+import { CurfewDb } from '../db';
 
 export class DnsResponseApi {
-    static init(app: Express) {
+    static init(app: Express, db: CurfewDb) {
 
         // //get all requests
         // app.get('/api/DnsResponses', async (req: Request, res: Response) => {

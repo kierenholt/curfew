@@ -8,9 +8,9 @@ export enum SettingKey {
     networkId = 5, //first three octets
     dhcpMinHost = 6, //last octet
     dhcpMaxHost = 7, //last octet
-    upstreamDnsServer = 8
+    upstreamDnsServer = 8,
+    activeRouterModel = 9, //string e.g. virgin hub 3
 }
-
 
 export class Setting {
 

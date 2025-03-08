@@ -1,8 +1,10 @@
 import { AsyncDatabase } from "promised-sqlite3";
 import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
-import { SettingQuery as SettingQuery } from "./settings/settingDb";
+import { SettingQuery as SettingQuery } from "./settings/settingQuery";
 import { DnsResponseQuery } from "./dnsResponse/dnsResponseDb";
 import { KeywordQuery } from "./keyword/keywordQuery";
+import { Helpers } from "./helpers";
+import { NetworkSetting } from "./settings/networkSetting";
 
 export class CurfewDb {
     connection: AsyncDatabase;
@@ -16,6 +18,7 @@ export class CurfewDb {
     get settingQuery() { return new SettingQuery(this.connection); }
     get dnsResponseQuery() { return new DnsResponseQuery(this.connection); }
     get keywordQuery() { return new KeywordQuery(this.connection); }
+    get networkSetting() { return new NetworkSetting(this.settingQuery); }
 
     static async createTables(connection: AsyncDatabase) {
         await new SettingQuery(connection).createTable();
@@ -70,5 +73,32 @@ export class CurfewDb {
                 resolve(db);
             });
         })
+    }
+
+    async getAllBlockedIPsAndPorts(): Promise<[string[], number[]]> {
+        let ips: string[] = [];
+        let ports: number[] = [];
+        let terms = await this.keywordQuery.getAllActive();
+        for (let t of terms) {
+            for (let n of t.needles) {
+                let matchingDomains = await this.dnsResponseQuery.getDomainsContaining(n);
+                ips.push(...matchingDomains.map(d => d.ip));
+            }
+            ports.push(...t.portsArray);
+        }
+        return [Helpers.removeDuplicates(ips), Helpers.removeDuplicates(ports)];
+    }
+
+    async getBlockedIpsOfKeyword(keywordId: number): Promise<string[]> {
+        let ips: string[] = [];
+        let keyword = await this.keywordQuery.getById(keywordId);
+        if (keyword == null) {
+            return [];
+        }
+        for (let n of keyword.needles) {
+            let matchingDomains = await this.dnsResponseQuery.getDomainsContaining(n);
+            ips.push(...matchingDomains.map(d => d.ip));
+        }
+        return Helpers.removeDuplicates(ips);
     }
 }

@@ -1,11 +1,16 @@
-import { Keywords } from "../keyword/keywords";
+import { CurfewDb } from "../db";
 
 export enum RedirectDestination {
     app = 1, hole = 0, shortTTL = 2, passThrough = 3, ignore = 4
 }
 
 export class Redirector {
-    static async decide(hostAddress: string, fullDomain: string = ""): Promise<RedirectDestination> {
+    db: CurfewDb;
+    constructor(db: CurfewDb) {
+        this.db = db;
+    }
+
+    async decide(hostAddress: string, fullDomain: string = ""): Promise<RedirectDestination> {
 
         if (hostAddress.length == 0) {
             console.error("hostAddress should not be null");
@@ -36,7 +41,7 @@ export class Redirector {
             return RedirectDestination.passThrough;
         }
 
-        if (await Keywords.isDomainBlocked(fullDomain)) {
+        if (await this.db.keywordQuery.isDomainBlocked(fullDomain)) {
             return RedirectDestination.hole;
         }
 

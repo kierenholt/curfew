@@ -1,6 +1,7 @@
 import { AsyncDatabase } from "promised-sqlite3";
 import { RunResult } from "sqlite3";
 import { Setting, SettingKey } from "./setting";
+import { ModelName } from "../router/routerProvider";
 
 export class SettingQuery {
 
@@ -29,10 +30,11 @@ export class SettingQuery {
         await this.create(SettingKey.pin, "0000", "pin", "code to access web pages", 
             "make sure you remember the new code before clicking save. if you forget it, there is no way to recover a lost pin.");
         await this.create(SettingKey.inactivityLockSecs, "30", "inactivity lock", "number of seconds of inactivity before screen locks itself, set to zero to disable", "");
-        await this.create(SettingKey.networkId, process.env.DEFAULT_NETWORK_ID as string, "network id", "first three octets of the router ip address e.g 192.168.0", "");
+        await this.create(SettingKey.networkId, "", "network id", "first three octets of the router ip address e.g 192.168.0", "");
         await this.create(SettingKey.dhcpMinHost, process.env.DEFAULT_DHCP_MIN_HOST as string, "DHCP min ip (last octet)", "lower end of the range of ip addresses offered by DHCP (last octet only)", "");
         await this.create(SettingKey.dhcpMaxHost, process.env.DEFAULT_DHCP_MAX_HOST as string, "DHCP max ip (last octet)", "upper end of the range of ip addresses offered by DHCP (last octet only)", "");
         await this.create(SettingKey.upstreamDnsServer, process.env.DEFAULT_DNS_SERVER as string, "upstream DNS server", "IP address of a DNS server", "");
+        await this.create(SettingKey.activeRouterModel, ModelName.None, "active router", "the router model that was detected on your network", "");
     }
 
     async create(key: SettingKey, value: string, label: string, description: string, warningMessage: string): Promise<number> {
@@ -95,7 +97,6 @@ export class SettingQuery {
                 result.description,
                 result.warningMessage) : null);
     }
-
 
     getAll(): Promise<SettingQuery[]> {
         return this.connection.all(`

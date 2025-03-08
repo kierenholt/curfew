@@ -6,23 +6,24 @@ import { Jobs } from "./jobs";
 import { CurfewDb } from "./db";
 import { checkSudo } from "./checkSudo";
 import { VirginRouter as VirginRouter } from "./router/virgin/virginRouter";
-import { SettingQuery } from "./settings/settingDb";
+import { SettingQuery } from "./settings/settingQuery";
 import { NetworkSetting } from "./settings/networkSetting";
+import { SettingKey } from "./settings/setting";
 
 dotenv.config();
 
 async function run() {
     checkSudo();
-    await CurfewDb.start();
-    await Jobs.start();
+    let db = await CurfewDb.init();
+    await Jobs.start(db);
 
-    let password = await SettingQuery.getString(SettingKey.routerAdminPassword);
-    let routerIp = await NetworkSetting.getRouterIp();
-    let fullNetworkAsHex = await NetworkSetting.getFullNetworkAsHex();
+    let password = await db.settingQuery.getString(SettingKey.routerAdminPassword);
+    let routerIp = await db.networkSetting.getRouterIp();
+    let fullNetworkAsHex = await db.networkSetting.getFullNetworkAsHex();
     let router: RouterBase = new VirginRouter(password, routerIp, fullNetworkAsHex);
 
     if (!await router.checkPassword()) {
-        API.start(); //cannot login - user needs to set password
+        API.start(db); //cannot login - user needs to set password
     }
     else {
         
@@ -31,16 +32,16 @@ async function run() {
             await router.disableDHCP();
         
             //SET ROUTER FILTERS
-            await router.resetFilters();
+            await router.applyBlockedIPsAndPorts(await db.getAllBlockedIPsAndPorts());
         }
         
         if (Number(process.env.DNS_ENABLED)) {
             //DNS SERVER
-            await DnsServer.start();
+            await DnsServer.start(db);
         }
         
         //API
-        API.start();
+        API.start(db);
     }
 }
 run();

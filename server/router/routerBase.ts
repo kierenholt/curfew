@@ -1,43 +1,17 @@
 import { IPAddress } from "./IPAddress";
-import { Keywords } from "../keyword/keywords";
 import { IPFilter } from "./ipFilter";
 import { PortFilter } from "./portFilter";
 
 export abstract class RouterBase {
-
-    async exists(): Promise<void> {
-        console.log(". searching for router");
-        let virginExists = await this.hasLoginPage();
-        
-        if (!virginExists) {
-            throw ("unable to communicate with router");
-        }
-        console.log("✓ success");
-    }
-
     async checkPassword(): Promise<boolean> {
         try {
-            console.log(". checking password");
             await this.login();
             await this.logout();
         }
         catch (ex) {
-            console.log("x password check failed - please login and set it");
             return false;
         }
-        console.log("✓ success");
         return true;
-    }
-
-    async resetFilters(): Promise<void> {
-        let f = await this.getActiveFilters();
-        await this.deleteAllFilters();
-
-        let [blockedIps, ports] = await Keywords.getBlockedIPsAndPorts();
-        console.log(". updating IP filters configured on router");
-        await this.updateBlockedIPsAndPorts(blockedIps, ports, () => null);
-        console.log("✓ success");
-        await this.logout();
     }
 
     async disableDHCP(): Promise<void> {
@@ -55,9 +29,10 @@ export abstract class RouterBase {
         console.log("✓ success");
     }
 
-    async updateBlockedIPsAndPorts(ips: string[], ports: number[], updateProgress: (message: string, isSuccess: boolean) => void): Promise<void> {
+    async applyBlockedIPsAndPorts(ipAndPorts: [string[], number[]], 
+        updateProgress: (message: string, isSuccess: boolean) => void = () => null): Promise<void> {
         await this.deleteAllFilters();
-
+        let [ips, ports] = ipAndPorts;
         //ips
         for (let i = 0; i < ips.length; i++) {
             //create an ip filter

@@ -5,9 +5,8 @@ import { Answer } from "./answer";
 import { RedirectDestination, Redirector } from "./redirector";
 import { ReturnCode } from "./header";
 import { RecordType } from "./question";
-import { SettingQuery, SettingKey } from "../settings/settingDb";
-import { DnsResponseQuery } from "../dnsResponse/dnsResponseDb";
-import { NetworkSetting } from "../settings/networkSetting";
+import { CurfewDb } from "../db";
+import { SettingKey } from "../settings/setting";
 
 export class DnsServer {
     static socket: Socket;
@@ -21,11 +20,11 @@ export class DnsServer {
     static BLOCK_HTTPS = true;
     static BLOCK_TEXT = true;
 
-    static async start() {
+    static async start(db: CurfewDb) {
         let port: number = Number(process.env.DNS_PORT);
         this.socket = createSocket('udp4');
-        this.dnsForwarder = new DnsForwarder(this.socket, await SettingQuery.getString(SettingKey.upstreamDnsServer));
-        this.dnsRedirector = new Redirector();
+        this.dnsForwarder = new DnsForwarder(this.socket, await db.settingQuery.getString(SettingKey.upstreamDnsServer));
+        this.dnsRedirector = new Redirector(db);
 
         this.socket.bind(port, () => {
             console.log('✓ DNS server listening on UDP port ', port);
@@ -37,7 +36,7 @@ export class DnsServer {
 
             if (!packet.header.isResponse) { //query
 
-                let destination = await Redirector.decide(requestInfo.address, packet.questions[0].name);
+                let destination = await this.dnsRedirector.decide(requestInfo.address, packet.questions[0].name);
                 // unfiltered groups
                 if (destination == RedirectDestination.passThrough) {
                     //pass through - does not alter packet, does not cache
@@ -55,7 +54,7 @@ export class DnsServer {
                 }
 
                 if (destination == RedirectDestination.app) {
-                    let appIP = await NetworkSetting.getThisIp();
+                    let appIP = await db.networkSetting.getThisIp();
                     packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], appIP)]);
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;
@@ -106,7 +105,7 @@ export class DnsServer {
 
                             //console.log(`forwarding ${answer[0].domainName.name} as ${answer[0].IPAddress} to ${requestInfo.address}`);
                             if (answer && answer[0])
-                                DnsResponseQuery.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
+                                db.dnsResponseQuery.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
 
                             //add (cached) answer
                             packet.addAnswers(answer);

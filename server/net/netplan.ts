@@ -1,13 +1,13 @@
-import { NetworkSetting } from "../settings/networkSetting";
-import { SettingQuery, SettingKey } from "../settings/settingDb";
+import { CurfewDb } from "../db";
+import { SettingKey } from "../settings/setting";
 
 const Netplan1 = require('netplan-config');
 
 export class NetPlan {
-    static async update(): Promise<void> {
-        const thisIp = await NetworkSetting.getThisIp();
-        let routerIp = await NetworkSetting.getRouterIp();
-        let dnsUpstream = await SettingQuery.getString(SettingKey.upstreamDnsServer);
+    static async update(db: CurfewDb): Promise<void> {
+        const thisIp = await db.networkSetting.getThisIp();
+        let routerIp = await db.networkSetting.getRouterIp();
+        let dnsUpstream = await db.settingQuery.getString(SettingKey.upstreamDnsServer);
         
         // Configure eth0 as a static WAN interface
         const net = new Netplan1();
@@ -16,7 +16,7 @@ export class NetPlan {
             defaultGateway: routerIp,
             nameservers: [dnsUpstream],
             domain: `${process.env.HOSTNAME}.local`,
-            prefix: NetworkSetting.getPrefix(),
+            prefix: db.networkSetting.getPrefix(),
         });
 
         console.log(`. setting ip address`);
