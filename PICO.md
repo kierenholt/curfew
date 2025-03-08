@@ -5,7 +5,6 @@ cd upgrade_tool_v2.17_for_linux/
 sudo cp upgrade_tool /usr/local/bin
 sudo chmod +x /usr/local/bin/upgrade_tool
 
-
 # how to use upgrade_tool
 https://github.com/vicharak-in/Linux_Upgrade_Tool
 

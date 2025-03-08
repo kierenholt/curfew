@@ -21,19 +21,19 @@ use
 to get the name of the target network card e.g enp1s0, wlp2s0
 
 ## option 1 wifi 
-copy 00-wifi to /etc/netplan
+copy wifi-static to /etc/netplan
 then edit to include correct device name, network ssid and password. 
     cd deploy
-    cp -f wifi.yaml /etc/netplan/config.yaml
+    cp -f wifi-static.yaml /etc/netplan/config.yaml
     sudo nano /etc/netplan/config.yaml
 then apply new settings
     netplan --debug apply
 
 ## option 2 ethernet
-copy 00-eth to /etc/netplan
+copy eth-static to /etc/netplan
 then edit to include correct device name. 
     cd deploy
-    cp -f eth.yaml /etc/netplan/config.yaml
+    cp -f eth-static.yaml /etc/netplan/config.yaml
     sudo nano /etc/netplan/config.yaml
 then apply new settings
     netplan --debug apply
@@ -55,6 +55,8 @@ sudo netplan apply
 reboot
 
 ## how to turn off the service
+enable dhcp server on the router
 sudo pm2 list
 sudo pm2 stop 0
 sudo systemctl stop isc-dhcp-server
+

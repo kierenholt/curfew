@@ -1,25 +1,53 @@
-import { CurfewDb } from "../db";
-import { SettingKey } from "../settings/setting";
+import { Helpers } from "../helpers";
 
 const Netplan1 = require('netplan-config');
+// https://www.npmjs.com/package/netplan-config
 
 export class NetPlan {
-    static async update(db: CurfewDb): Promise<void> {
-        const thisIp = await db.networkSetting.getThisIp();
-        let routerIp = await db.networkSetting.getRouterIp();
-        let dnsUpstream = await db.settingQuery.getString(SettingKey.upstreamDnsServer);
+    static async enableDhcp() {
+        const net = new Netplan1();
+        net.configureInterface(this.getInterfaceName(), {
+            dhcp: true
+        });
+
+        console.log(`. netplan - enabling dhcp`);
+        net.writeConfig();
+
+        return net.apply()
+            .then((result: any) => {
+                if (result.code == 0) {
+                    console.log("✓ success");
+                    return;
+                }
+                throw ("error trying to set dhcp on");
+            });
+    }
+
+    static async disableDhcpsetStaticIp(networkId: string, thisHost: string, DnsUpstreamIp: string): Promise<void> {
+        if (networkId == "") {
+            throw new Error("disabling DHCP but network id cannot be null");
+        }
+        if (thisHost == "") {
+            throw new Error("disabling DHCP but host cannot be null");
+        }
+        if (DnsUpstreamIp == "") {
+            throw new Error("disabling DHCP but upstream dns cannot be null");
+        }
+        const thisIp = Helpers.combineIpAddresses(networkId, thisHost);
+        let routerIp = Helpers.combineIpAddresses(networkId, "1");
         
         // Configure eth0 as a static WAN interface
         const net = new Netplan1();
         net.configureInterface(this.getInterfaceName(), {
+            dhcp: false,
             ip: thisIp,
             defaultGateway: routerIp,
-            nameservers: [dnsUpstream],
+            nameservers: [DnsUpstreamIp],
             domain: `${process.env.HOSTNAME}.local`,
-            prefix: db.networkSetting.getPrefix(),
+            prefix: 24,
         });
 
-        console.log(`. setting ip address`);
+        console.log(`. netplan - setting static ip address`);
         net.writeConfig();
 
         return net.apply()

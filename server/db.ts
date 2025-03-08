@@ -4,7 +4,6 @@ import { SettingQuery as SettingQuery } from "./settings/settingQuery";
 import { DnsResponseQuery } from "./dnsResponse/dnsResponseDb";
 import { KeywordQuery } from "./keyword/keywordQuery";
 import { Helpers } from "./helpers";
-import { NetworkSetting } from "./settings/networkSetting";
 
 export class CurfewDb {
     connection: AsyncDatabase;
@@ -18,7 +17,6 @@ export class CurfewDb {
     get settingQuery() { return new SettingQuery(this.connection); }
     get dnsResponseQuery() { return new DnsResponseQuery(this.connection); }
     get keywordQuery() { return new KeywordQuery(this.connection); }
-    get networkSetting() { return new NetworkSetting(this.settingQuery); }
 
     static async createTables(connection: AsyncDatabase) {
         await new SettingQuery(connection).createTable();

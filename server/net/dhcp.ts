@@ -1,21 +1,17 @@
-import { CurfewDb } from '../db';
 import { NetPlan } from './netplan';
+import { Helpers } from "../helpers";
 var dhcp = require('isc-dhcp-server');
 var exec = require("child-process-promise").exec
-import getMAC, { isMAC } from 'getmac'
+import getMAC from 'getmac'
 
-export class Dhcp {
-    static async update(db: CurfewDb): Promise<void> {
-        if (await this.isRunning()) {
-            await this.stop();
-        }
-
-        let dhcpMinIp = await db.networkSetting.getDhcpMin();
-        let dhcpMaxIp = await db.networkSetting.getDhcpMax();
-        let thisIp = await db.networkSetting.getThisIp();
-        let network = await db.networkSetting.getFullNetwork();
-        let routerIp = await db.networkSetting.getRouterIp();
-        let broadcastIp = await db.networkSetting.getBroadcastIp();
+export class IscDhcp {
+    static async updateStatic(dhcpMinHost: string, dhcpMaxHost: string, networkId: string, thisHost: string): Promise<void> {
+        let dhcpMinIp = Helpers.combineIpAddresses(networkId, dhcpMinHost);
+        let dhcpMaxIp = Helpers.combineIpAddresses(networkId, dhcpMaxHost);
+        let thisIp = Helpers.combineIpAddresses(networkId, thisHost);
+        let network = Helpers.combineIpAddresses(networkId, "0");
+        let routerIp = Helpers.combineIpAddresses(networkId, "1");
+        let broadcastIp = Helpers.combineIpAddresses(networkId, "255");
         let interfaceName = NetPlan.getInterfaceName();
         let mac = getMAC(interfaceName);
 
@@ -32,17 +28,21 @@ export class Dhcp {
                 }
             ],
             network: network,
-            netmask: db.networkSetting.getNetmask(),
+            netmask: "255.255.255.0",
             router: routerIp,
             dns: [thisIp],
             broadcast: broadcastIp,
             on_commit: ``
         });
+        
+        if (await this.isRunning()) {
+            await this.stop();
+        }
 
         return s.start()
             .then(() => {
                 console.log(". starting dhcp server on " + thisIp);
-                return Dhcp.isRunning;
+                return IscDhcp.isRunning;
             })
             .then((success: boolean) => {
                 if (success) {
@@ -66,6 +66,11 @@ export class Dhcp {
             .catch((err: any) => {
                 return false;
             });
+    }
+
+
+    static start(): Promise<void> {
+        return exec("systemctl start isc-dhcp-server");
     }
 
     static stop(): Promise<void> {

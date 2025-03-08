@@ -34,7 +34,7 @@ export class SettingQuery {
         await this.create(SettingKey.dhcpMinHost, process.env.DEFAULT_DHCP_MIN_HOST as string, "DHCP min ip (last octet)", "lower end of the range of ip addresses offered by DHCP (last octet only)", "");
         await this.create(SettingKey.dhcpMaxHost, process.env.DEFAULT_DHCP_MAX_HOST as string, "DHCP max ip (last octet)", "upper end of the range of ip addresses offered by DHCP (last octet only)", "");
         await this.create(SettingKey.upstreamDnsServer, process.env.DEFAULT_DNS_SERVER as string, "upstream DNS server", "IP address of a DNS server", "");
-        await this.create(SettingKey.activeRouterModel, ModelName.None, "active router", "the router model that was detected on your network", "");
+        await this.create(SettingKey.routerModel, ModelName.None, "active router", "the router model that was detected on your network", "");
     }
 
     async create(key: SettingKey, value: string, label: string, description: string, warningMessage: string): Promise<number> {

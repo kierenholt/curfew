@@ -7,6 +7,7 @@ import { ReturnCode } from "./header";
 import { RecordType } from "./question";
 import { CurfewDb } from "../db";
 import { SettingKey } from "../settings/setting";
+import { Helpers } from "../helpers";
 
 export class DnsServer {
     static socket: Socket;
@@ -25,6 +26,9 @@ export class DnsServer {
         this.socket = createSocket('udp4');
         this.dnsForwarder = new DnsForwarder(this.socket, await db.settingQuery.getString(SettingKey.upstreamDnsServer));
         this.dnsRedirector = new Redirector(db);
+        let networkId = await db.settingQuery.getString(SettingKey.networkId);
+        let thisHost = await db.settingQuery.getString(SettingKey.thisHost);
+        let appIP = Helpers.combineIpAddresses(networkId, thisHost);
 
         this.socket.bind(port, () => {
             console.log('✓ DNS server listening on UDP port ', port);
@@ -54,7 +58,6 @@ export class DnsServer {
                 }
 
                 if (destination == RedirectDestination.app) {
-                    let appIP = await db.networkSetting.getThisIp();
                     packet.addAnswers([Answer.answerFromQuestion(packet.questions[0], appIP)]);
                     packet.header.isResponse = true;
                     packet.header.isAuthority = true;

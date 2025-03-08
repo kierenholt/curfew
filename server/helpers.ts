@@ -157,4 +157,8 @@ export class Helpers {
     static HTTPFileExists(url: string): Promise<boolean> {
         return this.retryForever(() => fetch(url).then(response => response.ok));
     }
+
+    static combineIpAddresses(a: string, b: string) {
+        return Helpers.trim(a, ".") + "." + Helpers.trim(b, ".");
+    }
 }
