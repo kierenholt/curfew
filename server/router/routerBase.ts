@@ -3,9 +3,9 @@ import { IPFilter } from "./ipFilter";
 import { PortFilter } from "./portFilter";
 
 export abstract class RouterBase {
-    async checkPassword(): Promise<boolean> {
+    async isPasswordCorrect(password?: string): Promise<boolean> {
         try {
-            await this.login();
+            await this.login(password);
             await this.logout();
         }
         catch (ex) {
@@ -61,7 +61,7 @@ export abstract class RouterBase {
     abstract isDHCPEnabled(): Promise<boolean>;
     abstract setDHCPEnabled(value: boolean): Promise<void>;
     abstract applyAllSettings(): Promise<void>;
-    abstract login(): Promise<boolean>;
+    abstract login(password?: string): Promise<boolean>;
     abstract logout(): Promise<void>;
     abstract getActiveFilters(): Promise<(IPFilter | PortFilter)[]>;
     abstract deleteAllFilters(): Promise<void>;

@@ -3,7 +3,7 @@ import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
 import { SettingQuery as SettingQuery } from "./settings/settingQuery";
 import { DnsResponseQuery } from "./dnsResponse/dnsResponseDb";
 import { KeywordQuery } from "./keyword/keywordQuery";
-import { Helpers } from "./helpers";
+import { Helpers } from "./utility/helpers";
 
 export class CurfewDb {
     connection: AsyncDatabase;

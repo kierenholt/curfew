@@ -2,7 +2,7 @@ import { Express, Request, Response } from 'express';
 import { NetPlan } from '../net/netplan';
 import { IscDhcp } from '../net/dhcp';
 import { CurfewDb } from '../db';
-import { Setting, SettingKey } from './setting';
+import { SettingKey } from './setting';
 
 export class SettingApi {
     static init(app: Express, db: CurfewDb) {
@@ -28,7 +28,7 @@ export class SettingApi {
                     let dhcpMaxHost = await db.settingQuery.getString(SettingKey.dhcpMaxHost);
                     let dhcpMinHost = await db.settingQuery.getString(SettingKey.dhcpMinHost);
                     await NetPlan.disableDhcpsetStaticIp(networkId, thisHost, upstreamDns);
-                    await IscDhcp.updateStatic(dhcpMinHost, dhcpMaxHost, networkId, thisHost);
+                    await IscDhcp.updateSettingsAndRestart(dhcpMinHost, dhcpMaxHost, networkId, thisHost);
                 }
 
                 res.status(200).json(ret);

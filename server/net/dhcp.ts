@@ -1,11 +1,16 @@
 import { NetPlan } from './netplan';
-import { Helpers } from "../helpers";
+import { Helpers } from "../utility/helpers";
 var dhcp = require('isc-dhcp-server');
 var exec = require("child-process-promise").exec
 import getMAC from 'getmac'
 
 export class IscDhcp {
-    static async updateStatic(dhcpMinHost: string, dhcpMaxHost: string, networkId: string, thisHost: string): Promise<void> {
+    static async updateSettingsAndRestart(
+        dhcpMinHost: string, 
+        dhcpMaxHost: string, 
+        networkId: string, 
+        thisHost: string,
+    ): Promise<void> {
         let dhcpMinIp = Helpers.combineIpAddresses(networkId, dhcpMinHost);
         let dhcpMaxIp = Helpers.combineIpAddresses(networkId, dhcpMaxHost);
         let thisIp = Helpers.combineIpAddresses(networkId, thisHost);
@@ -67,7 +72,6 @@ export class IscDhcp {
                 return false;
             });
     }
-
 
     static start(): Promise<void> {
         return exec("systemctl start isc-dhcp-server");

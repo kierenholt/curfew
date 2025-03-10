@@ -7,7 +7,7 @@ import { ReturnCode } from "./header";
 import { RecordType } from "./question";
 import { CurfewDb } from "../db";
 import { SettingKey } from "../settings/setting";
-import { Helpers } from "../helpers";
+import { Helpers } from "../utility/helpers";
 
 export class DnsServer {
     static socket: Socket;

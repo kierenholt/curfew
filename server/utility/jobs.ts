@@ -1,4 +1,4 @@
-import { CurfewDb } from "./db";
+import { CurfewDb } from "../db";
 const cron = require('node-cron');
 
 

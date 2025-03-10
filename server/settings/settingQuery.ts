@@ -1,7 +1,8 @@
 import { AsyncDatabase } from "promised-sqlite3";
 import { RunResult } from "sqlite3";
 import { Setting, SettingKey } from "./setting";
-import { ModelName } from "../router/routerProvider";
+import { ModelName, RouterOptions } from "../router/routerProvider";
+import { Helpers } from "../utility/helpers";
 
 export class SettingQuery {
 
@@ -109,5 +110,22 @@ export class SettingQuery {
                 r.label,
                 r.description, 
                 result.warningMessage)))
+    }
+
+    async getRouterOptions(): Promise<RouterOptions> {
+        let networkId = await this.getString(SettingKey.networkId);
+        return {
+            password: await this.getString(SettingKey.routerAdminPassword),
+            routerIp: Helpers.combineIpAddresses(networkId, "1"),
+            fullNetwork: Helpers.combineIpAddresses(networkId, "0"),
+            name: await this.getString(SettingKey.routerModel),
+        }
+    }
+
+    async needsSetup(): Promise<boolean> {
+        let networkId = await this.getString(SettingKey.networkId);
+        let routerModel = await this.getString(SettingKey.routerModel);
+        let password = await this.getString(SettingKey.routerAdminPassword);
+        return networkId == "" || routerModel == ModelName.None || password == "";
     }
 }

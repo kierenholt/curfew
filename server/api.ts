@@ -6,13 +6,15 @@ import { ProgressApi } from './progress/progressApi';
 import { CurfewDb } from './db';
 import path from 'node:path';
 import * as fs from 'fs';
+import { SetupApi } from './setup/setupApi';
+import { Setup } from './setup/setup';
 const nocache = require("nocache");
 var https = require('https');
 var http = require('http');
 var app = express();
 
 export class API {
-    static start(db: CurfewDb) {
+    static start(db: CurfewDb, setup?: Setup) {
         let wwwPath = path.join(__dirname, 'wwwroot');
         let certPath = path.join(__dirname, 'cert');
 
@@ -29,9 +31,14 @@ export class API {
         //app.use(express.urlencoded()); // to support URL-encoded bodies
         
         SettingApi.init(app, db);
-        DnsResponseApi.init(app, db);
-        KeywordApi.init(app, db);
-        ProgressApi.init(app);
+        if (setup) {
+            SetupApi.init(app, setup);
+        }
+        else {
+            DnsResponseApi.init(app, db);
+            KeywordApi.init(app, db);
+            ProgressApi.init(app);
+        }
         
         //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
         app.get("*", (req: Request, res: Response) => {

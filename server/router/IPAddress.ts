@@ -1,4 +1,4 @@
-import { Helpers } from "../helpers";
+import { Helpers } from "../utility/helpers";
 
 export class IPAddress {
     buffer: Buffer;

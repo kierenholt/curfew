@@ -5,3 +5,6 @@ network:
     wlp2s0b1:
       dhcp4: yes
       dhcp6: no
+      access-points:
+        "network_ssid_name":
+          password: "**********"

@@ -148,9 +148,9 @@ export class Helpers {
             });
     }
 
-    static wait(n: number): Promise<any> {
+    static wait(ms: number): Promise<any> {
         return new Promise((resolve, reject) => {
-            setTimeout(resolve, n);
+            setTimeout(resolve, ms);
         })
     }
 

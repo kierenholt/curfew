@@ -1,4 +1,4 @@
-import { Helpers } from "../../helpers";
+import { Helpers } from "../../utility/helpers";
 import { IPFilter } from "../ipFilter";
 import { PortFilter } from "../portFilter";
 import { RouterBase } from "../routerBase";

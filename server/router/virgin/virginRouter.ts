@@ -1,9 +1,10 @@
-import { Helpers } from "../../helpers";
+import { Helpers } from "../../utility/helpers";
 import { IPFilter } from "../ipFilter";
 import { PortFilter } from "../portFilter";
 import { OidEnabledType, OidType, VirginOidBase, VirginWalkOid } from "./virginOids";
 import { IPAddress } from "../IPAddress";
 import { RouterBase } from "../routerBase";
+import { RouterOptions } from "../routerProvider";
 
 export class VirginRouter extends RouterBase {
 
@@ -14,21 +15,21 @@ export class VirginRouter extends RouterBase {
     ipAddress: string;
     fullNetworkAsHex: string;
 
-    constructor(password: string, ipAddress: string, fullNetworkAsHex: string) {
+    constructor(options: RouterOptions) {
         super();
         this.nonce = Math.random().toString().substring(2, 7);
-        this.password = password;
-        this.ipAddress = ipAddress;
-        this.fullNetworkAsHex = fullNetworkAsHex;
+        this.password = options.password;
+        this.ipAddress = options.routerIp;
+        this.fullNetworkAsHex = IPAddress.fromString(options.fullNetwork).toHex();
     }
 
     async hasLoginPage(): Promise<boolean> {
         return await Helpers.HTTPFileExists(`http://${this.ipAddress}/skins/vm/css/images/logo-VirginMedia.png`);
     }
     
-    async login(): Promise<boolean> {
+    async login(password: string = this.password): Promise<boolean> {
         this.nonce = Math.random().toString().substring(2, 7);
-        var up = Buffer.from(encodeURIComponent(this.name) + ":" + Buffer.from(encodeURIComponent(this.password))).toString('base64');
+        var up = Buffer.from(encodeURIComponent(this.name) + ":" + Buffer.from(encodeURIComponent(password))).toString('base64');
         var query = `arg=${up}&` + this.nonceAndDate;
         return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/login?` + query))
             .then(response => {

@@ -1,8 +1,6 @@
 import { Express, Request, Response } from 'express';
 import { Progress } from '../progress/progress';
-import { VirginRouter } from '../router/virgin/virginRouter';
 import { CurfewDb } from '../db';
-import { SettingKey } from '../settings/setting';
 import { RouterProvider } from '../router/routerProvider';
 
 export class KeywordApi {
@@ -47,7 +45,7 @@ export class KeywordApi {
                 let ret = await db.keywordQuery.update(id, name, expression, ports, isActive);
 
                 Progress.update(nonce, false, "...");
-                let router = await new RouterProvider(db).savedRouter();
+                let router = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
                 if (router == null) {
                     res.status(400).send("router not found");
                     return;
@@ -95,7 +93,7 @@ export class KeywordApi {
             let ret = await db.keywordQuery.setAllActive();
 
             Progress.update(nonce, false, "...");
-            let router = await new RouterProvider(db).savedRouter();
+            let router = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
             if (router == null) {
                 res.status(400).send("router not found");
                 return;
@@ -116,7 +114,7 @@ export class KeywordApi {
             let ret = await db.keywordQuery.setAllInactive();
 
             Progress.update(nonce, false, "...");
-            let router = await new RouterProvider(db).savedRouter();
+            let router = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
             if (router == null) {
                 res.status(400).send("router not found");
                 return;

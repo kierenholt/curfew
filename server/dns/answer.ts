@@ -1,4 +1,4 @@
-import { Helpers } from "../helpers";
+import { Helpers } from "../utility/helpers";
 import { HasKey } from "./cache";
 import { DomainName } from "./domainName";
 import { Question } from "./question";

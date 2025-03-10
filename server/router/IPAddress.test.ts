@@ -1,7 +1,7 @@
 const test = require('node:test');
 import assert from "node:assert";
 import { IPAddress } from "./IPAddress";
-import { Helpers } from "../helpers";
+import { Helpers } from "../utility/helpers";
 
 test('from and to hex', () => {
     let hex = "c0a80000";
