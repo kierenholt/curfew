@@ -18,7 +18,6 @@ async function run() {
     checkSudo();
     
     let db = await CurfewDb.init();
-    await db.settingQuery.set(SettingKey.routerModel, ModelName.None);
 
     if (await db.settingQuery.needsSetup()) {
         await new Setup(db).init();
