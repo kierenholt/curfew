@@ -3,14 +3,11 @@ import { API } from "./api";
 import { RouterBase } from "./router/routerBase";
 import { CurfewDb } from "./db";
 import { checkSudo } from "./utility/checkSudo";
-import { SettingKey } from "./settings/setting";
 import * as dotenv from "dotenv";
 import { IscDhcp } from "./net/dhcp";
-import { NetPlan } from "./net/netplan";
-import { ModelName, RouterProvider } from "./router/routerProvider";
+import { RouterProvider } from "./router/routerProvider";
 import { Jobs } from "./utility/jobs";
 import { Setup } from "./setup/setup";
-import { hardReset } from "./reset";
 
 dotenv.config();
 

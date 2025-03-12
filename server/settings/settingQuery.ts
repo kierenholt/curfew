@@ -128,4 +128,10 @@ export class SettingQuery {
         let password = await this.getString(SettingKey.routerAdminPassword);
         return networkId == "" || routerModel == ModelName.None || password == "";
     }
+
+    async resetNetworkSettings(): Promise<void> {
+        await this.set(SettingKey.networkId, "");
+        await this.set(SettingKey.routerModel, ModelName.None);
+        this.set(SettingKey.routerAdminPassword, "");
+    }
 }

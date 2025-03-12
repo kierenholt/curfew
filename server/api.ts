@@ -31,14 +31,10 @@ export class API {
         //app.use(express.urlencoded()); // to support URL-encoded bodies
         
         SettingApi.init(app, db);
-        if (setup) {
-            SetupApi.init(app, setup);
-        }
-        else {
-            DnsResponseApi.init(app, db);
-            KeywordApi.init(app, db);
-            ProgressApi.init(app);
-        }
+        SetupApi.init(app, setup);
+        DnsResponseApi.init(app, db);
+        KeywordApi.init(app, db);
+        ProgressApi.init(app);
         
         //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
         app.get("*", (req: Request, res: Response) => {

@@ -8,13 +8,27 @@ import { Helpers } from "../utility/helpers";
 
 
 export class Setup {
+    promises: any = {};
+    
     password: string = "";
     networkId: string = "";
     routerModel: string = ModelName.None;
-    
     db: CurfewDb;
+    
     constructor(db : CurfewDb) {
         this.db = db;
+    }
+
+    savePromiseOrReturnValue(settingKey: number): Promise<string> {
+        if (settingKey == SettingKey.networkId && this.networkId != "") {
+            return Promise.resolve(this.networkId);
+        }
+        if (settingKey == SettingKey.routerModel && this.routerModel != ModelName.None) {
+            return Promise.resolve(this.routerModel);
+        }
+        return new Promise<string>((resolve: any, reject: any) => {
+            this.promises[settingKey] = resolve;
+        });
     }
     
     async init() {
@@ -30,6 +44,10 @@ export class Setup {
 
         // 	find and save the network id
         this.networkId = await NetPlan.getNetworkId();
+        // send off promise value
+        if (this.promises[SettingKey.networkId]) {
+            this.promises[SettingKey.networkId](this.networkId);
+        }
         if (this.networkId == "") {
             throw("error getting network id");
         }
@@ -45,14 +63,21 @@ export class Setup {
         // find router model
         console.log(". identifying router ");
         this.routerModel = await new RouterProvider(this.options).identifyRouter();
+        // send off promise value
+        if (this.promises[SettingKey.routerModel]) {
+            this.promises[SettingKey.routerModel](this.routerModel);
+        }
         if (this.routerModel == ModelName.None) {
             throw("no router found"); //SHOW ERROR IN API
         }
         console.log("✓ success");
         
         // HAS STATIC IP AT THIS POINT - API CAN BE LOADED
+
+        console.log(". starting setup API");
         API.start(this.db, this);
 
+        console.log("✓ waiting for password");
         // asks for password
         // user enters password
         // api tests password

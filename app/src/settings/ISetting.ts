@@ -5,10 +5,11 @@ export enum SettingKey {
     thisHost = 2,
     pin = 3,
     inactivityLockSecs = 4,
-    networkId = 5, //first three octet
-    dhcpMinHost = 6, //one octet
-    dhcpMaxHost = 7, //one octet
-    upstreamDnsServer = 8
+    networkId = 5, //first three octets
+    dhcpMinHost = 6, //last octet
+    dhcpMaxHost = 7, //last octet
+    upstreamDnsServer = 8,
+    routerModel = 9, //string e.g. virgin hub 3
 }
 
 

@@ -17,8 +17,7 @@ export interface ProgressModalContainerProps {
 }
 
 export function ProgressModalContainer(props: ProgressModalContainerProps) {
-
-
+    
     const [open, setOpen] = useState<boolean>(false);
     const [nonce, setNonce] = useState<number>(0);
     const [onSuccess, setOnSuccess] = useState<any>(null);

@@ -3,9 +3,10 @@
 cd "$(dirname "$0")"
 
 # build
+    node_modules/.bin/tsc -p tsconfig.json 
+
 # copy build files over
     cd ../server
-    node_modules/.bin/tsc -p tsconfig.json 
 
     mkdir -p /opt/curfew/bin
     cp -r bin/* /opt/curfew/bin/
@@ -18,3 +19,6 @@ cd "$(dirname "$0")"
     cp .env /opt/curfew
     chmod -R 755 /opt/curfew
     cd -
+
+# start
+    sudo pm2 start 0
