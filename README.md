@@ -85,6 +85,8 @@ use attach button for backend and
     f5
     visit http://localhost:3000/
 
+## if you lose the wifi device try this first
+sudo netplan apply
 
 ## if you lose the wifi device this will reset back to network manager (and disable netplan)
 cd /etc/netplan/

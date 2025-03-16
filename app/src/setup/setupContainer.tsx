@@ -20,17 +20,19 @@ export function SetupContainer(props: SetupContainerProps) {
         Helpers.get<boolean>(`/api/is-setup`)
             .then((ret: boolean) => {
                 setIsSetup(ret);
+                if (ret) {
+                    Helpers.get<string>(`/api/setup-promise/${SettingKey.networkId}`)
+                        .then((ret: string) => {
+                            setNetworkId(ret);
+                        })
+            
+                    Helpers.get<string>(`/api/setup-promise/${SettingKey.routerModel}`)
+                        .then((ret: string) => {
+                            setRouterModel(ret);
+                        })
+                }
             })
 
-        Helpers.get<string>(`/api/setup-promise/${SettingKey.networkId}`)
-            .then((ret: string) => {
-                setNetworkId(ret);
-            })
-
-        Helpers.get<string>(`/api/setup-promise/${SettingKey.routerModel}`)
-            .then((ret: string) => {
-                setRouterModel(ret);
-            })
     }, []);
 
     const tryPassword = () => {

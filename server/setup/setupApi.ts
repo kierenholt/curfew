@@ -13,7 +13,6 @@ export class SetupApi {
         
         //ONLY IF IN SETUP MODE
         if (setup) {
-
             app.get('/api/setup-promise/:settingKey', async (req: Request, res: Response) => {
                 let settingKey = Number(req.params.settingKey);
                 if ([SettingKey.networkId, SettingKey.routerModel].indexOf(settingKey) != -1) {
