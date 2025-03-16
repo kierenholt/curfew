@@ -12,7 +12,8 @@
         "<node_internals>/**", "${workspaceRoot}/server/node_modules/**"
       ],
       "type": "node",
-      "restart": true,
+      "restart": false,
+      "continueOnAttach": true,
     },
     {
       "type": "node",
