@@ -4,6 +4,8 @@
     follow these steps https://nodejs.org/en/download
 # this copies local version of node into /usr/local 
     n=$(which node);n=${n%/bin/node}; chmod -R 755 $n/bin/*; sudo cp -r $n/{bin,lib,share} /usr/local
+    sudo node -v #should show same version as node -v
+
     sudo apt install -yes isc-dhcp-server
     sudo npm install -yes pm2 -g
 
@@ -16,9 +18,6 @@
     npm install
 
     sudo systemctl status isc-dhcp-server
-
-# check node is installed
-    sudo node -v
 
 # env settings
 create .env file in the appropriate folders (see below)
@@ -56,6 +55,7 @@ use attach button for backend and
     cd ../app
     npm run start
     cd ../server
+    node_modules/.bin/tsc --watch
     sudo node --inspect-brk bin/run.js
 
 ## if you lose the wifi device this will reset back to network manager (and disable netplan)

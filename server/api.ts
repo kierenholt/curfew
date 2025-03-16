@@ -18,10 +18,16 @@ export class API {
     static start(db: CurfewDb, setup?: Setup) {
         let wwwPath = path.join(__dirname, 'wwwroot');
         let certPath = path.join(__dirname, 'cert');
+        let localKeyPath = path.join(certPath, 'localhost_key.pem')
+        let localCertPath = path.join(certPath, 'localhost_cert.pem');
+
+        if (!fs.existsSync(localKeyPath) || !fs.existsSync(localCertPath)) {
+            throw("certificate not found. please read deploy.md");
+        }
 
         let options = {
-            key: fs.readFileSync(path.join(certPath, 'localhost_key.pem')),
-            cert: fs.readFileSync(path.join(certPath, 'localhost_cert.pem'))
+            key: fs.readFileSync(localKeyPath),
+            cert: fs.readFileSync(localCertPath)
         };
         
         app.use(nocache());
