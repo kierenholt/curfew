@@ -26,7 +26,7 @@ export class CurfewDb {
     
     static async seed(connection: AsyncDatabase) {
         await new SettingQuery(connection).seed();
-        await new DnsResponseQuery(connection).seed();
+        //await new DnsResponseQuery(connection).seed(); //NOT REALLY NEEDED
         await new KeywordQuery(connection).seed();
     }
 

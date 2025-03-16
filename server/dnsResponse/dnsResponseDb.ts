@@ -22,12 +22,10 @@ export class DnsResponseQuery {
     }
 
     async seed() {
-        if (process.env.SEED_DB_ENABLED) {
-            this.create("www.youtube.com", "1.1.1.11", 1, "00:00:00:00");
-            this.create("www.youtube.com", "1.1.1.12", 1, "00:00:00:00");
-            this.create("www.youtube-parts.com", "1.1.1.13", 1, "00:00:00:00");
-            this.create("www.homework.com", "1.1.1.14", 1, "00:00:00:00");
-        }
+        this.create("www.youtube.com", "1.1.1.11", 1, "00:00:00:00");
+        this.create("www.youtube.com", "1.1.1.12", 1, "00:00:00:00");
+        this.create("www.youtube-parts.com", "1.1.1.13", 1, "00:00:00:00");
+        this.create("www.homework.com", "1.1.1.14", 1, "00:00:00:00");
     }
 
     async create(domain: string, ip: string, createdOn: number, requesterIp: string): Promise<number> {

@@ -8,11 +8,13 @@ import { IscDhcp } from "./net/dhcp";
 import { RouterProvider } from "./router/routerProvider";
 import { Jobs } from "./utility/jobs";
 import { Setup } from "./setup/setup";
+import { checkEnv } from "./utility/checkEnv";
 
 dotenv.config();
 
 async function run() {
     checkSudo();
+    checkEnv();
     
     let db = await CurfewDb.init();
 
