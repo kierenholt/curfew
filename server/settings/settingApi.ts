@@ -23,13 +23,10 @@ export class SettingApi {
 
                 //change to ip => restart net
                 if (key == SettingKey.thisHost) {
-                    let networkId = await db.settingQuery.getString(SettingKey.networkId);
-                    let thisHost = await db.settingQuery.getString(SettingKey.thisHost);
+                    let dhcpOptions = await db.settingQuery.getDhcpOptions();
                     let upstreamDns = await db.settingQuery.getString(SettingKey.upstreamDnsServer);
-                    let dhcpMaxHost = await db.settingQuery.getString(SettingKey.dhcpMaxHost);
-                    let dhcpMinHost = await db.settingQuery.getString(SettingKey.dhcpMinHost);
-                    await NetPlan.disableDhcpsetStaticIp(networkId, thisHost, upstreamDns);
-                    await IscDhcp.updateSettingsAndRestart(dhcpMinHost, dhcpMaxHost, networkId, thisHost);
+                    await NetPlan.disableDhcpsetStaticIp(dhcpOptions.network, dhcpOptions.thisHost, upstreamDns);
+                    await IscDhcp.updateSettings(dhcpOptions);
                 }
 
                 res.status(200).json(ret);

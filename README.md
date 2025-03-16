@@ -103,11 +103,13 @@ reboot
 
 ## how to turn off the service
 enable dhcp server on the router
+    sudo systemctl stop isc-dhcp-server
     sudo pm2 list
     sudo pm2 stop 0
 
 ## how to turn it back on
 disable dhcp server on the router
+    sudo systemctl start isc-dhcp-server
     sudo pm2 list
     sudo pm2 start 0
 

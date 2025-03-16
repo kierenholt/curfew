@@ -3,6 +3,7 @@ import { RunResult } from "sqlite3";
 import { Setting, SettingKey } from "./setting";
 import { ModelName, RouterOptions } from "../router/routerProvider";
 import { Helpers } from "../utility/helpers";
+import { IscDhcpOptions } from "../net/dhcp";
 
 export class SettingQuery {
 
@@ -133,5 +134,14 @@ export class SettingQuery {
         await this.set(SettingKey.networkId, "");
         await this.set(SettingKey.routerModel, ModelName.None);
         this.set(SettingKey.routerAdminPassword, "");
+    }
+
+    async getDhcpOptions() : Promise<IscDhcpOptions> {
+        return {
+            network: await this.getString(SettingKey.networkId),
+            thisHost: await this.getString(SettingKey.thisHost),
+            dhcpMaxHost: await this.getString(SettingKey.dhcpMaxHost),
+            dhcpMinHost: await this.getString(SettingKey.dhcpMinHost),
+        }
     }
 }

@@ -9,6 +9,7 @@ import { RouterProvider } from "./router/routerProvider";
 import { Jobs } from "./utility/jobs";
 import { Setup } from "./setup/setup";
 import { checkEnv } from "./utility/checkEnv";
+import { SettingKey } from "./settings/setting";
 
 dotenv.config();
 
@@ -35,7 +36,7 @@ async function run() {
         if (Number(process.env.ROUTER_ENABLED)) {
             //CONFIGURE ROUTER
             await router!.disableDHCP();
-            await IscDhcp.start();
+            await IscDhcp.updateSettings(await db.settingQuery.getDhcpOptions());
         
             //SET ROUTER FILTERS
             await router!.applyBlockedIPsAndPorts(await db.getAllBlockedIPsAndPorts());

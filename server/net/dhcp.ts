@@ -1,67 +1,64 @@
 import { NetPlan } from './netplan';
-import { Helpers } from "../utility/helpers";
-var dhcp = require('isc-dhcp-server');
+import * as fs from 'fs';
 var exec = require("child-process-promise").exec
-import getMAC from 'getmac'
+
+export interface IscDhcpOptions {
+    dhcpMinHost: string, 
+    dhcpMaxHost: string, 
+    network: string,
+    thisHost: string;
+}
 
 export class IscDhcp {
-    static async updateSettingsAndRestart(
-        dhcpMinHost: string, 
-        dhcpMaxHost: string, 
-        networkId: string, 
-        thisHost: string,
-    ): Promise<void> {
-        let dhcpMinIp = Helpers.combineIpAddresses(networkId, dhcpMinHost);
-        let dhcpMaxIp = Helpers.combineIpAddresses(networkId, dhcpMaxHost);
-        let thisIp = Helpers.combineIpAddresses(networkId, thisHost);
-        let network = Helpers.combineIpAddresses(networkId, "0");
-        let routerIp = Helpers.combineIpAddresses(networkId, "1");
-        let broadcastIp = Helpers.combineIpAddresses(networkId, "255");
-        let interfaceName = NetPlan.getInterfaceName();
-        let mac = getMAC(interfaceName);
+    static confFile = "/etc/dhcp/dhcpd.conf";
+    static interfacesFile = "/etc/default/isc-dhcp-server";
 
-        var s = dhcp.createServer({
-            interface: interfaceName,
-            range: [
-                dhcpMinIp, dhcpMaxIp
-            ],
-            static: [
-                {
-                    hostname: process.env.HOSTNAME,
-                    mac_address: mac,
-                    ip_address: thisIp
-                }
-            ],
-            network: network,
-            netmask: "255.255.255.0",
-            router: routerIp,
-            dns: [thisIp],
-            broadcast: broadcastIp,
-            on_commit: ``
-        });
-        
-        if (await this.isRunning()) {
-            await this.stop();
+    static async updateSettings(options: IscDhcpOptions): Promise<void> {
+
+        if (!fs.existsSync(this.confFile)) {
+            throw(`isc dhcp error: ${this.confFile} not found`);
+        }
+        if (!fs.existsSync(this.interfacesFile)) {
+            throw(`isc dhcp error: ${this.interfacesFile} not found`);
         }
 
-        return s.start()
-            .then(() => {
-                console.log(". starting dhcp server on " + thisIp);
-                return IscDhcp.isRunning;
-            })
-            .then((success: boolean) => {
-                if (success) {
-                    console.log("✓ success");
-                    return;
+        this.writeConfiguration(options, 
+            NetPlan.getInterfaceName(),  
+            String(process.env.HOSTNAME));
+
+        return this.isRunning()
+            .then((result: boolean) => {
+                if (result) {
+                    return this.restart();
                 }
                 else {
-                    throw ("! error starting dhcp server")
+                    return this.start();
                 }
-            })
-            .catch((e: any) => {
-                throw ('! error starting DHCP server: ' + e)
-            })
+            });
     }
+
+    //https://documentation.ubuntu.com/server/how-to/networking/install-isc-dhcp-server/index.html
+    static writeConfiguration(obj: IscDhcpOptions, 
+        interfaceName: string,
+        hostname: string) {
+        let confString = `
+default-lease-time 600;
+max-lease-time 7200;
+    
+subnet ${obj.network}.0 netmask 255.255.255.0 {
+ range ${obj.network}.${obj.dhcpMinHost} ${obj.network}.${obj.dhcpMaxHost};
+ option routers ${obj.network}.1;
+ option domain-name-servers ${obj.network}.${obj.thisHost};
+ option domain-name "${hostname}.local";
+}
+`;
+        fs.writeFileSync(this.confFile, confString);
+
+        let interfacesString = `
+INTERFACESv4="${interfaceName}"
+`;
+        fs.writeFileSync(this.interfacesFile, interfacesString);
+}
 
     static isRunning(): Promise<boolean> {
         return exec("systemctl status isc-dhcp-server")
@@ -73,11 +70,63 @@ export class IscDhcp {
             });
     }
 
+    static restart(): Promise<void> {
+        return exec("systemctl restart isc-dhcp-server")
+            .then(() => {
+                console.log(". restarting dhcp server");
+                return IscDhcp.isRunning;
+            })
+            .then((isRunning: boolean) => {
+                if (isRunning) {
+                    console.log("✓ success");
+                    return;
+                }
+                else {
+                    throw ("! error restarting dhcp server")
+                }
+            })
+            .catch((e: any) => {
+                throw ('! error restarting DHCP server: ' + e)
+            });
+    }
+
     static start(): Promise<void> {
-        return exec("systemctl start isc-dhcp-server");
+        return exec("systemctl start isc-dhcp-server")
+            .then(() => {
+                console.log(". starting dhcp server");
+                return IscDhcp.isRunning;
+            })
+            .then((isRunning: boolean) => {
+                if (isRunning) {
+                    console.log("✓ success");
+                    return;
+                }
+                else {
+                    throw ("! error starting dhcp server")
+                }
+            })
+            .catch((e: any) => {
+                throw ('! error starting DHCP server: ' + e)
+            });
     }
 
     static stop(): Promise<void> {
-        return exec("systemctl stop isc-dhcp-server");
+        return exec("systemctl stop isc-dhcp-server")
+        .then(() => {
+            console.log(". stopping dhcp server");
+            return IscDhcp.isRunning;
+        })
+        .then((isRunning: boolean) => {
+            if (!isRunning) {
+                console.log("✓ success");
+                return;
+            }
+            else {
+                throw ("! error stopping dhcp server")
+            }
+        })
+        .catch((e: any) => {
+            throw ('! error stopping DHCP server: ' + e)
+        });
     }
 }
