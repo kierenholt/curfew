@@ -11,13 +11,16 @@
 
     git clone https://github.com/kierenholt/curfew.git
 
-    cd ./app
+    cd app
     npm install
+    cd ..
 
-    cd ../server
+    cd server
     npm install
+    cd ..
 
     sudo systemctl status isc-dhcp-server
+
 
 # env settings
 create .env file in the appropriate folders (see below)
@@ -46,6 +49,28 @@ then edit to include correct device name.
 then apply new settings
     netplan --debug apply
 
+
+# disable systemd-resolved dns listener to free up port 53
+    cd deploy
+    systemctl stop systemd-resolved
+    cp -f resolved.conf /etc/systemd/resolved.conf
+    systemctl start systemd-resolved
+
+# check port 53 is free (command should return nothing)
+    lsof -i:53
+
+# generate certificate files
+    openssl req -nodes -new -x509 -keyout CA_key.pem -out CA_cert.pem -days 1825 -config CA.cnf
+    openssl req -sha256 -nodes -newkey rsa:2048 -keyout localhost_key.pem -out localhost.csr -config localhost.cnf
+    openssl x509 -req -days 398 -in localhost.csr -CA CA_cert.pem -CAkey CA_key.pem -CAcreateserial -out localhost_cert.pem -extensions req_ext -extfile localhost.cnf
+    rm CA_cert.srl
+    rm localhost.csr
+
+# copy certificate files
+    mkdir -p ../server/bin/cert
+    cp localhost_cert.pem ../server/bin/cert
+    cp localhost_key.pem ../server/bin/cert
+
 ## vscode extensions
 1. useful for viewing db
     https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
@@ -57,6 +82,9 @@ use attach button for backend and
     cd ../server
     node_modules/.bin/tsc --watch
     sudo node --inspect-brk bin/run.js
+    f5
+    visit http://localhost:3000/
+
 
 ## if you lose the wifi device this will reset back to network manager (and disable netplan)
 cd /etc/netplan/
@@ -90,6 +118,7 @@ DEFAULT_THIS_HOST=39
 DEFAULT_DHCP_MIN_HOST=100
 DEFAULT_DHCP_MAX_HOST=200
 DEFAULT_DNS_SERVER=1.1.1.1
+USE_REACT_DEV_SERVER=1
 
 # PRODUCTION ENV - /deploy/.env
 HTTP_PORT=80
@@ -106,3 +135,4 @@ DEFAULT_THIS_HOST=39
 DEFAULT_DHCP_MIN_HOST=100
 DEFAULT_DHCP_MAX_HOST=200
 DEFAULT_DNS_SERVER=1.1.1.1
+USE_REACT_DEV_SERVER=0

@@ -17,12 +17,17 @@ var app = express();
 export class API {
     static start(db: CurfewDb, setup?: Setup) {
         let wwwPath = path.join(__dirname, 'wwwroot');
+        let indexPath = path.join(wwwPath, "index.html");
         let certPath = path.join(__dirname, 'cert');
         let localKeyPath = path.join(certPath, 'localhost_key.pem')
         let localCertPath = path.join(certPath, 'localhost_cert.pem');
 
+        if (Number(process.env.USE_REACT_DEV_SERVER) == 0 && !fs.existsSync(indexPath)) {
+            throw("wwwroot/index.html not found. please read readme.md");
+        }
+
         if (!fs.existsSync(localKeyPath) || !fs.existsSync(localCertPath)) {
-            throw("certificate not found. please read deploy.md");
+            throw("certificate not found. please read readme.md");
         }
 
         let options = {
@@ -43,10 +48,12 @@ export class API {
         KeywordApi.init(app, db);
         ProgressApi.init(app);
         
-        //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
-        app.get("*", (req: Request, res: Response) => {
-            res.sendFile(path.join(wwwPath, "index.html"));
-        })
+        if (Number(process.env.USE_REACT_DEV_SERVER) == 0) {
+            //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67
+            app.get("*", (req: Request, res: Response) => {
+                res.sendFile(indexPath);
+            })
+        }
         
         http.createServer(app).listen(process.env.HTTP_PORT, () => {
             console.log(`✓ Server is listening at http://localhost:${process.env.HTTP_PORT}`);

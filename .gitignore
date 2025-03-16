@@ -1,12 +1,8 @@
-node_modules
-.env
+server/.env
 server/node_modules
-app/node_modules
 server/bin
+server/curfew.db
+app/node_modules
 app/bin
-*.db
-curfew.db
-docker/*
-*.pem
 app/build
 device.csv
