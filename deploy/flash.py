@@ -2,7 +2,7 @@
 
 import os, sys, re, subprocess, json
 
-path = "/home/kieren/Documents/typescript/luckfox-pico/IMAGE/IPC_SD_CARD_UBUNTU_RV1103_LUCKFOX_PICO_PLUS_20250225.2215_RELEASE_TEST/IMAGES"
+path = "/home/kieren/Documents/typescript/luckfox-pico/IMAGE/IPC_SD_CARD_UBUNTU_RV1106_LUCKFOX_PICO_MAX_20250317.2119_RELEASE_TEST/IMAGES"
 #path = "/home/kieren/Documents/typescript/luckfox-pico/output/image"
 
 os.chdir(path)

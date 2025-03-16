@@ -101,10 +101,8 @@ then apply new settings
 1. useful for viewing db
    https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
 
-## how to run LOCALLY INSIDE VS CODE
-
-use attach button for backend and
-
+## how to run LOCALLY INSIDE VS CODE, USING REACT DEV SERVER
+use attach button for backend and 
     cd ../app
     npm run start
     cd ../server
@@ -113,9 +111,8 @@ use attach button for backend and
     f5
     visit http://localhost:3000/
 
-## if you lose the wifi device try this first
-
-    sudo netplan apply
+## if you lose the wifi for no reason try this first, then disable networkmanager
+sudo netplan apply
 
 ## if you lose the wifi device this will reset back to network manager (and disable netplan)
 
@@ -128,7 +125,6 @@ use attach button for backend and
 ## how to turn off the service
 
 enable dhcp server on the router
-
     sudo systemctl stop isc-dhcp-server
     sudo pm2 list
     sudo pm2 stop 0
@@ -136,7 +132,6 @@ enable dhcp server on the router
 ## how to turn it back on
 
 disable dhcp server on the router
-
     sudo systemctl start isc-dhcp-server
     sudo pm2 list
     sudo pm2 start 0

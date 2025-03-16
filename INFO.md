@@ -9,10 +9,6 @@ https://ubuntu.com/server/docs/how-to-install-and-configure-isc-dhcp-server
 sudo systemctl stop isc-dhcp-server.service
 sudo systemctl start isc-dhcp-server.service
 
-## isc dhcp manager - npm package
-https://github.com/adonespitogo/node-isc-dhcp-server/blob/master/src/service.js
-https://www.npmjs.com/package/isc-dhcp-server
-
 ## how to make certificate for local ips
 https://stackoverflow.com/questions/66558788/how-to-create-a-self-signed-or-signed-by-own-ca-ssl-certificate-for-ip-address
 
