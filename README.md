@@ -26,35 +26,41 @@
 create .env file in the appropriate folders (see below)
 copy contents into each file
 
-## how to configure netplan
+## how to configure netplan (only tested on ubuntu 22.04 LTS)
+first disable networkmanager
+    sudo systemctl stop NetworkManager.service
+    sudo systemctl disable NetworkManager.service
 use
     ip link show
 to get the name of the target network card e.g enp1s0, wlp2s0
 
-## option 1 wifi 
+### option 1 wifi 
 copy wifi-static to /etc/netplan
 then edit to include correct device name, network ssid and password. 
     cd deploy
     cp -f wifi-static.yaml /etc/netplan/config.yaml
     sudo nano /etc/netplan/config.yaml
 then apply new settings
-    netplan --debug apply
+    sudo netplan --debug apply
+    cd ..
 
-## option 2 ethernet
+### option 2 ethernet
 copy eth-static to /etc/netplan
 then edit to include correct device name. 
     cd deploy
     cp -f eth-static.yaml /etc/netplan/config.yaml
     sudo nano /etc/netplan/config.yaml
 then apply new settings
-    netplan --debug apply
+    sudo netplan --debug apply
+    cd ..
 
 
 # disable systemd-resolved dns listener to free up port 53
     cd deploy
-    systemctl stop systemd-resolved
-    cp -f resolved.conf /etc/systemd/resolved.conf
-    systemctl start systemd-resolved
+    sudo systemctl stop systemd-resolved
+    sudo cp -f resolved.conf /etc/systemd/resolved.conf
+    sudo systemctl start systemd-resolved
+    cd ..
 
 # check port 53 is free (command should return nothing)
     lsof -i:53
