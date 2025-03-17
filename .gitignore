@@ -1,4 +1,3 @@
-server/.env
 server/node_modules
 server/bin
 server/curfew.db
@@ -7,3 +6,5 @@ app/bin
 app/build
 device.csv
 *.pem
+.env
+package-lock.json
