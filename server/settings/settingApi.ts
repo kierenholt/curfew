@@ -24,8 +24,8 @@ export class SettingApi {
                 //change to ip => restart net
                 if (key == SettingKey.thisHost) {
                     let dhcpOptions = await db.settingQuery.getDhcpOptions();
-                    let upstreamDns = await db.settingQuery.getString(SettingKey.upstreamDnsServer);
-                    await NetPlan.disableDhcpsetStaticIp(dhcpOptions.network, dhcpOptions.thisHost, upstreamDns);
+                    let netplanOptions = await db.settingQuery.getNetplanOptions();
+                    await NetPlan.setStaticIp(netplanOptions);
                     await IscDhcp.updateSettings(dhcpOptions);
                 }
 

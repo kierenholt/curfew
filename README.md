@@ -22,53 +22,14 @@
     npm install
     cd ..
 
-    sudo systemctl status isc-dhcp-server
-
 # env settings
 
 create .env file in the appropriate folders (see below)
 copy contents into each file
 
-## how to configure netplan (only tested on ubuntu 22.04 LTS)
-
-first disable networkmanager
-
+# how to disable networkmanager (so netplan can work)
     sudo systemctl stop NetworkManager.service
     sudo systemctl disable NetworkManager.service
-
-use
-
-    ip link show
-
-to get the name of the target network card e.g enp1s0, wlp2s0
-
-### option 1 wifi
-
-copy wifi-static to /etc/netplan
-then edit to include correct device name, network ssid and password.
-
-    cd deploy
-    cp -f wifi-static.yaml /etc/netplan/config.yaml
-    sudo nano /etc/netplan/config.yaml
-
-then apply new settings
-
-    sudo netplan --debug apply
-    cd ..
-
-### option 2 ethernet
-
-copy eth-static to /etc/netplan
-then edit to include correct device name.
-
-    cd deploy
-    cp -f eth-static.yaml /etc/netplan/config.yaml
-    sudo nano /etc/netplan/config.yaml
-
-then apply new settings
-
-    sudo netplan --debug apply
-    cd ..
 
 # disable systemd-resolved dns listener to free up port 53
 
@@ -112,27 +73,22 @@ use attach button for backend and
     visit http://localhost:3000/
 
 ## if you lose the wifi for no reason try this first, then disable networkmanager
-sudo netplan apply
+    sudo netplan apply
 
 ## if you lose the wifi device this will reset back to network manager (and disable netplan)
-
     cd /etc/netplan/
     sudo rm config.yaml
     sudo netplan --debug generate
     sudo netplan apply
     reboot
 
-## how to turn off the service
-
-enable dhcp server on the router
+## how to turn off the service (in case the process ends abruptly and cannot turn them off)
     sudo systemctl stop isc-dhcp-server
     sudo pm2 list
     sudo pm2 stop 0
+NB: also enable dhcp server on the router
 
 ## how to turn it back on
-
-disable dhcp server on the router
-    sudo systemctl start isc-dhcp-server
     sudo pm2 list
     sudo pm2 start 0
 

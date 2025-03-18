@@ -4,6 +4,7 @@ import { Setting, SettingKey } from "./setting";
 import { ModelName, RouterOptions } from "../router/routerProvider";
 import { Helpers } from "../utility/helpers";
 import { IscDhcpOptions } from "../net/dhcp";
+import { NetPlanOptions } from "../net/netplan";
 
 export class SettingQuery {
 
@@ -142,6 +143,14 @@ export class SettingQuery {
             thisHost: await this.getString(SettingKey.thisHost),
             dhcpMaxHost: await this.getString(SettingKey.dhcpMaxHost),
             dhcpMinHost: await this.getString(SettingKey.dhcpMinHost),
+        }
+    }
+
+    async getNetplanOptions() : Promise<NetPlanOptions> {
+        return {
+            network: await this.getString(SettingKey.networkId),
+            thisHost: await this.getString(SettingKey.thisHost),
+            dns: await this.getString(SettingKey.upstreamDnsServer),
         }
     }
 }

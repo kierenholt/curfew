@@ -6,7 +6,6 @@ import { ModelName, RouterOptions, RouterProvider } from "../router/routerProvid
 import { SettingKey } from "../settings/setting";
 import { Helpers } from "../utility/helpers";
 
-
 export class Setup {
     promises: any = {};
     
@@ -33,17 +32,17 @@ export class Setup {
     
     async init() {
         //SETUP
-        this.networkId = await NetPlan.getNetworkId();
         console.log(". stopping ISC DHCP");
         await IscDhcp.stop();
     
         // 	netplan set dhcp on
         console.log(". finding network id");
-        await NetPlan.enableDhcp();
+        await NetPlan.setDhcp();
         await Helpers.wait(2000);
 
         // 	find and save the network id
         this.networkId = await NetPlan.getNetworkId();
+
         // send off promise value
         if (this.promises[SettingKey.networkId]) {
             this.promises[SettingKey.networkId](this.networkId);
@@ -57,7 +56,7 @@ export class Setup {
         console.log(". setting static IP address");
         let thisHost = await this.db.settingQuery.getString(SettingKey.thisHost);
         let dnsUpstreamIp = await this.db.settingQuery.getString(SettingKey.upstreamDnsServer);
-        await NetPlan.disableDhcpsetStaticIp(this.networkId, thisHost, dnsUpstreamIp);
+        await NetPlan.setStaticIp({dns: dnsUpstreamIp, network: this.networkId, thisHost: thisHost});
         await Helpers.wait(2000);
         
         // find router model
@@ -73,7 +72,6 @@ export class Setup {
         console.log("✓ success");
         
         // HAS STATIC IP AT THIS POINT - API CAN BE LOADED
-
         console.log(". starting setup API");
         API.start(this.db, this);
 

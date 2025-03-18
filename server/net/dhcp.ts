@@ -22,8 +22,9 @@ export class IscDhcp {
             throw(`isc dhcp error: ${this.interfacesFile} not found`);
         }
 
+        let interfaceName = await NetPlan.getInterfaceName();
         this.writeConfiguration(options, 
-            NetPlan.getInterfaceName(),  
+            interfaceName,
             String(process.env.HOSTNAME));
 
         return this.isRunning()
@@ -74,7 +75,7 @@ INTERFACESv4="${interfaceName}"
         return exec("systemctl restart isc-dhcp-server")
             .then(() => {
                 console.log(". restarting dhcp server");
-                return IscDhcp.isRunning;
+                return IscDhcp.isRunning();
             })
             .then((isRunning: boolean) => {
                 if (isRunning) {
@@ -94,7 +95,7 @@ INTERFACESv4="${interfaceName}"
         return exec("systemctl start isc-dhcp-server")
             .then(() => {
                 console.log(". starting dhcp server");
-                return IscDhcp.isRunning;
+                return IscDhcp.isRunning();
             })
             .then((isRunning: boolean) => {
                 if (isRunning) {
@@ -114,7 +115,7 @@ INTERFACESv4="${interfaceName}"
         return exec("systemctl stop isc-dhcp-server")
         .then(() => {
             console.log(". stopping dhcp server");
-            return IscDhcp.isRunning;
+            return IscDhcp.isRunning();
         })
         .then((isRunning: boolean) => {
             if (!isRunning) {

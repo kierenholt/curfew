@@ -9,7 +9,6 @@ import { RouterProvider } from "./router/routerProvider";
 import { Jobs } from "./utility/jobs";
 import { Setup } from "./setup/setup";
 import { checkEnv } from "./utility/checkEnv";
-import { SettingKey } from "./settings/setting";
 
 dotenv.config();
 
