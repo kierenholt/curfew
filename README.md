@@ -28,6 +28,7 @@ create .env file in the appropriate folders (see below)
 copy contents into each file
 
 # how to disable networkmanager (so netplan can work)
+
     sudo systemctl stop NetworkManager.service
     sudo systemctl disable NetworkManager.service
 
@@ -64,8 +65,8 @@ copy contents into each file
    https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
 
 ## how to run LOCALLY INSIDE VS CODE, USING REACT DEV SERVER
-use attach button for backend and
 
+use attach button for backend and 
     cd ../app
     npm run start
     cd ../server
@@ -75,9 +76,11 @@ use attach button for backend and
     visit http://localhost:3000/
 
 ## if you lose the wifi for no reason try this first, then disable networkmanager
+
     sudo netplan apply
 
 ## if you lose the wifi device this will reset back to network manager (and disable netplan)
+
     cd /etc/netplan/
     sudo rm config.yaml
     sudo netplan --debug generate
@@ -85,12 +88,14 @@ use attach button for backend and
     reboot
 
 ## how to turn off the service (in case the process ends abruptly and cannot turn them off)
+
     sudo systemctl stop isc-dhcp-server
     sudo pm2 list
     sudo pm2 stop 0
 NB: also enable dhcp server on the router
 
 ## how to turn it back on
+
     sudo pm2 list
     sudo pm2 start 0
 

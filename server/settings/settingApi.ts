@@ -3,7 +3,7 @@ import { NetPlan } from '../net/netplan';
 import { IscDhcp } from '../net/dhcp';
 import { CurfewDb } from '../db';
 import { SettingKey } from './setting';
-import { hardReset } from '../reset';
+import { hardReset, shutdown } from '../reset';
 
 export class SettingApi {
     static init(app: Express, db: CurfewDb) {
@@ -58,6 +58,12 @@ export class SettingApi {
         //curl -i -X DELETE -H "Content-Type: application/json"  http://localhost:5000/api/settings/hardReset
         app.delete('/api/settings/hardReset', async (req: Request, res: Response) => {
             hardReset(db);
+        });
+
+        //delete network settings and restart
+        //curl -i -X DELETE -H "Content-Type: application/json"  http://localhost:5000/api/settings/shutdown
+        app.delete('/api/settings/shutdown', async (req: Request, res: Response) => {
+            shutdown(db);
         });
     }
 }
