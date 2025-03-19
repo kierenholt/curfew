@@ -63,7 +63,8 @@ copy contents into each file
    https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
 
 ## how to run LOCALLY INSIDE VS CODE, USING REACT DEV SERVER
-use attach button for backend and 
+use attach button for backend and
+
     cd ../app
     npm run start
     cd ../server
