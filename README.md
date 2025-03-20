@@ -27,18 +27,12 @@
 create .env file in the appropriate folders (see below)
 copy contents into each file
 
-# how to disable networkmanager (so netplan can work)
+# disable systemd-resolved dns listener to free up port 53 
 
-    sudo systemctl stop NetworkManager.service
-    sudo systemctl disable NetworkManager.service
-
-# disable systemd-resolved dns listener to free up port 53
-
-    cd deploy
-    sudo systemctl stop systemd-resolved
-    sudo cp -f resolved.conf /etc/systemd/resolved.conf
-    sudo systemctl start systemd-resolved
-    cd ..
+    https://www.qualityology.com/tech/ubuntu-port-53-already-in-use-how-to-free-the-dns-port/
+    sudo nano /etc/systemd/resolved.conf
+edit so that DNSStubListener=no 
+    sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
 # check port 53 is free (command should return nothing)
 
@@ -75,17 +69,11 @@ use attach button for backend and
     f5
     visit http://localhost:3000/
 
-## if you lose the wifi for no reason try this first, then disable networkmanager
+## to reset back to network manager
 
+    sudo nano /etc/netplan/config.yaml
+change netpland to NetworkManager
     sudo netplan apply
-
-## if you lose the wifi device this will reset back to network manager (and disable netplan)
-
-    cd /etc/netplan/
-    sudo rm config.yaml
-    sudo netplan --debug generate
-    sudo netplan apply
-    reboot
 
 ## how to turn off the service (in case the process ends abruptly and cannot turn them off)
 

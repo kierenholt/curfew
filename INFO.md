@@ -1,13 +1,5 @@
-## netplan
-https://www.npmjs.com/package/netplan-config
-https://github.com/justinschw/netplan-config/blob/master/README.md
-
 ## ABOUT isc dhcp server
 https://ubuntu.com/server/docs/how-to-install-and-configure-isc-dhcp-server
-
-## how to disable current dhcp
-sudo systemctl stop isc-dhcp-server.service
-sudo systemctl start isc-dhcp-server.service
 
 ## how to make certificate for local ips
 https://stackoverflow.com/questions/66558788/how-to-create-a-self-signed-or-signed-by-own-ca-ssl-certificate-for-ip-address
@@ -19,10 +11,7 @@ https://www.lancaster.ac.uk/iss/tsg/cosign/csr-windows.html
 https://pm2.keymetrics.io/docs/usage/quick-start/
 
 # about netplan
-https://netplan.readthedocs.io/en/latest/examples/#how-to-connect-multiple-interfaces-with-dhcp
-
-# about getmac
-https://www.npmjs.com/package/getmac
+https://netplan.readthedocs.io/en/latest/examples/
 
 ## chip
 https://wiki.luckfox.com/Luckfox-Pico/Download
