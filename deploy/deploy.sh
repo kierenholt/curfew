@@ -9,7 +9,11 @@
     node_modules/.bin/tsc #should add files to /server/bin
     cd ..
 
-# copy build files to mounted rootfs image
+## at this point you might want to check it runs
+
+    sudo node /server/bin/run.js
+
+## copy build files to mounted rootfs image
 
     cd server
     dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew/server

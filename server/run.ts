@@ -23,7 +23,6 @@ async function run() {
     }
     else {
         // NORMAL STARTUP
-        
         let router: RouterBase | null = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
         if (router == null || !(await router.isPasswordCorrect())) {
             throw("router not found or invalid password");
@@ -32,14 +31,12 @@ async function run() {
 
         await Jobs.start(db);
 
-        if (Number(process.env.ROUTER_ENABLED)) {
-            //CONFIGURE ROUTER
-            await router!.disableDHCP();
-            await IscDhcp.updateSettings(await db.settingQuery.getDhcpOptions());
-        
-            //SET ROUTER FILTERS
-            await router!.applyBlockedIPsAndPorts(await db.getAllBlockedIPsAndPorts());
-        }
+        //CONFIGURE ROUTER
+        await router!.disableDHCP();
+        await IscDhcp.updateSettings(await db.settingQuery.getDhcpOptions());
+    
+        //SET ROUTER FILTERS
+        await router!.applyBlockedIPsAndPorts(await db.getAllBlockedIPsAndPorts());
         
         if (Number(process.env.DNS_ENABLED)) {
             //DNS SERVER

@@ -49,6 +49,10 @@ export class SettingQuery {
     }
 
     async set(key: SettingKey, value: string): Promise<number> {
+        if (key == SettingKey.routerModel && value == ModelName.TestRouter) {
+            console.log("! attempting to save test router to settings");
+            return Promise.resolve(0);
+        }
         return this.connection.run(`
             update setting 
             set value = ?

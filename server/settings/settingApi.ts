@@ -54,13 +54,13 @@ export class SettingApi {
             }
         });
 
-        //delete network settings and restart
+        //disable services, delete network settings and restart
         //curl -i -X DELETE -H "Content-Type: application/json"  http://localhost:5000/api/settings/hardReset
         app.delete('/api/settings/hardReset', async (req: Request, res: Response) => {
             hardReset(db);
         });
 
-        //delete network settings and restart
+        //disable services and shutdown
         //curl -i -X DELETE -H "Content-Type: application/json"  http://localhost:5000/api/settings/shutdown
         app.delete('/api/settings/shutdown', async (req: Request, res: Response) => {
             shutdown(db);
