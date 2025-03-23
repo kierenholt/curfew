@@ -26,3 +26,6 @@ https://drive.google.com/drive/folders/1sFUWjYpDDisf92q9EwP1Ia7lHgp9PaFS
 
 # how to get upgrade tool
 https://wiki.luckfox.com/Luckfox-Pico/Linux-MacOS-Burn-Image/
+
+## how to use upgrade_tool
+https://github.com/vicharak-in/Linux_Upgrade_Tool

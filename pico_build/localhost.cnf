@@ -1,0 +1,22 @@
+[req]
+default_bits  = 2048
+distinguished_name = req_distinguished_name
+prompt = no
+
+[req_distinguished_name]
+countryName = GB
+stateOrProvinceName = Surrey
+localityName = Kingston-Upon-Thames
+organizationName = Curfew
+commonName = curfew
+
+[req_ext]
+subjectAltName = @alt_names
+
+[v3_req]
+subjectAltName = @alt_names
+
+[alt_names]
+IP.1 = 127.0.0.1
+DNS.1 = localhost
+DNS.1 = curfew.local

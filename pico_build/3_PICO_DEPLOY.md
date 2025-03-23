@@ -1,5 +1,5 @@
 
-# HOW TO CREATE DISK IMAGE AND THEN BURN TO SD
+# HOW TO CREATE DISK IMAGE AND THEN COPY FS TO SD
 
 ## install upgrade tool
 cd deploy
@@ -48,7 +48,7 @@ plug in with no sd card
 run sudo upgrade_tool LD
 it should list the pico as mode=MaskRom
 
-# LOGIN VIA SSH TO INSTALL SOFTWARE
+# LOGIN VIA SSH TO INSTALL DEPENDENCIES
 connect pico plus to network
 to check the leases:
 client-hostname "luckfox";
@@ -61,6 +61,8 @@ password is luckfox
 linux version command
     cat /etc/os-release
     uname -a
+
+## TO INSTALL DEPENDENCIES ON PICO FOLLOW PICO_SETUP.MD
 
 ## SD -> IMAGE FILE
 list devices to find sd card
@@ -80,16 +82,42 @@ bind the device to the image
     sudo mount /dev/curfew /curfew-rootfs
 image wil be mounted in /dev/curfew as a virtual directory
 
+## BEFORE COPYING THE BIN FOLDER, MAKE SURE YOU HAVE READ BEFORE_DEPLOY.MD
 
-## COPY FILES
+## copy build files to mounted rootfs image
 
-## THEN SYNC
+    cd server
+    dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew/server
+    mkdir -p $dest/bin
+    cp -r bin/* $dest/bin/
+    mkdir -p $dest/node_modules
+    cp -r node_modules/* $dest/node_modules/
+    sync
+    cd ..
 
-## TO INSTALL SOFTWARE, FOLLOW README.MD
+# copy env
+    cd pico_build
+    dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew/server
+    cp .env $dest
+    sync
+    #chmod -R 755 $dest
+    cd ..
+
+# start as a service (first time)
+    sudo pm2 start server/bin/run.js
+    sudo pm2 save
+
+
+# start (subsequent times)
+    sudo pm2 start 0
+    
+
+# also helpful
+#   pm2 stop 0
+#   pm2 flush
+#   pm2 logs 0
+
 
 ## ALSO USEFUL - UNMOUNT
     sudo umount /curfew-root
     sudo losetup -d /dev/curfew
-
-# how to use upgrade_tool
-https://github.com/vicharak-in/Linux_Upgrade_Tool

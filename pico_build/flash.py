@@ -2,8 +2,8 @@
 
 import os, sys, re, subprocess, json
 
-path = "/home/kieren/Documents/typescript/luckfox-pico/IMAGE/IPC_SD_CARD_UBUNTU_RV1106_LUCKFOX_PICO_MAX_20250317.2119_RELEASE_TEST/IMAGES"
-#path = "/home/kieren/Documents/typescript/luckfox-pico/output/image"
+#path = "/home/kieren/Documents/typescript/luckfox-pico/IMAGE/IPC_SD_CARD_UBUNTU_RV1106_LUCKFOX_PICO_MAX_20250317.2119_RELEASE_TEST/IMAGES"
+path = "/home/kieren/Documents/typescript/curfew-images"
 
 os.chdir(path)
 
@@ -72,8 +72,8 @@ if sys.argv[1] == 'read-env':
 
 if sys.argv[1] == 'write-sd':
    print(".writing sd")
-   for [name, offset] in sdWrites:
-      print(f".writing {name} at {offset}")
+   for [name, offset, size] in sdWrites:
+      print(f".writing {name} at {offset} with size {size}")
       writeSD(name, offset)
 
 if sys.argv[1] == 'erase-flash':
