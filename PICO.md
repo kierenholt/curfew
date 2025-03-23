@@ -1,11 +1,13 @@
 
-# install upgrade tool
+# HOW TO CREATE DISK IMAGE AND THEN BURN TO SD
+
+## install upgrade tool
 cd deploy
 cd upgrade_tool_v2.17
 sudo cp upgrade_tool /usr/local/bin
 sudo chmod +x /usr/local/bin/upgrade_tool
 
-# check it is installed
+## check it is installed
 upgrade_tool
 
 ## MAKING IMAGES
@@ -26,7 +28,7 @@ then option 21
 
     sudo ./build.sh
 
-# IMAGE FILE -> SD
+## IMAGE FILE -> SD
 hold button while connecting USB cable
 run lsusb to check it has connected - should say "Fuzhou Rockchip Electronics Company"
 it should NOT say "Fuzhou Rockchip Electronics Company rk3xxx" - this is system mode not 
@@ -37,23 +39,16 @@ list devices to find sd card
 make sure device and path are correct in flash.py
 run flash.py
     cd deploy
-    sudo python3 flash.py
+    sudo python3 flash.py write-sd
     cd ..
 
-# SD -> IMAGE FILE
-list devices to find sd card
-    sudo blkid /dev/sd*
-clone sd to file
-    sudo dd if=/dev/sdb1 of=/home/kieren/Documents/typescript/curfew-images/rootfs.img bs=64K conv=noerror,sync
+## ERASE PICO'S SPI-NAND SO IT BOOTS FROM SD
+    sudo python3 flash.py erase-flash
+plug in with no sd card
+run sudo upgrade_tool LD
+it should list the pico as mode=MaskRom
 
-# CHECK PICO HAS BEEN FLASHED
-    plug in with no sd card
-    run sudo upgrade_tool LD
-    it should list the pico as mode=MaskRom
-download boot ?
-?    sudo upgrade_tool DB download.bin
-
-## LOGIN VIA SSH
+# LOGIN VIA SSH TO INSTALL SOFTWARE
 connect pico plus to network
 to check the leases:
 client-hostname "luckfox";
@@ -61,40 +56,40 @@ mac ea:7b:5c:56:bb:b1
     sudo service isc-dhcp-server status 
 OR
     nano /var/lib/dhcp/dhcpd.leases
-    ssh pico@192.168.0.118
+    ssh pico@192.168.0.45
 password is luckfox
 linux version command
     cat /etc/os-release
     uname -a
 
+## SD -> IMAGE FILE
+list devices to find sd card
+    sudo blkid /dev/sd*
+get offset and byte count of the rootfs volume
+    cd deploy
+    sudo python3 flash.py read-env
+copy the rootfs to file (replace the skip and count arguments)
+    sudo dd if=/dev/sdb of=/home/kieren/Documents/typescript/curfew-images/rootfs.img bs=64K skip=839680000 count=6442450944 iflag=skip_bytes,count_bytes conv=noerror,sync
+
 ## MOUNT DISK IMAGE FOR EDITING FILES
     cd /home/kieren/Documents/typescript/curfew-images
-    sudo losetup /dev/curfew rootfs.img
-    sudo mount /dev/curfew /curfew-root
+find unused loop device
+    losetup -f
+bind the device to the image
+    sudo losetup /dev/loop14 rootfs.img
+    sudo mount /dev/curfew /curfew-rootfs
+image wil be mounted in /dev/curfew as a virtual directory
 
 
 ## COPY FILES
 
 ## THEN SYNC
 
-## UPDATE NPM ON THE PICO
-% sudo apt update  # Update package list
-% sudo apt upgrade # Upgrade installed packages
-% sudo apt install -y ca-certificates curl gnupg
-% sudo mkdir -p /etc/apt/keyrings
-% curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-% echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
-% sudo apt update
-% sudo apt install nodejs -y
-    node -v # Should print "v22.14.0".
-    npm -v # Should print "10.9.2".
-    sync
+## TO INSTALL SOFTWARE, FOLLOW README.MD
 
-## UNOUNT DEVICE (NOT REALLY NECESSARY)
+## ALSO USEFUL - UNMOUNT
     sudo umount /curfew-root
     sudo losetup -d /dev/curfew
-
-
 
 # how to use upgrade_tool
 https://github.com/vicharak-in/Linux_Upgrade_Tool

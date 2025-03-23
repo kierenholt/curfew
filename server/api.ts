@@ -16,7 +16,7 @@ var app = express();
 
 export class API {
     static start(db: CurfewDb, setup?: Setup) {
-        let wwwPath = path.join(__dirname, 'wwwroot');
+        let wwwPath = path.join(__dirname, 'app');
         let indexPath = path.join(wwwPath, "index.html");
         let certPath = path.join(__dirname, 'cert');
         let localKeyPath = path.join(certPath, 'localhost_key.pem')

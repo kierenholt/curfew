@@ -61,17 +61,21 @@ with open("env.img", "rb") as envFile:
                   start = end
                   end = start + size
             if use_sd: #sd
-               sdWrites.append([name, start])
+               sdWrites.append([name, start, size])
 
 print(f"path: {path}")
 
-if True:
+if sys.argv[1] == 'read-env':
+   print(f".reading offsets from env.img")
+   for [name, offset, size] in sdWrites:
+      print(f".{name} at {offset} with size {size}")
+
+if sys.argv[1] == 'write-sd':
    print(".writing sd")
    for [name, offset] in sdWrites:
       print(f".writing {name} at {offset}")
       writeSD(name, offset)
-      pass
 
-if True:
+if sys.argv[1] == 'erase-flash':
    print(".erasing flash")
    eraseFlash()

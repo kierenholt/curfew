@@ -9,14 +9,9 @@ https://developer.arm.com/documentation/den0013/d/Building-Linux-for-ARM-Systems
 ## make custom alpine image using alpine sdk
 https://wiki.alpinelinux.org/wiki/How_to_make_a_custom_ISO_image_with_mkimage#Create_the_ISO
 
-## test image on qemu
-
-
-
 ## USING ROCKCHIP SDK (support custom alpine kernel)
 add to path
     export PATH="/home/kieren/Documents/typescript/rkbin/tools:$PATH"
-
 
 ## USING LUCKFOX SDK (buildroot only, and > 128M)
 
