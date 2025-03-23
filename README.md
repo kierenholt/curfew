@@ -71,13 +71,15 @@ edit so that DNSStubListener=no
 ## how to run LOCALLY INSIDE VS CODE, USING REACT DEV SERVER
 
 use attach button for backend and 
-    cd ../app
+    cd app
     npm run start
-    cd ../server
+    cd ..
+    cd server
     node_modules/.bin/tsc --watch
     sudo node --inspect-brk bin/run.js
-    f5
-    visit http://localhost:3000/
+    cd ..
+attach in vscode
+visit http://localhost:3000/
 
 ## to reset back to network manager
 

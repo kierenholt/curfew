@@ -23,7 +23,7 @@ export class RouterProvider {
     }
 
     async savedRouter(): Promise<RouterBase | null> {
-        if (Number(process.env.MOCKROUTER) == 1) {
+        if (Number(process.env.MOCK_ROUTER) == 1) {
             return new MockRouter();
         }
         let name = await this.options.name;
