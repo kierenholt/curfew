@@ -1,6 +1,67 @@
-### this is for dev setup, for SoC/production setup, see PICO.md
+# HOW TO CREATE DISK IMAGE AND THEN COPY FS TO SD
 
-## node setup - one time only
+## install upgrade tool
+cd deploy
+cd upgrade_tool_v2.17
+sudo cp upgrade_tool /usr/local/bin
+sudo chmod +x /usr/local/bin/upgrade_tool
+
+## check it is installed
+upgrade_tool
+
+## MAKING IMAGES
+https://wiki.luckfox.com/Luckfox-Pico/Luckfox-Pico-SDK/
+
+    cd "/home/kieren/Documents/typescript/luckfox-pico"
+    ./build.sh lunch
+
+
+choose custom
+then option 21
+21. BoardConfig_IPC/BoardConfig-SD_CARD-Ubuntu-RV1106_Luckfox_Pico_Max-IPC.mk
+                             boot medium(启动介质): SD_CARD
+                          system version(系统版本): Ubuntu
+                        hardware version(硬件版本): RV1106_Luckfox_Pico_Max
+                             application(应用场景): IPC
+----------------------------------------------------------------
+
+    sudo ./build.sh
+
+## IMAGE FILE -> SD
+hold button while connecting USB cable
+run lsusb to check it has connected - should say "Fuzhou Rockchip Electronics Company"
+it should NOT say "Fuzhou Rockchip Electronics Company rk3xxx" - this is system mode not 
+
+list devices to find sd card
+    lshw -C disk
+    sudo blkid /dev/sd*
+make sure device and path are correct in flash.py
+run flash.py
+    cd deploy
+    sudo python3 flash.py write-sd
+    cd ..
+
+## ERASE PICO'S SPI-NAND SO IT BOOTS FROM SD
+    sudo python3 flash.py erase-flash
+plug in with no sd card
+run sudo upgrade_tool LD
+it should list the pico as mode=MaskRom
+
+# LOGIN VIA SSH
+connect pico plus to network
+to check the leases:
+client-hostname "luckfox";
+mac ea:7b:5c:56:bb:b1
+    sudo service isc-dhcp-server status 
+OR
+    nano /var/lib/dhcp/dhcpd.leases
+    ssh pico@192.168.0.45
+password is luckfox
+linux version command
+    cat /etc/os-release
+    uname -a
+
+## node setup
 
     follow these steps https://nodejs.org/en/download
 
@@ -15,126 +76,13 @@
     sudo apt install -y isc-dhcp-server ca-certificates curl gnupg
     sudo npm install -y pm2 -g
 
-## install projects
+## check port 53 is free (command should return nothing)
 
-    git clone https://github.com/kierenholt/curfew.git
-    cd curfew 
+    lsof -i:53
 
-    cd app
-    npm install
-    cd ..
-
-    cd server
-    npm install
-    cd ..
-
-
-## env settings
-
-create .env file in the appropriate folders (see below)
-copy contents into each file
-
-## disable systemd-resolved dns listener to free up port 53 
+## if port 53 is used, then disable systemd-resolved dns listener
 
     https://www.qualityology.com/tech/ubuntu-port-53-already-in-use-how-to-free-the-dns-port/
     sudo nano /etc/systemd/resolved.conf
 edit so that DNSStubListener=no 
     sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
-
-## check port 53 is free (command should return nothing)
-
-    lsof -i:53
-
-## generate certificate files
-
-    cd deploy
-    openssl req -nodes -new -x509 -keyout CA_key.pem -out CA_cert.pem -days 1825 -config CA.cnf
-    openssl req -sha256 -nodes -newkey rsa:2048 -keyout localhost_key.pem -out localhost.csr -config localhost.cnf
-    openssl x509 -req -days 398 -in localhost.csr -CA CA_cert.pem -CAkey CA_key.pem -CAcreateserial -out localhost_cert.pem -extensions req_ext -extfile localhost.cnf
-    rm CA_cert.srl
-    rm localhost.csr
-    cd ..
-
-## copy certificate files
-
-    mkdir -p ../server/bin/cert
-    cp localhost_cert.pem ../server/bin/cert
-    cp localhost_key.pem ../server/bin/cert
-
-## TO RUN OUTSIDE OF VSCODE SEE deploy/DEPLOY.md
-
-## vscode extensions
-
-1. useful for viewing db
-   https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
-
-## how to run LOCALLY INSIDE VS CODE, USING REACT DEV SERVER
-
-use attach button for backend and 
-    cd app
-    npm run start
-    cd ..
-    cd server
-    node_modules/.bin/tsc --watch
-    sudo node --inspect-brk bin/run.js
-    cd ..
-attach in vscode
-visit http://localhost:3000/
-
-## to reset back to network manager
-
-    sudo nano /etc/netplan/config.yaml
-change netpland to NetworkManager
-    sudo netplan apply
-
-## how to turn off the service (in case the process ends abruptly and cannot turn them off)
-
-    sudo systemctl stop isc-dhcp-server
-    sudo pm2 list
-    sudo pm2 stop 0
-NB: also enable dhcp server on the router
-
-## how to turn it back on
-
-    sudo pm2 list
-    sudo pm2 start 0
-
-# TO RUN FROM VSCODE - /server/.env
-
-```
-HTTP_PORT=5000
-HTTPS_PORT=5001
-MOCK_ROUTER=0
-DNS_ENABLED=1
-DNS_PORT=5353
-HOSTNAME=curfew
-BYPASS_ALL=0
-WIFI=
-WIFI_SSID=
-WIFI_PASSWORD=
-DEFAULT_THIS_HOST=39
-DEFAULT_DHCP_MIN_HOST=100
-DEFAULT_DHCP_MAX_HOST=200
-DEFAULT_DNS_SERVER=1.1.1.1
-USE_REACT_DEV_SERVER=1
-```
-
-# PRODUCTION - /deploy/.env
-
-```
-HTTP_PORT=80
-HTTPS_PORT=443
-MOCK_ROUTER=0
-DNS_ENABLED=1
-DNS_PORT=53
-HOSTNAME=curfew
-BYPASS_ALL=0
-WIFI=
-WIFI_SSID=
-WIFI_PASSWORD=
-DEFAULT_THIS_HOST=39
-DEFAULT_DHCP_MIN_HOST=100
-DEFAULT_DHCP_MAX_HOST=200
-DEFAULT_DNS_SERVER=1.1.1.1
-USE_REACT_DEV_SERVER=0
-```

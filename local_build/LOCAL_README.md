@@ -1,4 +1,4 @@
-### this is for dev setup, for SoC/production setup, see PICO.md
+### this is for dev setup, for SoC/production setup, see /pico_build
 
 ## node setup - one time only
 
@@ -30,8 +30,27 @@
 
 ## env settings
 
-create .env file in the appropriate folders (see below)
-copy contents into each file
+create .env file in /server
+
+# .env
+
+```
+HTTP_PORT=5000
+HTTPS_PORT=5001
+MOCK_ROUTER=0
+DNS_ENABLED=1
+DNS_PORT=5353
+HOSTNAME=curfew
+BYPASS_ALL=0
+WIFI=
+WIFI_SSID=
+WIFI_PASSWORD=
+DEFAULT_THIS_HOST=39
+DEFAULT_DHCP_MIN_HOST=100
+DEFAULT_DHCP_MAX_HOST=200
+DEFAULT_DNS_SERVER=1.1.1.1
+USE_REACT_DEV_SERVER=1
+```
 
 ## disable systemd-resolved dns listener to free up port 53 
 
@@ -98,42 +117,3 @@ NB: also enable dhcp server on the router
     sudo pm2 list
     sudo pm2 start 0
 
-# TO RUN FROM VSCODE - /server/.env
-
-```
-HTTP_PORT=5000
-HTTPS_PORT=5001
-MOCK_ROUTER=0
-DNS_ENABLED=1
-DNS_PORT=5353
-HOSTNAME=curfew
-BYPASS_ALL=0
-WIFI=
-WIFI_SSID=
-WIFI_PASSWORD=
-DEFAULT_THIS_HOST=39
-DEFAULT_DHCP_MIN_HOST=100
-DEFAULT_DHCP_MAX_HOST=200
-DEFAULT_DNS_SERVER=1.1.1.1
-USE_REACT_DEV_SERVER=1
-```
-
-# PRODUCTION - /deploy/.env
-
-```
-HTTP_PORT=80
-HTTPS_PORT=443
-MOCK_ROUTER=0
-DNS_ENABLED=1
-DNS_PORT=53
-HOSTNAME=curfew
-BYPASS_ALL=0
-WIFI=
-WIFI_SSID=
-WIFI_PASSWORD=
-DEFAULT_THIS_HOST=39
-DEFAULT_DHCP_MIN_HOST=100
-DEFAULT_DHCP_MAX_HOST=200
-DEFAULT_DNS_SERVER=1.1.1.1
-USE_REACT_DEV_SERVER=0
-```

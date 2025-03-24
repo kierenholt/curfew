@@ -76,6 +76,13 @@ if sys.argv[1] == 'write-sd':
       print(f".writing {name} at {offset} with size {size}")
       writeSD(name, offset)
 
+if sys.argv[1] == 'write-rootfs':
+   print(".writing sd")
+   for [name, offset, size] in sdWrites:
+      if (name == "rootfs"):
+         print(f".writing {name} at {offset} with size {size}")
+         writeSD(name, offset)
+
 if sys.argv[1] == 'erase-flash':
    print(".erasing flash")
    eraseFlash()
