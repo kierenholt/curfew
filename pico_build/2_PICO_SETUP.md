@@ -87,7 +87,7 @@ linux version command
 edit so that DNSStubListener=no 
     sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
-## Resize Swap to 8GB
+## helpful - resize Swap to 8GB
 Turn swap off
     sudo swapoff -a
 

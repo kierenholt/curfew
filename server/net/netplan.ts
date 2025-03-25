@@ -94,7 +94,7 @@ export class NetPlan {
         let confString = `network:
   version: 2
   renderer: networkd
-  wifis:
+  ethernets:
     ${interfaceName}:
       addresses:
         - ${options.network}.${options.thisHost}/24
