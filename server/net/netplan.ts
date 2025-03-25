@@ -83,10 +83,7 @@ export class NetPlan {
   ethernets:
     ${interfaceName}:
       dhcp4: true
-`
-        if (!fs.existsSync(this.confFile)) {
-            throw(`netplan error: ${this.confFile} not found`);
-        }
+`;
         fs.writeFileSync(this.confFile, confString);
     }
 
@@ -107,10 +104,7 @@ export class NetPlan {
       routes:
         - to: 0.0.0.0/0
           via: ${options.network}.1
-`
-        if (!fs.existsSync(this.confFile)) {
-            throw(`netplan error: ${this.confFile} not found`);
-        }
+`;
         fs.writeFileSync(this.confFile, confString);
     }
 
@@ -128,10 +122,7 @@ export class NetPlan {
       access-points:
         ${ssid}:
           password: ${password}
-`
-        if (!fs.existsSync(this.confFile)) {
-            throw(`netplan error: ${this.confFile} not found`);
-        }
+`;
         fs.writeFileSync(this.confFile, confString);
     }
 
@@ -158,9 +149,6 @@ export class NetPlan {
         ${ssid}:
           password: ${password}
 `
-        if (!fs.existsSync(this.confFile)) {
-            throw(`netplan error: ${this.confFile} not found`);
-        }
         fs.writeFileSync(this.confFile, confString);
     }
 

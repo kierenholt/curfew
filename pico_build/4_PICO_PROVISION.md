@@ -2,7 +2,7 @@
 
 ## start run.js as a service (first time)
     cd curfew/server
-    sudo pm2 start server/bin/run.js
+    sudo pm2 start bin/run.js
     sudo pm2 save
 
 ## start (subsequent times)

@@ -5,11 +5,11 @@
     cd curfew 
 
     cd app
-    npm --cpu "arm" install
+    npm install
     cd ..
 
     cd server
-    npm --cpu "arm" install
+    npm install
     cd ..
 
 

@@ -86,3 +86,15 @@ linux version command
     sudo nano /etc/systemd/resolved.conf
 edit so that DNSStubListener=no 
     sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+## Resize Swap to 8GB
+Turn swap off
+    sudo swapoff -a
+
+Create an empty swapfile
+    sudo dd if=/dev/zero of=/swapfile bs=1M count=8192
+
+Set the correct permissions
+    sudo chmod 0600 /swapfile
+    sudo mkswap /swapfile  # Set up a Linux swap area
+    sudo swapon /swapfile  # Turn the swap on
