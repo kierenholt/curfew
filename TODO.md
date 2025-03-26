@@ -6,6 +6,9 @@
 
  
 ## to do
+check port 53 avaialbilty on startup
+when you change the host setting, it should restart 
+after finish setup, count down then refresh the page, saying default password is 0000 
 block for X minutes - needs to show time limit, add timelimit table? add button to cancel timelimit limit,  add job to check for time limit then remove it and disable / enable
 list recent requests
 add whether requests were cached

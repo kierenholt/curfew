@@ -10,12 +10,14 @@ copy the sd rootfs partition to file (replace the skip and count arguments)
     sudo dd if=/dev/sdb of=/home/kieren/Documents/typescript/curfew-images/rootfs.img bs=64K skip=839680000 count=6442450944 iflag=skip_bytes,count_bytes conv=noerror,sync
 
 ## INSERT SD CARD THEN MOUNT DISK IMAGE FOR EDITING FILES
-    cd /home/kieren/Documents/typescript/curfew-images
 find unused loop device
     losetup -f
+or unmount previous
+    loopName=/dev/loop14
+    sudo umount $loopName
+    sudo losetup -d $loopName
 bind the device to the image
-    sudo losetup /dev/loop14 rootfs.img
-    sudo mount /dev/curfew /curfew-rootfs
+    sudo losetup $loopNa39/me /home/kieren/Documents/typescript/curfew-images/rootfs.img
 image wil be mounted in /dev/curfew as a virtual directory
 
 ## copy build files to mounted rootfs image
@@ -49,9 +51,9 @@ run flash.py
 
 ## ALSO USEFUL - UNMOUNT
     sudo umount /curfew-root
-    sudo losetup -d /dev/curfew
+    sudo losetup -d /dev/loop14
 
-## how to turn pm2 back on
+## helpful - how to turn pm2 back on
 
     sudo pm2 list
     sudo pm2 start 0
