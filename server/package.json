@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "watch": "node_modules/.bin/tsc --watch",
+    "debug": "sudo node --inspect-brk bin/run.js"
   },
   "author": "",
   "license": "ISC",

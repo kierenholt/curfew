@@ -6,7 +6,8 @@ import { SettingKey } from "./settings/setting";
 
 export async function hardReset(db: CurfewDb) {
     //ATTEMPT TO RE-ENABLE DHCP ON ROUTER AND STOP ISC DHCP
-    let router: RouterBase | null = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
+    let router: RouterBase | null = await new RouterProvider(await db.settingQuery.getRouterOptions())
+        .savedRouter(await db.settingQuery.getString(SettingKey.routerModel));
     if (router != null) {
         try {
             await router.deleteAllFilters();
@@ -24,7 +25,8 @@ export async function hardReset(db: CurfewDb) {
 }
 
 export async function shutdown(db: CurfewDb) {
-    let router: RouterBase | null = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
+    let router: RouterBase | null = await new RouterProvider(await db.settingQuery.getRouterOptions())
+        .savedRouter(await db.settingQuery.getString(SettingKey.routerModel));
     if (router != null) {
         try {
             await router.deleteAllFilters();

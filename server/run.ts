@@ -9,6 +9,7 @@ import { RouterProvider } from "./router/routerProvider";
 import { Jobs } from "./utility/jobs";
 import { Setup } from "./setup/setup";
 import { checkEnv } from "./utility/checkEnv";
+import { SettingKey } from "./settings/setting";
 
 dotenv.config();
 
@@ -23,7 +24,9 @@ async function run() {
     }
     else {
         // NORMAL STARTUP
-        let router: RouterBase | null = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
+        let router: RouterBase | null = await new RouterProvider(await db.settingQuery.getRouterOptions())
+            .savedRouter(await db.settingQuery.getString(SettingKey.routerModel));
+            
         if (router == null || !(await router.isPasswordCorrect())) {
             throw("router not found or invalid password");
             // hardReset(db);
@@ -32,7 +35,7 @@ async function run() {
         await Jobs.start(db);
 
         //CONFIGURE ROUTER
-        await router!.disableDHCP();
+        await router!.disableDHCPIfEnabled();
         await IscDhcp.updateSettings(await db.settingQuery.getDhcpOptions());
     
         //SET ROUTER FILTERS

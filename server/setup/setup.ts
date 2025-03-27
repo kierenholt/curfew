@@ -96,8 +96,7 @@ export class Setup {
         return {
             password: this.password,
             routerIp: Helpers.combineIpAddresses(this.networkId, "1"),
-            fullNetwork: Helpers.combineIpAddresses(this.networkId, "0"),
-            name: this.routerModel,
+            fullNetwork: Helpers.combineIpAddresses(this.networkId, "0")
         }
     }
 }

@@ -93,8 +93,8 @@ use attach button for backend and
     npm run start
     cd ..
     cd server
-    node_modules/.bin/tsc --watch
-    sudo node --inspect-brk bin/run.js
+    npm run watch
+    npm run debug
     cd ..
 attach in vscode
 visit http://localhost:3000/

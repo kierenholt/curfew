@@ -14,7 +14,7 @@ export abstract class RouterBase {
         return true;
     }
 
-    async disableDHCP(): Promise<void> {
+    async disableDHCPIfEnabled(): Promise<void> {
         console.log(". disabling DHCP on router");
         let DCHPIsEnabled = await this.isDHCPEnabled();
         if (DCHPIsEnabled) {

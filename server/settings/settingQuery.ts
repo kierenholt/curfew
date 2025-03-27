@@ -123,8 +123,7 @@ export class SettingQuery {
         return {
             password: await this.getString(SettingKey.routerAdminPassword),
             routerIp: Helpers.combineIpAddresses(networkId, "1"),
-            fullNetwork: Helpers.combineIpAddresses(networkId, "0"),
-            name: await this.getString(SettingKey.routerModel),
+            fullNetwork: Helpers.combineIpAddresses(networkId, "0")
         }
     }
 

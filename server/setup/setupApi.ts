@@ -31,7 +31,7 @@ export class SetupApi {
             app.post('/api/try-password', async (req: Request, res: Response) => {
                 let password = req.body.password;
                 if (password && password.length > 0) {
-                    let router = await new RouterProvider(setup.options).savedRouter();
+                    let router = await new RouterProvider(setup.options).savedRouter(setup.routerModel);
                     if (router == null) {
                         res.status(500).send("parameter error");
                         return;

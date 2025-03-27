@@ -1,6 +1,6 @@
-import { Helpers } from "../utility/helpers";
+import { Helpers, IEquals } from "../utility/helpers";
 
-export class IPAddress {
+export class IPAddress implements IEquals<IPAddress> {
     buffer: Buffer;
     constructor(bytes: number[]) {
         this.buffer = Buffer.alloc(4);

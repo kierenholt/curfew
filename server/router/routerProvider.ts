@@ -11,8 +11,7 @@ export enum ModelName {
 export interface RouterOptions {
     password: string,
     routerIp: string,
-    fullNetwork: string,
-    name: string,
+    fullNetwork: string
 }
 
 export class RouterProvider {
@@ -22,12 +21,11 @@ export class RouterProvider {
         this.options = options;
     }
 
-    async savedRouter(): Promise<RouterBase | null> {
+    async savedRouter(routerModel: string): Promise<RouterBase | null> {
         if (Number(process.env.MOCK_ROUTER) == 1) {
             return new MockRouter();
         }
-        let name = await this.options.name;
-        if (name == ModelName.VirginHub3) {
+        if (routerModel == ModelName.VirginHub3) {
             return new VirginRouter(this.options);
         }
         return null;

@@ -161,4 +161,15 @@ export class Helpers {
     static combineIpAddresses(a: string, b: string) {
         return Helpers.trim(a, ".") + "." + Helpers.trim(b, ".");
     }
+
+    static betterIncludes<T extends IEquals<T>>(arr: T[], needle: T) {
+        for (let item of arr) {
+            if (item.equals(needle)) return true;
+        }
+        return false;
+    }
+}
+
+export interface IEquals<T> {
+    equals(a: T): boolean;
 }

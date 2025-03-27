@@ -2,6 +2,7 @@ import { Express, Request, Response } from 'express';
 import { Progress } from '../progress/progress';
 import { CurfewDb } from '../db';
 import { RouterProvider } from '../router/routerProvider';
+import { Setting, SettingKey } from '../settings/setting';
 
 export class KeywordApi {
     static init(app: Express, db: CurfewDb) {
@@ -45,7 +46,8 @@ export class KeywordApi {
                 let ret = await db.keywordQuery.update(id, name, expression, ports, isActive);
 
                 Progress.update(nonce, false, "...");
-                let router = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
+                let router = await new RouterProvider(await db.settingQuery.getRouterOptions())
+                    .savedRouter(await db.settingQuery.getString(SettingKey.routerModel));
                 if (router == null) {
                     res.status(400).send("router not found");
                     return;
@@ -93,7 +95,8 @@ export class KeywordApi {
             let ret = await db.keywordQuery.setAllActive();
 
             Progress.update(nonce, false, "...");
-            let router = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
+            let router = await new RouterProvider(await db.settingQuery.getRouterOptions())
+                .savedRouter(await db.settingQuery.getString(SettingKey.routerModel));
             if (router == null) {
                 res.status(400).send("router not found");
                 return;
@@ -114,7 +117,8 @@ export class KeywordApi {
             let ret = await db.keywordQuery.setAllInactive();
 
             Progress.update(nonce, false, "...");
-            let router = await new RouterProvider(await db.settingQuery.getRouterOptions()).savedRouter();
+            let router = await new RouterProvider(await db.settingQuery.getRouterOptions())
+                .savedRouter(await db.settingQuery.getString(SettingKey.routerModel));
             if (router == null) {
                 res.status(400).send("router not found");
                 return;
