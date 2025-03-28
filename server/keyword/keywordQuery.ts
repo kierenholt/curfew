@@ -47,6 +47,15 @@ export class KeywordQuery {
         .then(result => result.changes);
     }
 
+    async setIsActive(id: number, value: number): Promise<number> {
+        return this.connection.run(`
+            update searchTerm 
+                set isActive = ?
+            where id=?
+        `, [value, id])
+        .then(result => result.changes);
+    }
+
     async setAllActive(): Promise<number> {
         return this.connection.run(`
             update searchTerm 

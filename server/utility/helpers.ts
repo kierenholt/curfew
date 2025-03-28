@@ -1,5 +1,14 @@
+import {exec} from 'node:child_process';
 
 export class Helpers {
+    static execP(command: string): Promise<string> {
+        return new Promise((resolve, reject) => exec(command,
+            (error: any, stdout: any, stderr: any) => {
+                resolve(stdout);
+            }
+        ))
+    } 
+
     static removeAllFromArray<T>(item: T, arr: T[]): T[] {
         let ret: T[] = [];
         for (let member of arr) {

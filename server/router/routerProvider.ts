@@ -32,9 +32,6 @@ export class RouterProvider {
     }
 
     async identifyRouter(): Promise<string> {
-        if (Number(process.env.MOCK_ROUTER) == 1) {
-            return ModelName.TestRouter;
-        }
         let virginRouter = new VirginRouter(this.options);
         if (await virginRouter.hasLoginPage()) {
             return ModelName.VirginHub3;

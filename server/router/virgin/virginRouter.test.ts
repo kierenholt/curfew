@@ -7,10 +7,10 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 /***
- * THIS TEST REQUIRES AN ENV FILE WITH THE FOLLOWING:
- *  password: string e.g. iL1keT0ast
- *  routerIp: string, e.g. 192.168.0.1
- *  fullNetwork: string e.g. 192.168.0.0
+ * THIS TEST REQUIRES ENV SETTINGS:
+ *  PASSWORD: string e.g. iL1keT0ast
+ *  ROUTER_IP: string, e.g. 192.168.0.1
+ *  FULL_NETWORK: string e.g. 192.168.0.0
  */
 
 if (process.env.PASSWORD == undefined || process.env.ROUTER_IP == undefined || process.env.FULL_NETWORK == undefined) {

@@ -1,5 +1,5 @@
-var exec = require("child-process-promise").exec
 import * as fs from 'fs';
+import { Helpers } from '../utility/helpers';
 
 export interface NetPlanOptions {
     network: string,
@@ -10,7 +10,7 @@ export interface NetPlanOptions {
 export class NetPlan {
     static confFile = "/etc/netplan/config.yaml";
 
-    static async setDhcp(): Promise<void> {
+    static async setDhcp(): Promise<string> {
         console.log(`. netplan - switching to dhcp`);
         let interfaceName = await this.getInterfaceName();
         if (process.env.WIFI == "1") {
@@ -29,7 +29,7 @@ export class NetPlan {
         return this.apply()
     }
 
-    static async setStaticIp(options: NetPlanOptions): Promise<void> {
+    static async setStaticIp(options: NetPlanOptions): Promise<string> {
         if (options.network == "") {
             throw new Error("setting static IP but network cannot be null");
         }
@@ -57,8 +57,8 @@ export class NetPlan {
         return this.apply()
     }
 
-    static apply(): Promise<void> {
-        return exec("netplan apply")
+    static apply(): Promise<string> {
+        return Helpers.execP("netplan apply")
             // .then((result: any) => {
                 // if (result.code == 0) { IGNORE NETPLAN WARNINGS
                 //     console.log("✓ success");
@@ -153,23 +153,23 @@ export class NetPlan {
     }
 
     static getNetworkId(): Promise<string> {
-        return exec("ip route show")
+        return Helpers.execP("ip route show")
             .then((result: any) => {
-                let matches = new RegExp(/default via ([0-9]*\.[0-9]*\.[0-9]*)/).exec(result.stdout);
+                let matches = new RegExp(/default via ([0-9]*\.[0-9]*\.[0-9]*)/).exec(result);
                 if (matches == null) {
-                    throw new Error("error occured while trying to get netowrk id");
+                    throw new Error("error occured while trying to get network id");
                 }
                 return matches[1];
             })
             .catch((err: any) => {
-                throw new Error("error occured while trying to get netowrk id");
+                throw new Error("error occured while trying to get network id");
             });
     }
 
     static getInterface_eth(): Promise<string> {
-        return exec("ls /sys/class/net")
+        return Helpers.execP("ls /sys/class/net")
             .then((result: any) => {
-                let matches = new RegExp(/(?:^|\s)(e\S+)/).exec(result.stdout);
+                let matches = new RegExp(/(?:^|\s)(n?e\S+)/).exec(result);
                 if (matches == null) {
                     throw new Error("error occured while trying to get eth interface");
                 }
@@ -181,9 +181,9 @@ export class NetPlan {
     }
 
     static getInterface_wifi(): Promise<string> {
-        return exec("ls /sys/class/net")
+        return Helpers.execP("ls /sys/class/net")
             .then((result: any) => {
-                let matches = new RegExp(/(?:^|\s)(w\S+)/).exec(result.stdout);
+                let matches = new RegExp(/(?:^|\s)(n?w\S+)/).exec(result);
                 if (matches == null) {
                     throw new Error("error occured while trying to get wifi interface");
                 }

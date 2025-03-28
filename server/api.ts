@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import { SetupApi } from './setup/setupApi';
 import { Setup } from './setup/setup';
 import path from 'path';
+import { TimerApi } from './timer/timerApi';
 
 const nocache = require("nocache");
 var https = require('https');
@@ -47,6 +48,7 @@ export class API {
         DnsResponseApi.init(app, db);
         KeywordApi.init(app, db);
         ProgressApi.init(app);
+        TimerApi.init(app, db);
         
         if (Number(process.env.USE_REACT_DEV_SERVER) == 0) {
             //https://medium.com/@amasaabubakar/how-you-can-serve-react-js-build-folder-from-an-express-end-point-127e236e4d67

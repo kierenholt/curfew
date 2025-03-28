@@ -36,12 +36,18 @@ export class Setup {
         await IscDhcp.stop();
     
         // 	netplan set dhcp on
-        console.log(". finding network id");
+        console.log(". using DHCP to find network...");
         await NetPlan.setDhcp();
         await Helpers.wait(2000);
 
         // 	find and save the network id
-        this.networkId = await NetPlan.getNetworkId();
+        this.networkId = await NetPlan.getNetworkId()
+            .catch(() => Helpers.wait(2000)
+                .then(NetPlan.getNetworkId)
+            )
+            .catch(() => Helpers.wait(2000)
+                .then(NetPlan.getNetworkId)
+            );
 
         // send off promise value
         if (this.promises[SettingKey.networkId]) {

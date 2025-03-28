@@ -1,6 +1,6 @@
+import { Helpers } from '../utility/helpers';
 import { NetPlan } from './netplan';
 import * as fs from 'fs';
-var exec = require("child-process-promise").exec
 
 export interface IscDhcpOptions {
     dhcpMinHost: string, 
@@ -62,9 +62,9 @@ INTERFACESv4="${interfaceName}"
 }
 
     static isRunning(): Promise<boolean> {
-        return exec("systemctl status isc-dhcp-server")
+        return Helpers.execP("systemctl status isc-dhcp-server")
             .then((result: any) => {
-                return result.stdout.indexOf('(running)') != -1;
+                return result.indexOf('(running)') != -1;
             })
             .catch((err: any) => {
                 return false;
@@ -72,7 +72,7 @@ INTERFACESv4="${interfaceName}"
     }
 
     static restart(): Promise<void> {
-        return exec("systemctl restart isc-dhcp-server")
+        return Helpers.execP("systemctl restart isc-dhcp-server")
             .then(() => {
                 console.log(". restarting dhcp server");
                 return IscDhcp.isRunning();
@@ -92,7 +92,7 @@ INTERFACESv4="${interfaceName}"
     }
 
     static start(): Promise<void> {
-        return exec("systemctl start isc-dhcp-server")
+        return Helpers.execP("systemctl start isc-dhcp-server")
             .then(() => {
                 console.log(". starting dhcp server");
                 return IscDhcp.isRunning();
@@ -112,7 +112,7 @@ INTERFACESv4="${interfaceName}"
     }
 
     static stop(): Promise<void> {
-        return exec("systemctl stop isc-dhcp-server")
+        return Helpers.execP("systemctl stop isc-dhcp-server")
         .then(() => {
             console.log(". stopping dhcp server");
             return IscDhcp.isRunning();
