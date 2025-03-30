@@ -81,8 +81,8 @@ export class KeywordApi {
         //create
         app.post('/api/keywords', async (req: Request, res: Response) => {
             if (req.body.name && req.body.expression) { //ports can be empty string
-                let ret = await db.keywordQuery.create(req.body.name, req.body.expression, req.body.ports, 0);
-                res.status(200).json(ret);
+                let success = await db.keywordQuery.create(req.body.name, req.body.expression, req.body.ports, 0) > 0;
+                res.status(200).json(success);
             }
             else {
                 res.status(400).send("parameter error");

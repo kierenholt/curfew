@@ -115,7 +115,7 @@ export class Helpers {
             .then((req: Response) => req.json())
     }
 
-    static post<T>(url: string, data: any): Promise<T> {
+    static post(url: string, data: any): Promise<boolean> {
         return fetch(url, {
             method: "post", body: JSON.stringify(data),
             headers: { 'Content-Type': 'application/json' },

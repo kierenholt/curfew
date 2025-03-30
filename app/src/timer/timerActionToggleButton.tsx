@@ -20,8 +20,8 @@ export const TimerActionToggleButton = (props: TimerActionToggleButtonProps) => 
     }, [props.id])
 
     const onChange = (event: any, actionValue: KeywordTimerAction) => {
-        Helpers.post<KeywordTimerAction>(`/api/timer/action/${props.id}`, { action: actionValue })
-            .then((success: any) => {
+        Helpers.post(`/api/timer/action/${props.id}`, { action: actionValue })
+            .then((success: boolean) => {
                 if (success) {
                     setAction(actionValue);
                     console.log(actionValue);

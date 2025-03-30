@@ -36,7 +36,7 @@ export class SetupApi {
                         res.status(500).send("parameter error");
                         return;
                     }
-                    let success = await router.isPasswordCorrect(password);
+                    let success: boolean = await router.isPasswordCorrect(password);
                     if (success) {
                         setup.password = password;
                     }
@@ -50,12 +50,12 @@ export class SetupApi {
             //curl -i -X POST -H "Content-Type: application/json" -d "{}"  http://localhost:5500/api/save-and-restart
             app.post('/api/save-and-restart', async (req: Request, res: Response) => {
                 await setup.save();
-                res.status(200).json(null);
+                res.status(200).json(true);
                 process.exit();
             });
     
             app.post('/api/discard-and-restart', async (req: Request, res: Response) => {
-                res.status(200).json(null);
+                res.status(200).json(true);
                 process.exit();
             });
         }

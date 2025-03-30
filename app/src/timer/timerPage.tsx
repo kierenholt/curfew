@@ -51,7 +51,7 @@ export function TimerPage() {
     const onTimeChange = (value: Dayjs | null) => {
         if (value) {
             let seconds = dayjsToSeconds(value);
-            Helpers.post<boolean>(`/api/timer/seconds-ahead`, {value: seconds})
+            Helpers.post(`/api/timer/seconds-ahead`, {value: seconds})
                 .then((success: boolean) => {
                     if (success) {
                         setDayjsValue(value);

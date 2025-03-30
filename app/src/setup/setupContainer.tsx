@@ -37,17 +37,17 @@ export function SetupContainer(props: SetupContainerProps) {
 
     const tryPassword = () => {
         setShowPasswordResults(false);
-        Helpers.post<boolean>(`/api/try-password`, { password: password })
-            .then((ret: boolean) => {
-                setPasswordIsGood(ret);
+        Helpers.post(`/api/try-password`, { password: password })
+            .then((success: boolean) => {
+                setPasswordIsGood(success);
                 setShowPasswordResults(true);
                 if (!passwordIsGood) setPassword("");
             });
     }
 
     const saveSettingsAndReset = () => {
-        Helpers.post<void>(`/api/save-and-restart`, {})
-            .then(() => {
+        Helpers.post(`/api/save-and-restart`, {})
+            .then((success: boolean) => {
                 //redirect
             });
     }

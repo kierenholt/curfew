@@ -1,6 +1,7 @@
 import { Button, FormGroup, TextField } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 import { Helpers } from "../helpers";
+import { IKeyword } from "./IKeyword";
 
 interface CreateKeywordFormProps {
     onCreated: () => void;
@@ -13,12 +14,15 @@ export function CreateKeywordPage(props: CreateKeywordFormProps) {
     const [ports, setPorts] = useState<string>("");
 
     const save = () => {
-        Helpers.post<number>(`/api/keywords`,
+        Helpers.post(`/api/keywords`,
             {
-                name: name, expression: expression, ports: ports, isActive: 0
+                name: name, 
+                expression: expression, 
+                ports: ports, 
+                isActive: 0 //do not create an active keyword
             })
-            .then((updated: number) => {
-                if (updated > 0) {
+            .then((success: boolean) => {
+                if (success) {
                     props.createKeywordId();
                     props.onCreated();
                 }
