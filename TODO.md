@@ -15,6 +15,7 @@ after finish setup, count down then refresh the page, saying default password is
 make progress a non static class
 use only mui/material or only mui/joy but not both
 post requests all return boolean
+flashing LED indicates whether setup has found an ip - then go to that ip?
 5577
 
 ## hardware check
@@ -24,9 +25,7 @@ clone pico to sd
 list recent requests
 add whether requests were cached
 change TTL to 300 or auto
-block ... now / in 5 mins ... for ... 5 mins / 60 mins / forever OK etc. with dropdowns
 POST check - check dependencies etc.
-
 
 # tests
 tests-  dhcp does actually enable, ip is blocked, port is blocked

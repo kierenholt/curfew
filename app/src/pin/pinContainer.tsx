@@ -58,10 +58,10 @@ export function PinContainer(props: PasswordContainerProps) {
     const onButtonPress = (n: number) => {
         let newString = (pressed + n.toString());
         let len = newString.length;
-        newString = newString.substring(len - 4);
+        newString = newString.substring(len - 4); //takes last 4 chars
         setPressed(newString);
 
-        Helpers.post<boolean>(`/api/check-pin`, { pin: newString })
+        Helpers.get<boolean>(`/api/check-pin/${newString}`)
             .then((isMatch: boolean) => {
                 setSuccess(isMatch || success);
             });

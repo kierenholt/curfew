@@ -9,9 +9,9 @@ export class SettingApi {
     static init(app: Express, db: CurfewDb) {
 
         // check pin
-        app.post('/api/check-pin', async (req: Request, res: Response) => {
+        app.get('/api/check-pin/:value', async (req: Request, res: Response) => {
             let pin = await db.settingQuery.getString(SettingKey.pin);
-            let isMatch = pin == req.body.pin.substring(0, 4);
+            let isMatch = pin == req.params.value.substring(0, 4);
             res.status(200).json(isMatch);
         });
 
