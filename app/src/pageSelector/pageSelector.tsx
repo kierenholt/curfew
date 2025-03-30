@@ -3,15 +3,17 @@ import { KeywordsPage } from '../keywords/keywordsPage';
 import { EditKeyword } from '../keywords/editKeyword';
 import { ManageSettingsPage } from '../settings/settingsPage';
 import { EditSettingPage } from '../settings/editSettingPage';
-import { SettingsOrHomeButton } from '../navigation/settingsButton';
-import { CreateKeyword } from '../keywords/createKeyword';
+import { TopNav } from '../navigation/topNav';
+import { CreateKeywordPage } from '../keywords/createKeyword';
+import { TimerPage } from '../timer/timerPage';
 
 export enum CurrentPage {
     keywords = 0,
     editKeyword = 1,
     manageSettings = 2,
     editSetting = 3,
-    createKeyword = 4
+    createKeyword = 4,
+    timer = 5,
 }
 
 interface SetPageAction {
@@ -45,7 +47,7 @@ export const PageSelector = () => {
             current: current
         }}>
             <div style={{ display: "flex" }}>
-                <SettingsOrHomeButton />
+                <TopNav />
             </div>
             {
                 [
@@ -55,8 +57,10 @@ export const PageSelector = () => {
                         updateKeyword={params.updateKeyword} />,
                     <ManageSettingsPage />,
                     <EditSettingPage settingKey={Number(params.key)} />,
-                    <CreateKeyword onCreated={() => setCurrent(CurrentPage.keywords)}
-                        createKeywordId={params.createKeywordId} />
+                    <CreateKeywordPage onCreated={() => setCurrent(CurrentPage.keywords)}
+                        createKeywordId={params.createKeywordId} />,
+                    <TimerPage />,
+                    
                 ][current]
             }
         </PageContext.Provider>

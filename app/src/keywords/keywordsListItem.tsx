@@ -6,7 +6,7 @@ import { useContext, useEffect, useState } from "react";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Button, Stack, Switch } from "@mui/joy";
 import { IKeyword } from "./IKeyword";
-import LocationSearchingIcon from '@mui/icons-material/LocationSearching';
+import AppBlockingIcon from '@mui/icons-material/AppBlocking';
 import { Helpers } from "../helpers";
 import { CurrentPage, PageContext } from "../pageSelector/pageSelector";
 import { ProgressContext } from "../progress/progressModalContainer";
@@ -75,7 +75,7 @@ export const KeywordListItem = (props: KeywordListItemProps) => {
                     sx={{ flexGrow: 1 }}
                     onClick={() => setExpanded(!expanded)}
                 >
-                    <LocationSearchingIcon />
+                    <AppBlockingIcon />
                     <Typography sx={{ transform: "translateY(0%)", marginLeft: "1rem" }}>
                         {name}
                     </Typography>

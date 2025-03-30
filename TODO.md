@@ -6,13 +6,16 @@
 
  
 ## new features
-click "new timer". shows like google timer, with "on complete, change to:" - then shows the same switches. add timelimit table? add button to delete the timelimit,  adds cron job? to check for time limit then remove it and disable / enable
-test suite for router - offline and online
+fix nuffield/outlook dns bug
+app test suite for router - offline and online
 check port 53 avaialbilty on startup sudo netstat -anp
 https://stackoverflow.com/questions/8817500/how-to-make-sure-that-a-certain-port-is-not-occupied-by-any-other-process
 when you change the host setting, it should restart 
 after finish setup, count down then refresh the page, saying default password is 0000 
 make progress a non static class
+use only mui/material or only mui/joy but not both
+post requests all return boolean
+5577
 
 ## hardware check
 check if pico can restart

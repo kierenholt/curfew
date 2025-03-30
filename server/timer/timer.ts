@@ -1,8 +1,10 @@
 import { CurfewDb } from "../db";
+import { Keyword } from "../keyword/keyword";
 import { Progress } from "../progress/progress";
 import { RouterProvider } from "../router/routerProvider";
 import { SettingKey } from "../settings/setting";
 
+//needs to be the same as app
 export enum KeywordTimerAction {
     None = 0,
     Block = 1,
@@ -14,6 +16,7 @@ export class Timer {
     timeout: NodeJS.Timeout;
     keywordActions: any = {};
     db: CurfewDb;
+    epochLastApplied: number = -1;
 
     constructor(db: CurfewDb) {
         this.timeout = setInterval(this.checkIsExpired.bind(this), 1000);
@@ -35,6 +38,14 @@ export class Timer {
 
     getAction(keywordId: number): KeywordTimerAction {
         return this.keywordActions[keywordId] ?? KeywordTimerAction.None;
+    }
+
+    async resetActions() {
+        let keywords = await this.db.keywordQuery.getAll();
+        this.keywordActions = {};
+        for (let keyword of keywords) {
+            this.keywordActions[keyword.id] = keyword.isActive ? KeywordTimerAction.Block : KeywordTimerAction.Allow;
+        }
     }
 
     async applyActions(nonce: number): Promise<void> 
@@ -62,5 +73,6 @@ export class Timer {
                 }
             }
         }
+        this.epochLastApplied = new Date().valueOf();
     }
 }

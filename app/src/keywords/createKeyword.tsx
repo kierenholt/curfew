@@ -7,7 +7,7 @@ interface CreateKeywordFormProps {
     createKeywordId: () => void;
 }
 
-export function CreateKeyword(props: CreateKeywordFormProps) {
+export function CreateKeywordPage(props: CreateKeywordFormProps) {
     const [name, setName] = useState<string>("");
     const [expression, setExpression] = useState<string>("");
     const [ports, setPorts] = useState<string>("");

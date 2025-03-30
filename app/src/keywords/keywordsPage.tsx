@@ -58,12 +58,12 @@ export function KeywordsPage() {
     return (
         <>
             <Stack direction="row" justifyContent="space-between" alignItems="baseline">
-                <h2>Keywords</h2>
+                <h2>App blocking</h2>
                 <Button onClick={() => {
                     pageContext.setParams({ createKeywordId: createId });
                     pageContext.goTo(CurrentPage.createKeyword);
                 }} variant="soft" color="primary">
-                    + Create
+                    + Create new block
                 </Button>
             </Stack>
             <KeywordsList ids={ids} onDelete={deleteId} />
