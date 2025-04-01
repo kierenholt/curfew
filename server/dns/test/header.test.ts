@@ -9,6 +9,6 @@ test('write to buffer then read', () => {
     let b1 = Buffer.alloc(1024);
     h1.writeToBuffer(b1, 0);
 
-    let obj = Header.fromBuffer(b1, 0);
-    assert(h1.equals(obj.h));
+    let [header, i] = Header.fromBuffer(b1, 0);
+    assert(h1.equals(header));
 })

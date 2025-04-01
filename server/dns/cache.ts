@@ -1,4 +1,5 @@
 import { Answer } from "./answer";
+import { DnsPacket } from "./dnsPacket";
 
 export interface HasKey {
     cacheKey: string;
@@ -7,11 +8,11 @@ export interface HasKey {
 export class Cache {
     cached: any = {};
 
-    getAnswers(hasKey: HasKey): Answer[] {
+    getAnswers(hasKey: HasKey): DnsPacket {
         return this.cached[hasKey.cacheKey];
     }
 
-    upsert(hasKey: HasKey, answers: Answer[]) {
-        this.cached[hasKey.cacheKey] = answers;
+    upsert(hasKey: HasKey, packet: DnsPacket) {
+        this.cached[hasKey.cacheKey] = packet;
     }
 }

@@ -12,6 +12,6 @@ test('write to buffer then read', () => {
     let b1 = Buffer.alloc(1024);
     q1.writeToBuffer(b1, 0, {});
 
-    let obj = Question.fromBuffer(b1, 0);
-    assert(q1.equals(obj.q));
+    let [question, i] = Question.fromBuffer(b1, 0);
+    assert(q1.equals(question));
 })

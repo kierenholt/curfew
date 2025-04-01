@@ -103,19 +103,24 @@ export class DnsServer {
                 if (destination == RedirectDestination.shortTTL) {
                     //returns cached response if domains match
                     this.dnsForwarder.forward(buffer)
-                        .then(answer => {
-                            //write to db
-
+                        .then(responsePacket => {
                             //console.log(`forwarding ${answer[0].domainName.name} as ${answer[0].IPAddress} to ${requestInfo.address}`);
-                            if (answer && answer[0])
-                                db.dnsResponseQuery.create(answer[0].domainName.name, answer[0].IPAddress, new Date().valueOf(), requestInfo.address)
+                            //write to db
+                            responsePacket.dropIPv6Answers();
 
-                            //add (cached) answer
-                            packet.addAnswers(answer);
-                            packet.header.isResponse = true;
+                            let IP = responsePacket.findARecord();
+                            if (responsePacket.questions.length > 0 && IP != null)
+                                db.dnsResponseQuery.create(
+                                    responsePacket.questions[0].domainName.name,
+                                    IP,
+                                    new Date().valueOf(),
+                                    requestInfo.address)
+
+                            responsePacket.header.isResponse = true;
+                            responsePacket.header.id = packet.header.id;
 
                             //send
-                            this.socket.send(packet.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
+                            this.socket.send(responsePacket.writeToBuffer(), requestInfo.port, requestInfo.address, (err: any) => {
                                 if (err) {
                                     console.error(`Error sending response: ${err.message}`);
                                     this.socket.close();

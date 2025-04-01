@@ -1,25 +1,25 @@
 import { Helpers } from "../utility/helpers";
 import { HasKey } from "./cache";
 import { DomainName } from "./domainName";
-import { Question } from "./question";
+import { Question, RecordType } from "./question";
 
 export class Answer implements HasKey {
     domainName: DomainName;
-    type: number;
+    type: RecordType;
     aclass: number;
     ttl: number;
     rdlength: number;
-    adata: Buffer;
+    adata: Buffer | DomainName;
 
     //https://en.wikipedia.org/wiki/List_of_DNS_record_types
 
 
     constructor(domainName: DomainName,
-        type: number,
+        type: RecordType,
         aclass: number,
         ttl: number,
         rdlength: number,
-        adata: Buffer) {
+        adata: Buffer | DomainName) {
         this.domainName = domainName;
         this.type = type;
         this.aclass = aclass;
@@ -34,19 +34,23 @@ export class Answer implements HasKey {
 
     get name() { return this.domainName.name; }
 
-    static fromBuffer(buf: Buffer, i: number): { a: Answer, i: number } {
-        let obj = DomainName.fromBuffer(buf, i);
-        i = obj.i;
+    static fromBuffer(buf: Buffer, i: number): [Answer, number] {
+        let domainName;
+        [domainName, i] = DomainName.fromBuffer(buf, i);
         //let domainName = domainName.substring(0, domainName.length - 1);
         let type = buf.readUInt16BE(i);
         let aclass = buf.readUInt16BE(i + 2);
         let ttl = buf.readUInt32BE(i + 4);
         let rdlength = buf.readUInt16BE(i + 8);
-        let rdata = rdlength ? buf.subarray(i + 10, i + 10 + rdlength) : Buffer.from([]);
-        return {
-            a: new Answer(obj.d, type, aclass, ttl, rdlength, rdata),
-            i: i + 10 + rdlength
-        };
+        if (type == RecordType.CNAME) {
+            let cname;
+            [cname, i] = DomainName.fromBuffer(buf, i + 10);
+            return [ new Answer(domainName, type, aclass, ttl, rdlength, cname), i ]
+        }
+        else {
+            let adata = rdlength ? buf.subarray(i + 10, i + 10 + rdlength) : Buffer.from([]);
+            return [ new Answer(domainName, type, aclass, ttl, rdlength, adata), i + 10 + rdlength ]
+        }
     };
 
     writeToBuffer(buf: Buffer, i: number, cache: any): number {
@@ -55,14 +59,21 @@ export class Answer implements HasKey {
         i = buf.writeUInt16BE(this.aclass, i);
         i = buf.writeUInt32BE(this.ttl, i);
         i = buf.writeUInt16BE(this.rdlength, i);
-        i += this.adata.copy(buf, i);
+        if (this.type == RecordType.CNAME) {
+            i = (this.adata as DomainName).writeToBuffer(buf, i, cache);
+        }
+        else {
+            i += (this.adata as Buffer).copy(buf, i);
+        }
         return i;
     }
 
     equals(a: Answer): boolean {
         return this.aclass == a.aclass &&
             this.domainName.equals(a.domainName) &&
-            this.adata.equals(a.adata) &&
+            (this.type == RecordType.CNAME ? 
+                (this.adata as DomainName).equals(a.adata as DomainName) :
+                (this.adata as Buffer).equals(a.adata as Buffer)) &&
             this.rdlength == a.rdlength &&
             this.ttl == a.ttl &&
             this.type == a.type;
@@ -81,7 +92,9 @@ export class Answer implements HasKey {
         }
     }
 
-    get IPAddress(): string {
-        return `${this.adata[0]}.${this.adata[1]}.${this.adata[2]}.${this.adata[3]}`
+    get IPAddressOrCName(): string {
+        return this.type == RecordType.CNAME ?
+            this.domainName.name :
+            `${(this.adata as Buffer)[0]}.${(this.adata as Buffer)[1]}.${(this.adata as Buffer)[2]}.${(this.adata as Buffer)[3]}`;
     }
 }

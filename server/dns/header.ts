@@ -22,15 +22,14 @@ export class Header {
         this.arcount = arcount;
     }
 
-    static fromBuffer(buf: Buffer, i: number): {h: Header, i: number} {
-        i -= 2;
-        let id = buf.readUInt16BE(i+=2);
-        let flags = buf.readUInt16BE(i+=2);
-        let qdcount = buf.readUInt16BE(i+=2);
-        let ancount = buf.readUInt16BE(i+=2);
-        let nscount = buf.readUInt16BE(i+=2);
-        let arcount = buf.readUInt16BE(i+=2);
-        return { h: new Header(id, flags, qdcount, ancount, nscount, arcount), i: i+2 };
+    static fromBuffer(buf: Buffer, i: number): [Header, number] {
+        let id = buf.readUInt16BE(i);
+        let flags = buf.readUInt16BE(i+2);
+        let qdcount = buf.readUInt16BE(i+4);
+        let ancount = buf.readUInt16BE(i+6);
+        let nscount = buf.readUInt16BE(i+8);
+        let arcount = buf.readUInt16BE(i+10);
+        return [ new Header(id, flags, qdcount, ancount, nscount, arcount), i+12 ];
     }
 
     writeToBuffer(buf: Buffer, i: number): number {

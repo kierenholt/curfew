@@ -25,15 +25,12 @@ export class Question implements HasKey {
 
     get name() { return this.domainName.name }
 
-    static fromBuffer(buf: Buffer, index: number): {q: Question, i: number} {
-        let obj = DomainName.fromBuffer(buf, index);
-        index = obj.i;
-        let qtype = buf.readUInt16BE(index);
-        let qclass = buf.readUInt16BE(index+2);
-        return {
-            q: new Question(obj.d, qtype, qclass),
-            i: index + 4
-        }
+    static fromBuffer(buf: Buffer, i: number): [Question, number] {
+        let domainName;
+        [domainName, i] = DomainName.fromBuffer(buf, i);
+        let qtype = buf.readUInt16BE(i);
+        let qclass = buf.readUInt16BE(i+2);
+        return [ new Question(domainName, qtype, qclass), i + 4]
     }
 
     writeToBuffer(buf: Buffer, i: number, cache: any): number {
@@ -47,9 +44,5 @@ export class Question implements HasKey {
         return this.qclass == q.qclass &&
             this.domainName.equals(q.domainName) &&
             this.qtype == q.qtype;
-    }
-
-    static fromObject(obj: any): Question {
-        return new Question(DomainName.fromObject(obj.domainName), obj.qtype, obj.qclass);
     }
 }

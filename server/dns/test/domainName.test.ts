@@ -11,6 +11,6 @@ test('write to buffer then read', () => {
     let b1 = Buffer.alloc(1024);
     a1.writeToBuffer(b1, 0, {});
 
-    let obj = DomainName.fromBuffer(b1, 0);
-    assert(a1.equals(obj.d));
+    let [domainName, i] = DomainName.fromBuffer(b1, 0);
+    assert(a1.equals(domainName));
 })

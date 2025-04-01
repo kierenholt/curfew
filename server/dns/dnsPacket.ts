@@ -1,6 +1,7 @@
+import { Helpers } from "../utility/helpers";
 import { Answer } from "./answer";
 import { Header } from "./header";
-import { Question } from "./question";
+import { Question, RecordType } from "./question";
 
 export interface HasUID {
     cacheUID: string;
@@ -26,28 +27,27 @@ export class DnsPacket {
         this.additionals = additionals;
     }
 
-    static fromBuffer(buf: Buffer): DnsPacket {
-        let obj: any = Header.fromBuffer(buf, 0);
-        let header = obj.h;
+    static fromBuffer(buf: Buffer): DnsPacket {        
+        let [header, i] = Header.fromBuffer(buf, 0);
         let questions = [];
-        for(let i = 0; i < header.qdcount; i++){
-            obj = Question.fromBuffer(buf, obj.i);
-            questions.push(obj.q);
+        for(let q = 0, question; q < header.qdcount; q++){
+            [question, i] = Question.fromBuffer(buf, i);
+            questions.push(question);
         }
         let answers = [];
-        for(let i=0; i < header.ancount; i++){
-            obj = Answer.fromBuffer(buf, obj.i);
-            answers.push(obj.a);
+        for(let a = 0, answer; a < header.ancount; a++){
+            [answer, i] = Answer.fromBuffer(buf, i);
+            answers.push(answer);
         }
         let authorities = [];
-        for(let i=0; i < header.nscount; i++){
-            obj = Answer.fromBuffer(buf, obj.i);
-            authorities.push(obj.a);
+        for(let b = 0, authority; b < header.nscount; b++){
+            [authority, i] = Answer.fromBuffer(buf, i);
+            authorities.push(authority);
         }
         let additionals = [];
-        for(let i=0; i < header.arcount; i++){
-            obj = Answer.fromBuffer(buf, obj.i);
-            additionals.push(obj.a);
+        for(let c = 0, additional; c < header.arcount; c++){
+            [additional, i] = Answer.fromBuffer(buf, i);
+            additionals.push(additional);
         }
         return new DnsPacket(header, questions, answers, authorities, additionals);
     }
@@ -71,16 +71,6 @@ export class DnsPacket {
         return buf.subarray(0,i);
     }
 
-    static fromObject(obj: any) {
-        return new DnsPacket(
-            Header.fromObject(obj.header),
-            obj.questions.map((o:any) => Question.fromObject(o)),
-            obj.answers.map((o:any) => Answer.fromObject(o)),
-            obj.authorities.map((o:any) => Answer.fromObject(o)),
-            obj.additionals.map((o:any) => Answer.fromObject(o)),
-        )
-    }
-
     get allAnswers(): Answer[] {
         return [...this.answers, ...this.authorities];
     }
@@ -90,8 +80,26 @@ export class DnsPacket {
         this.header.ancount += a.length;
     }
 
+    addAdditionals(a: Answer[]) {
+        this.additionals.push(...a);
+        this.header.arcount += a.length;
+    }
+
     equals(p: DnsPacket): boolean {
         return this.header.equals(p.header) &&
             this.answers.every(a1 => p.answers.some(a2 => a2.equals(a1)));
+    }
+
+    findARecord(): string | null {
+        let As = this.answers.filter(a => a.type == RecordType.A);
+        if (As.length > 0) {
+            return As[0].IPAddressOrCName;
+        }
+        return null;
+    }
+
+    dropIPv6Answers() {
+        this.answers = this.answers.filter(a => a.type != RecordType.AAAA);
+        this.header.ancount = this.answers.length;
     }
 }

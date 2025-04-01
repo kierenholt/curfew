@@ -29,21 +29,21 @@ export class DnsForwarder {
         
         //add to cache
         responsePacket.allAnswers.forEach(a => a.ttl = this.TTL);
-        this.cache.upsert(responsePacket.questions[0], responsePacket.allAnswers);
+        this.cache.upsert(responsePacket.questions[0], responsePacket);
 
 
         //resolve promise
         let foundPromiseResolve = this.resolvesById[responsePacket.header.id];
         if (foundPromiseResolve) {
             delete(this.resolvesById[responsePacket.header.id]);
-            foundPromiseResolve(responsePacket.allAnswers);
+            foundPromiseResolve(responsePacket);
         }
     }
 
-    forward(requestBuffer: Buffer): Promise<Answer[]> {
+    forward(requestBuffer: Buffer): Promise<DnsPacket> {
         let requestPacket = DnsPacket.fromBuffer(requestBuffer);
 
-        let cached: Answer[] = this.cache.getAnswers(requestPacket.questions[0]);
+        let cached: DnsPacket = this.cache.getAnswers(requestPacket.questions[0]);
         if (cached) {
             return Promise.resolve(cached);
         }
@@ -56,7 +56,7 @@ export class DnsForwarder {
                 } 
                 else {
                     //console.log(JSON.stringify(requestBuffer));
-                    this.resolvesById[requestPacket.header.id] = (ans: Answer[]) => resolve(ans);
+                    this.resolvesById[requestPacket.header.id] = (packet: DnsPacket) => resolve(packet);
                 }
             });
         });

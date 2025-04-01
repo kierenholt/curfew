@@ -6,16 +6,15 @@
 
  
 ## new features
-fix nuffield/outlook dns bug
 app test suite for router - offline and online
 check port 53 avaialbilty on startup sudo netstat -anp
 https://stackoverflow.com/questions/8817500/how-to-make-sure-that-a-certain-port-is-not-occupied-by-any-other-process
-when you change the host setting, it should restart 
+when you change the host setting, it should restart
 after finish setup, count down then refresh the page, saying default password is 0000 
 make progress a non static class
 use only mui/material or only mui/joy but not both
-post requests all return boolean
 flashing LED indicates whether setup has found an ip - then go to that ip?
+check if response caching is actually working (doesnt it get deleted?) 
 5577
 
 ## hardware check
@@ -26,9 +25,6 @@ list recent requests
 add whether requests were cached
 change TTL to 300 or auto
 POST check - check dependencies etc.
-
-# tests
-tests-  dhcp does actually enable, ip is blocked, port is blocked
 
 ## low priority
 disable inactivity timer when the progress modal is showing
