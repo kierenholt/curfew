@@ -1,4 +1,3 @@
-import { Helpers } from "../utility/helpers";
 import { Answer } from "./answer";
 import { Header } from "./header";
 import { Question, RecordType } from "./question";

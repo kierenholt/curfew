@@ -10,12 +10,14 @@ import { Jobs } from "./utility/jobs";
 import { Setup } from "./setup/setup";
 import { checkEnv } from "./utility/checkEnv";
 import { SettingKey } from "./settings/setting";
+import { checkDns } from "./utility/checkDns";
 
 dotenv.config();
 
 async function run() {
     checkSudo();
     checkEnv();
+    await checkDns();
     
     let db = await CurfewDb.init();
 
