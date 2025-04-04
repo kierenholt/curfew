@@ -13,6 +13,9 @@ after finish setup, count down then refresh the page, saying default password is
 make progress a non static class
 use only mui/material or only mui/joy but not both
 flashing LED indicates whether setup has found an ip - then go to that ip?
+add a router test that actually tests the ip filter and port filter e..g ping a google ip
+router auto select is too fragile - get user to pick their router
+password method should not throw if password is incorrect
 5577
 
 ## hardware check

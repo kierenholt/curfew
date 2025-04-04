@@ -27,7 +27,7 @@ export class VirginRouter extends RouterBase {
         return await Helpers.HTTPFileExists(`http://${this.ipAddress}/skins/vm/css/images/logo-VirginMedia.png`);
     }
     
-    async login(password: string = this.password): Promise<boolean> {
+    async login(password: string = this.password): Promise<void> {
         this.nonce = Math.random().toString().substring(2, 7);
         var up = Buffer.from(encodeURIComponent(this.name) + ":" + Buffer.from(encodeURIComponent(password))).toString('base64');
         var query = `arg=${up}&` + this.nonceAndDate;
@@ -38,7 +38,7 @@ export class VirginRouter extends RouterBase {
                         .then(text => {
                             if (text.indexOf("Timeout") == -1) {
                                 this.cookie = text;
-                                return true;
+                                return;
                             }
                             else { //timeout or other error
                                 throw ("unable to login: " + text + " - check the password?");
@@ -46,7 +46,7 @@ export class VirginRouter extends RouterBase {
                         });
                 }
                 else {
-                    throw ("login bad response: " + response.statusText)
+                    throw ("login bad response: " + response.statusText);
                 }
             })
     }
@@ -69,7 +69,7 @@ export class VirginRouter extends RouterBase {
             throw ("cannot run walk query on oid of wrong type");
         }
         let query = oid.getQuery() + "&" + this.nonceAndDate;
-        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/walk?oids=` + query, this.cookieHeader))
+        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/walk?oids=` + query, this.fetchOptions))
             .then(response => response.json());
     }
 
@@ -135,7 +135,7 @@ export class VirginRouter extends RouterBase {
     async logout(): Promise<void> {
         if (!this.isLoggedIn) return;
         let query = this.nonceAndDate;
-        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/logout?` + query, this.cookieHeader))
+        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/logout?` + query, this.fetchOptions))
             .then(response => {
                 if (response.status == 500) {
                     this.cookie = "";
@@ -174,7 +174,7 @@ export class VirginRouter extends RouterBase {
         if (!this.isLoggedIn) await this.login();
         let oid: VirginOidBase = VirginOidBase.create(type, index);
         let query = oid.getQuery() + "&" + this.nonceAndDate;
-        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/snmpGet?oids=` + query, this.cookieHeader))
+        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/snmpGet?oids=` + query, this.fetchOptions))
             .then(response => {
                 if (response.ok) {
                     return response.json()
@@ -188,7 +188,7 @@ export class VirginRouter extends RouterBase {
         if (!this.isLoggedIn) await this.login();
         let oid: VirginOidBase = VirginOidBase.create(type, index);
         let query = oid.setQuery(value) + "&" + this.nonceAndDate;
-        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/snmpSet?oids=` + query, this.cookieHeader))
+        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/snmpSet?oids=` + query, this.fetchOptions))
             .then(response => {
                 if (!response.ok) throw ("set failed");
             });
@@ -200,7 +200,7 @@ export class VirginRouter extends RouterBase {
         let oids: VirginOidBase[] = types.map(t => VirginOidBase.create(t, index));
         let queries = oids.map((o, i) => o.setQuery(values[i]));
         let fullQuery = queries.join("\\n") + "\\n&" + this.nonceAndDate;
-        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/snmpSetBulk?oids=` + fullQuery, this.cookieHeader))
+        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/snmpSetBulk?oids=` + fullQuery, this.fetchOptions))
             .then(response => {
                 if (!response.ok) throw ("set failed");
             });
@@ -212,7 +212,7 @@ export class VirginRouter extends RouterBase {
         let oids: VirginOidBase[] = indexes.map(i => VirginOidBase.create(type, i));
         let queries = oids.map((o, i) => o.setQuery(value));
         let fullQuery = queries.join("\\n") + "\\n&" + this.nonceAndDate;
-        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/snmpSetBulk?oids=` + fullQuery, this.cookieHeader))
+        return Helpers.retryForever(() => fetch(`http://${this.ipAddress}/snmpSetBulk?oids=` + fullQuery, this.fetchOptions))
             .then(response => {
                 if (!response.ok) throw ("set failed");
             });
@@ -222,7 +222,7 @@ export class VirginRouter extends RouterBase {
         return `_n=${this.nonce}&_=${new Date().valueOf().toString()}`;
     }
 
-    private get cookieHeader() {
+    private get fetchOptions() {
         return {
             headers: {
                 "Cookie": "credential=" + this.cookie,

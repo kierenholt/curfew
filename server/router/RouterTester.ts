@@ -12,12 +12,12 @@ export class RouterTester {
         this.router = router;
     }
     
-    findsCorrectHomePage() {
-        assert(this.router.hasLoginPage());
+    async findsCorrectHomePage() {
+        assert(await this.router.hasLoginPage());
     }
 
-    hasCorrectPassword() {
-        assert(this.router.isPasswordCorrect());
+    async hasCorrectPassword() {
+        assert(await this.router.isPasswordCorrect());
     }
 
     async turnsDHCPOnOff() {

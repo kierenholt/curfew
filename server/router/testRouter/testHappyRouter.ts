@@ -29,9 +29,9 @@ export class TestHappyRouter extends RouterBase {
         return Promise.resolve();
     }
 
-    login(): Promise<boolean> {
+    login(): Promise<void> {
         console.log("mock router: logging in");
-        return Promise.resolve(true);
+        return Promise.resolve();
     }
 
     logout(): Promise<void> {

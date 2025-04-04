@@ -8,7 +8,7 @@ export abstract class RouterBase {
             await this.login(password);
             await this.logout();
         }
-        catch (ex) {
+        catch {
             return false;
         }
         return true;
@@ -61,7 +61,7 @@ export abstract class RouterBase {
     abstract isDHCPEnabled(): Promise<boolean>;
     abstract setDHCPEnabled(value: boolean): Promise<void>;
     abstract applyAllSettings(): Promise<void>;
-    abstract login(password?: string): Promise<boolean>;
+    abstract login(password?: string): Promise<void>;
     abstract logout(): Promise<void>;
     abstract getActiveFilters(): Promise<(IPFilter | PortFilter)[]>;
     abstract deleteAllFilters(): Promise<void>;

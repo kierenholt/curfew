@@ -1,7 +1,7 @@
 const test = require('node:test');
 import { RouterBase } from "../routerBase";
 import { RouterTester } from "../RouterTester";
-import { VirginRouter } from "./virginRouter";
+import { MX4200 } from "./mx4200";
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -14,13 +14,13 @@ dotenv.config();
  */
 
 if (process.env.PASSWORD == undefined || process.env.ROUTER_IP == undefined || process.env.FULL_NETWORK == undefined) {
-    throw("missing env file - please define PASSWORD, ROUTER_IP and FULL_NETWORK");
+    //throw("missing env file - please define PASSWORD, ROUTER_IP and FULL_NETWORK");
 }
 
-let router = new VirginRouter({ 
-    password: process.env.PASSWORD as string, 
-    routerIp: process.env.ROUTER_IP as string, 
-    fullNetwork: process.env.FULL_NETWORK as string }) as RouterBase;
+let router = new MX4200({ 
+    password: "6Us=drVkhf.p'>~", 
+    routerIp: "192.168.1.1", 
+    fullNetwork: "192.168.1.0" }) as RouterBase;
 let routerTester = new RouterTester(router);
 
 test('finds home page', async () => {
