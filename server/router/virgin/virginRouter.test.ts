@@ -20,7 +20,7 @@ if (process.env.PASSWORD == undefined || process.env.ROUTER_IP == undefined || p
 let router = new VirginRouter({ 
     password: process.env.PASSWORD as string, 
     routerIp: process.env.ROUTER_IP as string, 
-    fullNetwork: process.env.FULL_NETWORK as string }) as RouterBase;
+    fullNetwork: process.env.FULL_NETWORK as string });
 let routerTester = new RouterTester(router);
 
 test('finds home page', async () => {

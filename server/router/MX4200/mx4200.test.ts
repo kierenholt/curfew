@@ -20,7 +20,7 @@ if (process.env.PASSWORD == undefined || process.env.ROUTER_IP == undefined || p
 let router = new MX4200({ 
     password: "6Us=drVkhf.p'>~", 
     routerIp: "192.168.1.1", 
-    fullNetwork: "192.168.1.0" }) as RouterBase;
+    fullNetwork: "192.168.1.0" });
 let routerTester = new RouterTester(router);
 
 test('finds home page', async () => {
