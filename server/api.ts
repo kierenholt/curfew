@@ -24,7 +24,7 @@ export class API {
         let localCertPath = path.join(certPath, 'localhost_cert.pem');
 
         if (Number(process.env.USE_REACT_DEV_SERVER) == 0 && !fs.existsSync(indexPath)) {
-            throw("wwwroot/index.html not found. please read readme.md");
+            throw("app/index.html not found. please read readme.md");
         }
 
         if (!fs.existsSync(localKeyPath) || !fs.existsSync(localCertPath)) {

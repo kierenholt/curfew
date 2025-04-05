@@ -38,7 +38,7 @@ export class TimerApi {
 
         app.post('/api/timer/action/:id', async (req: Request, res: Response) => {
             let keywordId = Number(req.params.id);
-            let action = req.body.action == null ? Number(req.body.action) : KeywordTimerAction.None;
+            let action = req.body.action == null ? KeywordTimerAction.None: Number(req.body.action);
             if (keywordId > 0 && Object.values(KeywordTimerAction).includes(action)) {
                 timer.setAction(keywordId, action);
                 res.status(200).json(true);

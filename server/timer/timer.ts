@@ -59,19 +59,20 @@ export class Timer {
                 if (action == KeywordTimerAction.Block) {
                     this.db.keywordQuery.setIsActive(Number(id), 1);
                 }
-                let router = await new RouterProvider(await this.db.settingQuery.getRouterOptions())
-                    .savedRouter(await this.db.settingQuery.getString(SettingKey.routerModel));
-                if (router == null) {
-                    console.error("router not found");
-                }
-                else {
-                    this.db.getAllBlockedIPsAndPorts()
-                        .then((ipsAndPorts) =>
-                            router?.applyBlockedIPsAndPorts(ipsAndPorts,
-                                    (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
-                                ));
-                }
             }
+        }
+        
+        let router = await new RouterProvider(await this.db.settingQuery.getRouterOptions())
+            .savedRouter(await this.db.settingQuery.getString(SettingKey.routerModel));
+        if (router == null) {
+            console.error("router not found");
+        }
+        else {
+            this.db.getAllBlockedIPsAndPorts()
+                .then((ipsAndPorts) =>
+                    router?.applyBlockedIPsAndPorts(ipsAndPorts,
+                            (message: string, isSuccess: boolean) => Progress.update(nonce, isSuccess, message),
+                        ));
         }
         this.epochLastApplied = new Date().valueOf();
     }

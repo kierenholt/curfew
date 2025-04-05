@@ -38,8 +38,8 @@
 
     cd pico_build
     mkdir -p ../server/bin/cert
-    cp localhost_cert.pem ../server/bin/cert
-    cp localhost_key.pem ../server/bin/cert
+    cp localhost_cert.pem ../server/bin/cert/
+    cp localhost_key.pem ../server/bin/cert/
     cd ..
 
 ## env settings

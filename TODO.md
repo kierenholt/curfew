@@ -31,3 +31,9 @@ POST check - check dependencies etc.
 disable inactivity timer when the progress modal is showing
 the pageContent params are a mess
 disables upnp (if port not blockable)
+
+## ideas
+any keywords get reported to clients dns as 192.168.x.x - a second ethernet interface
+the interface listens raw i.e. all ports
+forwards all packets when keyword not blocked. only reads the port / ip, does basic NAT
+drops all packets when keywords is blocked. does not need to read the packets

@@ -9,21 +9,21 @@ get offset and byte count of the rootfs volume
 copy the sd rootfs partition to file (replace the skip and count arguments)
     sudo dd if=/dev/sdb of=/home/kieren/Documents/typescript/curfew-images/rootfs.img bs=64K skip=839680000 count=6442450944 iflag=skip_bytes,count_bytes conv=noerror,sync
 
-## INSERT SD CARD THEN MOUNT DISK IMAGE FOR EDITING FILES
+## MOUNT DISK IMAGE FOR EDITING FILES
 find unused loop device
     losetup -f
 or unmount previous
-    loopName=/dev/loop14
+bind the device to the image
+    loopName=/dev/loop3
     sudo umount $loopName
     sudo losetup -d $loopName
-bind the device to the image
-    sudo losetup $loopNa39/me /home/kieren/Documents/typescript/curfew-images/rootfs.img
+    sudo losetup $loopName /home/kieren/Documents/typescript/curfew-images/rootfs.img
 image wil be mounted in /dev/curfew as a virtual directory
 
 ## copy build files to mounted rootfs image
 
     cd server
-    dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew/server
+    dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew-app-build
     mkdir -p $dest/bin
     cp -r bin/* $dest/bin/
     mkdir -p $dest/node_modules
@@ -33,7 +33,7 @@ image wil be mounted in /dev/curfew as a virtual directory
 
 # copy env
     cd server
-    dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew/server
+    dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew-app-build
     cp .env $dest
     sync
     cd ..
