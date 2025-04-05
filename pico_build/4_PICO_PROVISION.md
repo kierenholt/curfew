@@ -26,9 +26,9 @@ clone git then build server locally
     cd ../..
 
 copy builds
-    cp -r curfew-server-build/server/bin curfew/server/bin
-    cp -r curfew-app-build/server/bin/cert curfew/server/bin/cert
-    cp -r curfew-app-build/server/bin/app curfew/server/bin/app
+    cp -rf curfew-server-build/server/bin/* curfew/server/bin/
+    cp -rf curfew-app-build/server/bin/cert/* curfew/server/bin/cert/
+    cp -rf curfew-app-build/server/bin/app/* curfew/server/bin/app/
     cp curfew-app-build/server/.env curfew/server/.env
     
 run it

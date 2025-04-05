@@ -2,7 +2,7 @@
 
 ## MAKE IMAGE FILE FROM SD CARD ROOTFS PARTITION
 list devices to find sd card
-    sudo blkid /dev/sd*
+    sudo lshw -C disk
 get offset and byte count of the rootfs volume
     cd deploy
     sudo python3 flash.py read-env
@@ -14,7 +14,7 @@ find unused loop device
     losetup -f
 or unmount previous
 bind the device to the image
-    loopName=/dev/loop3
+    loopName=/dev/loop14
     sudo umount $loopName
     sudo losetup -d $loopName
     sudo losetup $loopName /home/kieren/Documents/typescript/curfew-images/rootfs.img
@@ -22,15 +22,12 @@ image wil be mounted in /dev/curfew as a virtual directory
 
 ## copy build files to mounted rootfs image
 
-    cd server
-    dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew-app-build
-    mkdir -p $dest/bin
-    cp -r bin/* $dest/bin/
-    mkdir -p $dest/node_modules
-    cp -r node_modules/* $dest/node_modules/
+    dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew-app-build/server
+    rm -rf $dest
+    mkdir $dest
+    cp -rf server/* $dest/
     sync
-    cd ..
-
+ 
 # copy env
     cd server
     dest=/media/kieren/a5441bd8-8cf3-43f5-906c-d6fb2004a1a1/home/pico/curfew-app-build
@@ -41,8 +38,7 @@ image wil be mounted in /dev/curfew as a virtual directory
 ## NOW RE-RUN FLASH.PY TO COPY UPDATED ROOTFS TO SD
 
 list devices to find sd card
-    lshw -C disk
-    sudo blkid /dev/sd*
+    sudo lshw -C disk
 make sure device and path are correct in flash.py
 run flash.py
     cd pico_build
