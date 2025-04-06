@@ -30,7 +30,7 @@ POST check - check dependencies etc.
 ## low priority
 disable inactivity timer when the progress modal is showing
 the pageContent params are a mess
-disables upnp (if port not blockable)
+disables udp (if port not blockable)
 
 ## ideas
 any keywords get reported to clients dns as 192.168.x.x - a second ethernet interface

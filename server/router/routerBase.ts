@@ -29,7 +29,7 @@ export abstract class RouterBase {
         console.log("✓ success");
     }
 
-    async applyBlockedIPsAndPorts(ipAndPorts: [string[], number[]], 
+    async applyBlockedIPsAndPorts(ipAndPorts: [string[], [number, number][]], 
         updateProgress: (message: string, isSuccess: boolean) => void = () => null): Promise<void> {
         await this.deleteAllFilters();
         let [ips, ports] = ipAndPorts;

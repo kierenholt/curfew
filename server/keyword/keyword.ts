@@ -3,14 +3,14 @@ export class Keyword {
     id: number;
     name: string;
     expression: string;
-    ports: string;
+    allPortRanges: string;
     isActive: number;
     
     constructor(id: number, name: string, expression: string, ports: string, isActive: number) {
         this.id = id;
         this.name = name;
         this.expression = expression;
-        this.ports = ports;
+        this.allPortRanges = ports;
         this.isActive = isActive;
     }
         
@@ -21,9 +21,21 @@ export class Keyword {
         return this.expression.split(",");
     }
 
-    get portsArray(): number[] {
-        if (this.ports) return this.ports.split(",").map(p => Number(p));
-        return [];
+    get portsArray(): [number, number][] {
+        let ret: [number, number][] = [];
+        if (this.allPortRanges) {
+            let rangeStrings = this.allPortRanges.split(",");
+            for (let rangeString of rangeStrings) {
+                if (rangeString.indexOf("-") != -1) { //no dash -  single port
+                   ret.push([Number(rangeString), Number(rangeString)]);
+                }
+                else { //port range
+                    let splByDash = rangeString.split("-");
+                    ret.push([Number(splByDash[0]), Number(splByDash[1])]);
+                }
+            }
+        }
+        return ret;
     }
     
     blocksDomain(domain: string) {

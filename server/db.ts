@@ -73,9 +73,9 @@ export class CurfewDb {
         })
     }
 
-    async getAllBlockedIPsAndPorts(): Promise<[string[], number[]]> {
+    async getAllBlockedIPsAndPorts(): Promise<[string[], [number, number][]]> {
         let ips: string[] = [];
-        let ports: number[] = [];
+        let ports: [number, number][] = [];
         let terms = await this.keywordQuery.getAllActive();
         for (let t of terms) {
             for (let n of t.needles) {

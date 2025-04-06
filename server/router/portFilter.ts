@@ -1,15 +1,15 @@
 import { IEquals } from "../utility/helpers";
 
 export class PortFilter implements IEquals<PortFilter> {
-    port: number;
+    ports: [number, number];
     index: string;
     
-    constructor(index: string, port: number) {
+    constructor(index: string, ports: [number, number]) {
         this.index = index;
-        this.port = port;
+        this.ports = ports;
     }
 
     equals(other: PortFilter): boolean {
-        return this.port == other.port;
+        return other instanceof PortFilter && this.ports[0] == other.ports[0] && this.ports[1] == other.ports[1];
     }
 }

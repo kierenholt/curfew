@@ -82,14 +82,8 @@ export class VirginRouter extends RouterBase {
                 OidType.Action, OidType.RowStatus
                 ];
                 let values: string[] = ["1", "1", "3",
-                    "1", 
-                    "%24" + this.fullNetworkAsHex,
-                    "%24" + this.fullNetworkAsHex,
-                    "0",
-                    "2", 
-                    "%24" + filter.dest.toHex(), 
-                    "%2400000000", 
-                    "0",
+                    "1", "%24" + this.fullNetworkAsHex, "%24" + this.fullNetworkAsHex, "0",
+                    "2", "%24" + filter.dest.toHex(), "%2400000000", "0",
                     "", "", 
                     "", "",
                     "1", OidEnabledType.Enabled
@@ -97,23 +91,18 @@ export class VirginRouter extends RouterBase {
                 return this.setBulkOidTypes(types, values, filter.index);
         }
         if (filter instanceof PortFilter) {
-            let types = [OidType.IpVer, OidType.Direction, OidType.ProtoType,
-                OidType.SrcRange, OidType.SrcStartAddr, OidType.SrcEndAddr, OidType.SrcPrefixLen,
+            let types = [OidType.IpVer, OidType.Direction, OidType.ProtoType, 
+                OidType.SrcRange, OidType.SrcStartAddr, OidType.SrcEndAddr, OidType.SrcPrefixLen, 
                 OidType.DstRange, OidType.DstStartAddr, OidType.DstEndAddr, OidType.DstPrefixLen,
-                OidType.SrcPortStart, OidType.SrcPortEnd, OidType.DstPortStart, OidType.DstPortEnd,
+                OidType.SrcPortStart, OidType.SrcPortEnd, 
+                OidType.DstPortStart, OidType.DstPortEnd,
                 OidType.Action, OidType.RowStatus
                 ];
-                let values: string[] = ["1", "1", 
-                    "2", "1",
-                    "%24" + this.fullNetworkAsHex,
-                    "%24" + this.fullNetworkAsHex,
-                    "0",
-                    "1",
-                    "undefined",
-                    "undefined",
-                    "0",
+                let values: string[] = ["1", "1", "0", 
+                    "1", "%24" + this.fullNetworkAsHex, "%24" + this.fullNetworkAsHex, "0",
+                    "1", "undefined", "undefined", "0",
                     "1", "65535",
-                    filter.port.toString(), filter.port.toString(),
+                    filter.ports[0].toString(), filter.ports[1].toString(),
                     "1", OidEnabledType.Enabled
                 ];
                 return this.setBulkOidTypes(types, values, filter.index);
@@ -251,9 +240,10 @@ export class VirginRouter extends RouterBase {
                 ret.push(new IPFilter(key, IPAddress.fromHex(trimmedDest)));
             }
             
-            let port = obj[OidType.DstPortStart];
-            if (Number(port) > 0) {
-                ret.push(new PortFilter(key, port));
+            let startPort = Number(obj[OidType.DstPortStart]);
+            let endPort = Number(obj[OidType.DstPortEnd]);
+            if (startPort > 0 && endPort > 0) {
+                ret.push(new PortFilter(key, [startPort, endPort]));
             }
         }
         return ret;

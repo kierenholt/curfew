@@ -11,6 +11,6 @@ export class IPFilter implements IEquals<IPFilter> {
     }
 
     equals(other: IPFilter): boolean {
-        return this.dest.equals(other.dest);
+        return other instanceof IPFilter && this.dest.equals(other.dest);
     }
 }
