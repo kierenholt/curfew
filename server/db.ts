@@ -82,7 +82,7 @@ export class CurfewDb {
                 let matchingDomains = await this.dnsResponseQuery.getDomainsContaining(n);
                 ips.push(...matchingDomains.map(d => d.ip));
             }
-            ports.push(...t.portsArray);
+            if (t.portsArray) ports.push(...t.portsArray);
         }
         return [Helpers.removeDuplicates(ips), Helpers.removeDuplicates(ports)];
     }

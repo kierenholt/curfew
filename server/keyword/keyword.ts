@@ -26,7 +26,7 @@ export class Keyword {
         if (this.allPortRanges) {
             let rangeStrings = this.allPortRanges.split(",");
             for (let rangeString of rangeStrings) {
-                if (rangeString.indexOf("-") != -1) { //no dash -  single port
+                if (rangeString.indexOf("-") == -1) { //no dash -  single port
                    ret.push([Number(rangeString), Number(rangeString)]);
                 }
                 else { //port range
