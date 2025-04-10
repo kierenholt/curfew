@@ -60,4 +60,15 @@ export class DnsResponseQuery {
         `)
             .then((result: RunResult) => result.changes);
     }
+
+    getAll(): Promise<DnsResponse[]> {
+        return this.connection.all(`
+            select * from dnsResponse
+        `)
+            .then((result: any) => result.map((r: any) => new DnsResponse(
+                r.domain,
+                r.ip,
+                r.createdOn,
+                r.requesterIp)))
+    }
 }

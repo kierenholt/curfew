@@ -4,6 +4,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import TimerIcon from '@mui/icons-material/Timer';
 import { IconButton, Stack } from "@mui/joy";
 import AppBlockingIcon from '@mui/icons-material/AppBlocking';
+import DnsIcon from '@mui/icons-material/Dns';
 
 export function TopNav() {
 
@@ -25,6 +26,11 @@ export function TopNav() {
                 onClick={() => { pageContext.goTo(CurrentPage.manageSettings) }} 
                 variant={pageContext.current == CurrentPage.manageSettings ? "solid" : "plain"}>
                 <SettingsIcon />
+            </IconButton >
+            <IconButton sx={{marginLeft:"auto"}} 
+                onClick={() => { pageContext.goTo(CurrentPage.dnsResponses) }} 
+                variant={pageContext.current == CurrentPage.dnsResponses ? "solid" : "plain"}>
+                <DnsIcon />
             </IconButton >
         </Stack>
     )

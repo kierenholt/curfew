@@ -1,7 +1,7 @@
 import { AsyncDatabase } from "promised-sqlite3";
 import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
 import { SettingQuery as SettingQuery } from "./settings/settingQuery";
-import { DnsResponseQuery } from "./dnsResponse/dnsResponseDb";
+import { DnsResponseQuery } from "./dnsResponse/dnsResponseQuery";
 import { KeywordQuery } from "./keyword/keywordQuery";
 import { Helpers } from "./utility/helpers";
 

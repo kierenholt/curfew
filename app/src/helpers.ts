@@ -176,4 +176,11 @@ export class Helpers {
     static createNonce(): number {
         return Math.ceil(Math.random() * 100000);
     }
+
+    static pushIfNotExists<T>(item: T, arr: T[]) {
+        let exists = arr.indexOf(item) != -1;
+        if (!exists) {
+            arr.push(item);
+        }
+    }
 }

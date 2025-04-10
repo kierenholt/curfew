@@ -6,6 +6,7 @@ import { EditSettingPage } from '../settings/editSettingPage';
 import { TopNav } from '../navigation/topNav';
 import { CreateKeywordPage } from '../keywords/createKeyword';
 import { TimerPage } from '../timer/timerPage';
+import { DnsResponsesPage } from '../dnsResponse/dnsResponsesPage';
 
 export enum CurrentPage {
     keywords = 0,
@@ -14,6 +15,7 @@ export enum CurrentPage {
     editSetting = 3,
     createKeyword = 4,
     timer = 5,
+    dnsResponses = 6,
 }
 
 interface SetPageAction {
@@ -60,6 +62,7 @@ export const PageSelector = () => {
                     <CreateKeywordPage onCreated={() => setCurrent(CurrentPage.keywords)}
                         createKeywordId={params.createKeywordId} />,
                     <TimerPage />,
+                    <DnsResponsesPage />
                     
                 ][current]
             }
