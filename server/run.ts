@@ -9,8 +9,9 @@ import { RouterProvider } from "./router/routerProvider";
 import { Jobs } from "./utility/jobs";
 import { Setup } from "./setup/setup";
 import { checkEnv } from "./utility/checkEnv";
-import { SettingKey } from "./settings/setting";
+import { SettingKey } from "./settings/types";
 import { checkDns } from "./utility/checkDns";
+import { DbMigration } from "./version/migrate";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ async function run() {
     await checkDns();
     
     let db = await CurfewDb.init();
+    await new DbMigration(db).updateToLatest();
 
     if (await db.settingQuery.needsSetup()) {
         await new Setup(db).init();

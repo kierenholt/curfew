@@ -2,7 +2,7 @@ import { Express, Request, Response } from 'express';
 import { NetPlan } from '../net/netplan';
 import { IscDhcp } from '../net/dhcp';
 import { CurfewDb } from '../db';
-import { SettingKey } from './setting';
+import { SettingKey } from './types';
 import { hardReset, shutdown } from '../reset';
 
 export class SettingApi {

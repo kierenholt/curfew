@@ -8,10 +8,10 @@ export class Jobs {
     //https://crontab.guru/examples.html
 
     static async start(db: CurfewDb) {
-        await db.dnsResponseQuery.deleteOlderThan1Hour();
+        await db.dnsQuery.deleteResponsesOlderThan1Hour();
 
         cron.schedule('0 * * * *', async () => { //every hour
-            db.dnsResponseQuery.deleteOlderThan1Hour();
+            db.dnsQuery.deleteResponsesOlderThan1Hour();
         });
     }
 }

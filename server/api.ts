@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { SettingApi } from './settings/settingApi';
-import { DnsResponseApi } from './dnsResponse/dnsResponseApi';
+import { DnsApi } from './dnsResponse/dnsApi';
 import { KeywordApi } from './keyword/keywordApi';
 import { ProgressApi } from './progress/progressApi';
 import { CurfewDb } from './db';
@@ -45,7 +45,7 @@ export class API {
         
         SettingApi.init(app, db);
         SetupApi.init(app, setup);
-        DnsResponseApi.init(app, db);
+        DnsApi.init(app, db);
         KeywordApi.init(app, db);
         ProgressApi.init(app);
         TimerApi.init(app, db);

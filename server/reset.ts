@@ -2,7 +2,7 @@ import { CurfewDb } from "./db";
 import { IscDhcp } from "./net/dhcp";
 import { RouterBase } from "./router/routerBase";
 import { ModelName, RouterProvider } from "./router/routerProvider";
-import { SettingKey } from "./settings/setting";
+import { SettingKey } from "./settings/types";
 
 export async function hardReset(db: CurfewDb) {
     //ATTEMPT TO RE-ENABLE DHCP ON ROUTER AND STOP ISC DHCP

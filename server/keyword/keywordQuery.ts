@@ -75,8 +75,8 @@ export class KeywordQuery {
     getById(id: number): Promise<Keyword | null> {
         return this.connection.get(`
             select * from searchTerm
-            where id=${id}
-        `)
+            where id=?
+        `, id)
         .then((result: any) => result ? new Keyword(
             result.id,
             result.name, 

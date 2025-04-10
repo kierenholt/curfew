@@ -3,7 +3,7 @@ import { CurfewDb } from "../db";
 import { IscDhcp } from "../net/dhcp";
 import { NetPlan } from "../net/netplan";
 import { ModelName, RouterOptions, RouterProvider } from "../router/routerProvider";
-import { SettingKey } from "../settings/setting";
+import { SettingKey } from "../settings/types";
 import { Helpers } from "../utility/helpers";
 
 export class Setup {

@@ -2,7 +2,7 @@ import { Express, Request, Response } from 'express';
 import { Progress } from '../progress/progress';
 import { CurfewDb } from '../db';
 import { RouterProvider } from '../router/routerProvider';
-import { Setting, SettingKey } from '../settings/setting';
+import { Setting, SettingKey } from '../settings/types';
 
 export class KeywordApi {
     static init(app: Express, db: CurfewDb) {

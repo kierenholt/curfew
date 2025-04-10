@@ -2,7 +2,7 @@ import { CurfewDb } from "../db";
 import { Keyword } from "../keyword/keyword";
 import { Progress } from "../progress/progress";
 import { RouterProvider } from "../router/routerProvider";
-import { SettingKey } from "../settings/setting";
+import { SettingKey } from "../settings/types";
 
 //needs to be the same as app
 export enum KeywordTimerAction {

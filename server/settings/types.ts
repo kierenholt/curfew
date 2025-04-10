@@ -10,21 +10,13 @@ export enum SettingKey {
     dhcpMaxHost = 7, //last octet
     upstreamDnsServer = 8,
     routerModel = 9, //string e.g. virgin hub 3
+    dbVersion = 10, //string
 }
 
-export class Setting {
-
+export interface Setting {
     key: SettingKey;
     value: string;
     label: string;
     description: string;
     warningMessage: string;
-
-    constructor(key: number, value: string, label: string, description: string, warningMessage: string) {
-        this.key = key as SettingKey;
-        this.value = value;
-        this.label = label;
-        this.description = description;
-        this.warningMessage = warningMessage;
-    }
 }

@@ -1,7 +1,7 @@
 import { AsyncDatabase } from "promised-sqlite3";
 import { Database, OPEN_READWRITE, RunResult } from "sqlite3";
 import { SettingQuery as SettingQuery } from "./settings/settingQuery";
-import { DnsResponseQuery } from "./dnsResponse/dnsResponseQuery";
+import { DnsQuery } from "./dnsResponse/dnsQuery";
 import { KeywordQuery } from "./keyword/keywordQuery";
 import { Helpers } from "./utility/helpers";
 
@@ -15,12 +15,12 @@ export class CurfewDb {
     }
 
     get settingQuery() { return new SettingQuery(this.connection); }
-    get dnsResponseQuery() { return new DnsResponseQuery(this.connection); }
+    get dnsQuery() { return new DnsQuery(this.connection); }
     get keywordQuery() { return new KeywordQuery(this.connection); }
 
     static async createTables(connection: AsyncDatabase) {
         await new SettingQuery(connection).createTable();
-        await new DnsResponseQuery(connection).createTable();
+        await new DnsQuery(connection).createTable();
         await new KeywordQuery(connection).createTable();
     }
     
@@ -79,7 +79,7 @@ export class CurfewDb {
         let terms = await this.keywordQuery.getAllActive();
         for (let t of terms) {
             for (let n of t.needles) {
-                let matchingDomains = await this.dnsResponseQuery.getDomainsContaining(n);
+                let matchingDomains = await this.dnsQuery.getRequestedDomainsContaining(n);
                 ips.push(...matchingDomains.map(d => d.ip));
             }
             if (t.portsArray) ports.push(...t.portsArray);
@@ -94,7 +94,7 @@ export class CurfewDb {
             return [];
         }
         for (let n of keyword.needles) {
-            let matchingDomains = await this.dnsResponseQuery.getDomainsContaining(n);
+            let matchingDomains = await this.dnsQuery.getRequestedDomainsContaining(n);
             ips.push(...matchingDomains.map(d => d.ip));
         }
         return Helpers.removeDuplicates(ips);

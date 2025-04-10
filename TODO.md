@@ -6,7 +6,6 @@
 
  
 ## new features
-recent requests page - shows number of requests, last requested -  sort by time or recency - group by domain - button to hide, button to add filter,
 app test suite for router - offline and online
 https://stackoverflow.com/questions/8817500/how-to-make-sure-that-a-certain-port-is-not-occupied-by-any-other-process
 when you change the host setting, it should restart

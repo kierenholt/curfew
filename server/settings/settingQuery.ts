@@ -1,10 +1,11 @@
 import { AsyncDatabase } from "promised-sqlite3";
 import { RunResult } from "sqlite3";
-import { Setting, SettingKey } from "./setting";
+import { Setting, SettingKey } from "./types";
 import { ModelName, RouterOptions } from "../router/routerProvider";
 import { Helpers } from "../utility/helpers";
 import { IscDhcpOptions } from "../net/dhcp";
 import { NetPlanOptions } from "../net/netplan";
+import { DbMigration } from "../version/migrate";
 
 export class SettingQuery {
 
@@ -38,6 +39,7 @@ export class SettingQuery {
         await this.create(SettingKey.dhcpMaxHost, process.env.DEFAULT_DHCP_MAX_HOST as string, "DHCP max ip (last octet)", "upper end of the range of ip addresses offered by DHCP (last octet only)", "");
         await this.create(SettingKey.upstreamDnsServer, process.env.DEFAULT_DNS_SERVER as string, "upstream DNS server", "IP address of a DNS server", "");
         await this.create(SettingKey.routerModel, ModelName.None, "active router", "the router model that was detected on your network", "");
+        await this.create(SettingKey.dbVersion, DbMigration.latestVersion, "db version", "", "");
     }
 
     async create(key: SettingKey, value: string, label: string, description: string, warningMessage: string): Promise<number> {
@@ -97,12 +99,7 @@ export class SettingQuery {
             select * from setting
             where key=?
         `, [key.valueOf()])
-            .then((result: any) => result ? new Setting(
-                result.key,
-                result.value,
-                result.label,
-                result.description,
-                result.warningMessage) : null);
+            .then((result: any) => result as Setting);
     }
 
     getAll(): Promise<SettingQuery[]> {
@@ -110,12 +107,7 @@ export class SettingQuery {
             select * from setting
             order by key asc
         `)
-            .then((result: any) => result.map((r: any) => new Setting(
-                r.key,
-                r.value,
-                r.label,
-                r.description, 
-                result.warningMessage)))
+            .then((result: any) => result.map((r: any) => r as Setting))
     }
 
     async getRouterOptions(): Promise<RouterOptions> {

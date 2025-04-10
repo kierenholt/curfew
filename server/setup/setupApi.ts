@@ -1,7 +1,7 @@
 import { Express, Request, Response } from 'express';
 import { RouterProvider } from '../router/routerProvider';
 import { Setup } from './setup';
-import { SettingKey } from '../settings/setting';
+import { SettingKey } from '../settings/types';
 
 
 export class SetupApi {

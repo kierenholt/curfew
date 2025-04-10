@@ -6,7 +6,7 @@ import { RedirectDestination, Redirector } from "./redirector";
 import { ReturnCode } from "./header";
 import { RecordType } from "./question";
 import { CurfewDb } from "../db";
-import { SettingKey } from "../settings/setting";
+import { SettingKey } from "../settings/types";
 import { Helpers } from "../utility/helpers";
 
 export class DnsServer {
@@ -110,7 +110,7 @@ export class DnsServer {
 
                             let IP = responsePacket.findARecord();
                             if (responsePacket.questions.length > 0 && IP != null)
-                                db.dnsResponseQuery.create(
+                                db.dnsQuery.createResponse(
                                     responsePacket.questions[0].domainName.name,
                                     IP,
                                     new Date().valueOf(),
