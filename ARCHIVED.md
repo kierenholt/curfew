@@ -25,3 +25,6 @@ https://opensource.rock-chips.com/wiki_Boot_option
 
 ## different kernel? ROCKCHIP KERNEL REPO
 git clone https://github.com/rockchip-linux/kernel.git
+
+# libpcap
+https://www.nuget.org/packages/SharpPcap

@@ -1,0 +1,15 @@
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/gateway.GeneratedMSBuildEditorConfig.editorconfig
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/gateway.AssemblyInfoInputs.cache
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/gateway.AssemblyInfo.cs
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/gateway.csproj.CoreCompileInputs.cache
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/gateway.sourcelink.json
+/home/kieren/Documents/typescript/curfew/gateway/bin/Debug/net8.0/gateway
+/home/kieren/Documents/typescript/curfew/gateway/bin/Debug/net8.0/gateway.deps.json
+/home/kieren/Documents/typescript/curfew/gateway/bin/Debug/net8.0/gateway.runtimeconfig.json
+/home/kieren/Documents/typescript/curfew/gateway/bin/Debug/net8.0/gateway.dll
+/home/kieren/Documents/typescript/curfew/gateway/bin/Debug/net8.0/gateway.pdb
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/gateway.dll
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/refint/gateway.dll
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/gateway.pdb
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/gateway.genruntimeconfig.cache
+/home/kieren/Documents/typescript/curfew/gateway/obj/Debug/net8.0/ref/gateway.dll
